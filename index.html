@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <!-- viewport-fit=cover: prepara la app para pantallas con notch/gestos, aunque hoy no lo usemos -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1D4F4F">
+  <title>Estudiante de Enfermería</title>
+
+  <!-- El manifest y los iconos se añaden en el Módulo 3 (PWA/offline) -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ==================== HEADER FIJO ==================== -->
+  <header class="app-header">
+    <h1 class="app-header__title" id="vista-titulo">Inicio</h1>
+    <span class="app-header__badge" id="estado-conexion" aria-live="polite">Sin conexión</span>
+  </header>
+
+  <!-- ==================== CONTENEDOR PRINCIPAL ====================
+       El router (app.js) muestra/oculta las <section> según la pestaña activa.
+       No usamos innerHTML dinámico todavía: cada vista ya vive en el DOM,
+       lo cual es más simple de depurar en esta fase inicial. -->
+  <main class="app-main" id="app">
+
+    <!-- ---------- VISTA: INICIO ---------- -->
+    <section class="vista" id="vista-inicio" data-vista>
+      <p class="vista__intro">
+        Herramientas de estudio y cálculo clínico para tu primer semestre.
+        Todo funciona sin conexión a internet.
+      </p>
+
+      <div class="card-grid">
+        <a class="card" href="#" data-ir-a="practico">
+          <span class="card__icono" aria-hidden="true">💉</span>
+          <span class="card__texto">
+            <strong>Módulo Práctico</strong>
+            <small>Goteo, conversor de unidades y dosificación</small>
+          </span>
+        </a>
+
+        <a class="card" href="#" data-ir-a="teorico">
+          <span class="card__icono" aria-hidden="true">🦴</span>
+          <span class="card__texto">
+            <strong>Módulo Teórico</strong>
+            <small>Flashcards de Morfología y calculadoras de Nutrición</small>
+          </span>
+        </a>
+
+        <a class="card card--deshabilitada" href="#" aria-disabled="true">
+          <span class="card__icono" aria-hidden="true">⚙️</span>
+          <span class="card__texto">
+            <strong>Ajustes e instalación</strong>
+            <small>Disponible en el Módulo 3</small>
+          </span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ---------- VISTA: MÓDULO PRÁCTICO (Enfermería Básica) ---------- -->
+    <section class="vista" id="vista-practico" data-vista hidden>
+      <p class="vista__intro">
+        Herramientas de cálculo clínico. Cada resultado incluye el desglose
+        del procedimiento para que entiendas el porqué, no solo el número.
+      </p>
+
+      <!-- ---------- Calculadora de goteo (macro/microgotero) ---------- -->
+      <div class="tool-card">
+        <h2 class="tool-card__titulo">Calculadora de goteo</h2>
+
+        <div class="campo">
+          <span class="campo__label" id="label-tipo-equipo">Tipo de equipo</span>
+          <div class="segmented" role="radiogroup" aria-labelledby="label-tipo-equipo">
+            <button type="button" class="segmented__opcion" data-tipo-equipo="macro" aria-pressed="true">Macrogotero</button>
+            <button type="button" class="segmented__opcion" data-tipo-equipo="micro" aria-pressed="false">Microgotero</button>
+          </div>
+        </div>
+
+        <div class="campo" id="campo-factor-macro">
+          <label class="campo__label" for="select-factor-macro">Factor del equipo (revisa el empaque)</label>
+          <select class="campo__select" id="select-factor-macro">
+            <option value="10">10 gtt/ml</option>
+            <option value="15">15 gtt/ml</option>
+            <option value="20" selected>20 gtt/ml</option>
+          </select>
+        </div>
+
+        <p class="campo__nota" id="nota-factor-micro" hidden>
+          El microgotero siempre usa <strong>60 gtt/ml</strong> — es un estándar fijo, no varía por fabricante.
+        </p>
+
+        <div class="campo">
+          <label class="campo__label" for="input-volumen">Volumen a infundir</label>
+          <div class="campo__con-sufijo">
+            <input class="campo__input" type="number" id="input-volumen" inputmode="decimal" min="0" step="0.1" placeholder="Ej. 500">
+            <span class="campo__sufijo">ml</span>
+          </div>
+        </div>
+
+        <div class="campo">
+          <span class="campo__label" id="label-tiempo">Tiempo de infusión</span>
+          <div class="campo__fila">
+            <div class="campo__con-sufijo campo__con-sufijo--flex">
+              <input class="campo__input" type="number" id="input-tiempo" inputmode="decimal" min="0" step="0.1" placeholder="Ej. 8">
+              <span class="campo__sufijo" id="sufijo-tiempo">h</span>
+            </div>
+            <div class="segmented segmented--compacto" role="radiogroup" aria-labelledby="label-tiempo">
+              <button type="button" class="segmented__opcion" data-unidad-tiempo="horas" aria-pressed="true">Horas</button>
+              <button type="button" class="segmented__opcion" data-unidad-tiempo="minutos" aria-pressed="false">Minutos</button>
+            </div>
+          </div>
+        </div>
+
+        <button class="boton-primario" id="btn-calcular-goteo" type="button">Calcular</button>
+
+        <p class="campo__error" id="error-goteo" hidden></p>
+
+        <div class="resultado" id="resultado-goteo" hidden>
+          <p class="resultado__cifra"><span id="resultado-valor">0</span> <small>gotas/min</small></p>
+          <div class="resultado__desglose" id="desglose-goteo"></div>
+        </div>
+      </div>
+
+      <!-- ---------- Conversor de unidades (masa y volumen) ---------- -->
+      <div class="tool-card">
+        <h2 class="tool-card__titulo">Conversor de unidades</h2>
+
+        <div class="campo">
+          <span class="campo__label" id="label-categoria-conversor">Tipo de unidad</span>
+          <div class="segmented" role="radiogroup" aria-labelledby="label-categoria-conversor">
+            <button type="button" class="segmented__opcion" data-categoria-conversor="masa" aria-pressed="true">Masa</button>
+            <button type="button" class="segmented__opcion" data-categoria-conversor="volumen" aria-pressed="false">Volumen</button>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label class="campo__label" for="input-valor-conversor">Valor a convertir</label>
+          <input class="campo__input" type="number" id="input-valor-conversor" inputmode="decimal" step="any" placeholder="Ej. 500">
+        </div>
+
+        <div class="campo campo__fila">
+          <div class="campo__col">
+            <label class="campo__label" for="select-unidad-desde">De</label>
+            <select class="campo__select" id="select-unidad-desde"></select>
+          </div>
+          <div class="campo__col">
+            <label class="campo__label" for="select-unidad-hasta">A</label>
+            <select class="campo__select" id="select-unidad-hasta"></select>
+          </div>
+        </div>
+
+        <button class="boton-primario" id="btn-convertir" type="button">Convertir</button>
+
+        <p class="campo__error" id="error-conversor" hidden></p>
+
+        <div class="resultado" id="resultado-conversor" hidden>
+          <p class="resultado__cifra">
+            <span id="resultado-conversor-valor">0</span> <small id="resultado-conversor-unidad"></small>
+          </p>
+          <div class="resultado__desglose" id="desglose-conversor"></div>
+        </div>
+      </div>
+
+      <div class="placeholder-tool">
+        <p><strong>Regla de tres para dosificación</strong> — próxima función.</p>
+      </div>
+    </section>
+
+    <!-- ---------- VISTA: MÓDULO TEÓRICO (Morfología + Nutrición) ---------- -->
+    <section class="vista" id="vista-teorico" data-vista hidden>
+      <p class="vista__intro">
+        Repasa Morfología con fichas de estudio y resuelve cálculos rápidos
+        de Nutrición y Dietética.
+      </p>
+
+      <div class="placeholder-tool">
+        <p><strong>Flashcards de Morfología</strong> (planos, ejes, huesos) — próxima función.</p>
+      </div>
+      <div class="placeholder-tool">
+        <p><strong>IMC y requerimiento hídrico</strong> — próxima función.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== NAVEGACIÓN INFERIOR ====================
+       Fija al fondo, 4 pestañas, cada botón con área táctil ≥48px.
+       Es <nav> con <button>, no enlaces reales: no hay páginas distintas,
+       solo cambio de vista dentro de la misma app. -->
+  <nav class="bottom-nav" aria-label="Navegación principal">
+    <button class="bottom-nav__item" data-ir-a="inicio" aria-current="page">
+      <span class="bottom-nav__icono" aria-hidden="true">🏠</span>
+      <span class="bottom-nav__label">Inicio</span>
+    </button>
+    <button class="bottom-nav__item" data-ir-a="practico">
+      <span class="bottom-nav__icono" aria-hidden="true">💉</span>
+      <span class="bottom-nav__label">Práctico</span>
+    </button>
+    <button class="bottom-nav__item" data-ir-a="teorico">
+      <span class="bottom-nav__icono" aria-hidden="true">🦴</span>
+      <span class="bottom-nav__label">Teórico</span>
+    </button>
+    <button class="bottom-nav__item" data-ir-a="ajustes" disabled>
+      <span class="bottom-nav__icono" aria-hidden="true">⚙️</span>
+      <span class="bottom-nav__label">Ajustes</span>
+    </button>
+  </nav>
+
+  <script src="app.js"></script>
+  <script src="js/modules/goteo.js"></script>
+  <script src="js/modules/conversor-unidades.js"></script>
+</body>
+</html>
