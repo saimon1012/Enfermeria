@@ -390,6 +390,16 @@ a { color: inherit; text-decoration: none; }
   margin-bottom: var(--space-2);
 }
 
+/* Bloque de proporción cruzada (regla de tres): monoespaciada para que
+   las dos líneas alineen visualmente, como en el pizarrón del profesor */
+.regla-de-tres {
+  font-family: var(--font-mono);
+  background: var(--color-surface);
+  padding: var(--space-3);
+  border-radius: 8px;
+  line-height: 1.8;
+}
+
 .resultado__equivalente {
   font-weight: 600;
   color: var(--color-primary-dark);

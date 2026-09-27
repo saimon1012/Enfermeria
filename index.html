@@ -162,8 +162,72 @@
         </div>
       </div>
 
-      <div class="placeholder-tool">
-        <p><strong>Regla de tres para dosificación</strong> — próxima función.</p>
+      <!-- ---------- Regla de tres para dosificación (ampolla / tableta) ---------- -->
+      <div class="tool-card">
+        <h2 class="tool-card__titulo">Regla de tres para dosificación</h2>
+
+        <p class="campo__nota">
+          Todos los valores deben estar en la misma unidad (ej. mg). Si no,
+          conviértelos primero en el Conversor de unidades de arriba.
+        </p>
+
+        <div class="campo">
+          <span class="campo__label" id="label-tipo-dosificacion">Presentación del medicamento</span>
+          <div class="segmented" role="radiogroup" aria-labelledby="label-tipo-dosificacion">
+            <button type="button" class="segmented__opcion" data-tipo-dosificacion="ampolla" aria-pressed="true">Ampolla (líquido)</button>
+            <button type="button" class="segmented__opcion" data-tipo-dosificacion="tableta" aria-pressed="false">Tableta</button>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label class="campo__label" for="input-dosis-indicada">Dosis indicada (prescrita por el médico)</label>
+          <div class="campo__con-sufijo">
+            <input class="campo__input" type="number" id="input-dosis-indicada" inputmode="decimal" min="0" step="any" placeholder="Ej. 250">
+            <span class="campo__sufijo">mg</span>
+          </div>
+        </div>
+
+        <!-- Campos específicos de ampolla -->
+        <div id="bloque-ampolla">
+          <div class="campo campo__fila">
+            <div class="campo__col">
+              <label class="campo__label" for="input-dosis-disponible-amp">Dosis disponible</label>
+              <div class="campo__con-sufijo">
+                <input class="campo__input" type="number" id="input-dosis-disponible-amp" inputmode="decimal" min="0" step="any" placeholder="Ej. 500">
+                <span class="campo__sufijo">mg</span>
+              </div>
+            </div>
+            <div class="campo__col">
+              <label class="campo__label" for="input-volumen-disponible-amp">Volumen del frasco</label>
+              <div class="campo__con-sufijo">
+                <input class="campo__input" type="number" id="input-volumen-disponible-amp" inputmode="decimal" min="0" step="any" placeholder="Ej. 2">
+                <span class="campo__sufijo">ml</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Campos específicos de tableta -->
+        <div id="bloque-tableta" hidden>
+          <div class="campo">
+            <label class="campo__label" for="input-dosis-disponible-tab">Dosis por tableta</label>
+            <div class="campo__con-sufijo">
+              <input class="campo__input" type="number" id="input-dosis-disponible-tab" inputmode="decimal" min="0" step="any" placeholder="Ej. 500">
+              <span class="campo__sufijo">mg</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="boton-primario" id="btn-calcular-dosis" type="button">Calcular</button>
+
+        <p class="campo__error" id="error-dosis" hidden></p>
+
+        <div class="resultado" id="resultado-dosis" hidden>
+          <p class="resultado__cifra">
+            <span id="resultado-dosis-valor">0</span> <small id="resultado-dosis-unidad"></small>
+          </p>
+          <div class="resultado__desglose" id="desglose-dosis"></div>
+        </div>
       </div>
     </section>
 
@@ -210,5 +274,6 @@
   <script src="app.js"></script>
   <script src="js/modules/goteo.js"></script>
   <script src="js/modules/conversor-unidades.js"></script>
+  <script src="js/modules/dosificacion.js"></script>
 </body>
 </html>
