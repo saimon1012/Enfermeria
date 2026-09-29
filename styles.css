@@ -405,6 +405,80 @@ a { color: inherit; text-decoration: none; }
   color: var(--color-primary-dark);
 }
 
+/* ---------- 6g. FLASHCARDS ---------- */
+.flashcard__progreso {
+  font-size: var(--fs-xs);
+  color: var(--color-ink-muted);
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: var(--space-3);
+}
+
+.flashcard {
+  width: 100%;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+  margin-bottom: var(--space-3);
+  transition: transform 0.15s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.flashcard:active {
+  transform: scale(0.98);
+}
+
+/* Estado "mostrando respuesta": cambia de color para que el estudiante
+   note de un vistazo en qué cara de la ficha está, sin leer la etiqueta */
+.flashcard--respuesta {
+  background: var(--color-primary-soft);
+  border-color: var(--color-primary);
+}
+
+.flashcard__etiqueta {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}
+
+.flashcard__texto {
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.flashcard__pista {
+  font-size: var(--fs-xs);
+  color: var(--color-ink-muted);
+}
+
+.flashcard__controles {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.boton-secundario {
+  flex: 1;
+  min-height: var(--touch-min);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  background: var(--color-surface);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius);
+}
+
+.boton-secundario:active {
+  background: var(--color-primary-soft);
+}
+
 /* ---------- 7. NAVEGACIÓN INFERIOR ---------- */
 .bottom-nav {
   position: fixed;

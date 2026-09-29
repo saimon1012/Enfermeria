@@ -5,9 +5,11 @@
   <!-- viewport-fit=cover: prepara la app para pantallas con notch/gestos, aunque hoy no lo usemos -->
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#1D4F4F">
-  <title>Estudiante de Enfermería</title>
+  <title>Enfermería UNEFA · 1er Semestre</title>
 
-  <!-- El manifest y los iconos se añaden en el Módulo 3 (PWA/offline) -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -238,11 +240,79 @@
         de Nutrición y Dietética.
       </p>
 
-      <div class="placeholder-tool">
-        <p><strong>Flashcards de Morfología</strong> (planos, ejes, huesos) — próxima función.</p>
+      <div class="tool-card">
+        <h2 class="tool-card__titulo">Flashcards de Morfología</h2>
+        <p class="campo__nota">
+          Set inicial: planos anatómicos, ejes corporales, términos direccionales
+          y huesos principales. Si tu profesor pide otros temas, avísame y
+          actualizamos las fichas.
+        </p>
+
+        <p class="flashcard__progreso" id="flashcard-progreso">Ficha 1 de 18</p>
+
+        <button class="flashcard" id="flashcard" type="button" aria-live="polite">
+          <span class="flashcard__etiqueta" id="flashcard-etiqueta">Pregunta</span>
+          <span class="flashcard__texto" id="flashcard-texto"></span>
+          <span class="flashcard__pista" id="flashcard-pista">Toca para ver la respuesta</span>
+        </button>
+
+        <div class="flashcard__controles">
+          <button class="boton-secundario" id="btn-flashcard-anterior" type="button">← Anterior</button>
+          <button class="boton-secundario" id="btn-flashcard-siguiente" type="button">Siguiente →</button>
+        </div>
       </div>
-      <div class="placeholder-tool">
-        <p><strong>IMC y requerimiento hídrico</strong> — próxima función.</p>
+
+      <!-- ---------- Calculadoras de Nutrición (adulto / niño) ---------- -->
+      <div class="tool-card">
+        <h2 class="tool-card__titulo">Calculadoras de Nutrición</h2>
+
+        <div class="campo">
+          <span class="campo__label" id="label-grupo-nutri">Grupo de edad</span>
+          <div class="segmented" role="radiogroup" aria-labelledby="label-grupo-nutri">
+            <button type="button" class="segmented__opcion" data-grupo-nutri="adulto" aria-pressed="true">Adulto (18+)</button>
+            <button type="button" class="segmented__opcion" data-grupo-nutri="nino" aria-pressed="false">Niño</button>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label class="campo__label" for="input-peso-nutri">Peso</label>
+          <div class="campo__con-sufijo">
+            <input class="campo__input" type="number" id="input-peso-nutri" inputmode="decimal" min="0" step="any" placeholder="Ej. 70">
+            <span class="campo__sufijo">kg</span>
+          </div>
+        </div>
+
+        <div class="campo" id="campo-estatura-nutri">
+          <label class="campo__label" for="input-estatura-nutri">Estatura</label>
+          <div class="campo__con-sufijo">
+            <input class="campo__input" type="number" id="input-estatura-nutri" inputmode="decimal" min="0" step="any" placeholder="Ej. 170">
+            <span class="campo__sufijo">cm</span>
+          </div>
+        </div>
+
+        <p class="campo__nota" id="nota-nino-nutri" hidden>
+          En niños el IMC no se interpreta con rangos fijos: requiere percentiles
+          según edad y sexo. Por eso aquí solo se calcula el requerimiento hídrico.
+        </p>
+
+        <button class="boton-primario" id="btn-calcular-nutri" type="button">Calcular</button>
+
+        <p class="campo__error" id="error-nutri" hidden></p>
+
+        <div class="resultado" id="resultado-imc" hidden>
+          <p class="resultado__cifra"><span id="resultado-imc-valor">0</span> <small>IMC (kg/m²)</small></p>
+          <div class="resultado__desglose" id="desglose-imc"></div>
+        </div>
+
+        <div class="resultado" id="resultado-hidrico" hidden style="margin-top: var(--space-3);">
+          <p class="resultado__cifra"><span id="resultado-hidrico-valor">0</span> <small>ml/día</small></p>
+          <div class="resultado__desglose" id="desglose-hidrico"></div>
+        </div>
+
+        <p class="campo__nota" style="margin-top: var(--space-3); margin-bottom: 0;">
+          Valores de referencia educativos. No reemplazan la indicación médica
+          ni la evaluación individual del paciente.
+        </p>
       </div>
     </section>
 
@@ -275,5 +345,7 @@
   <script src="js/modules/goteo.js"></script>
   <script src="js/modules/conversor-unidades.js"></script>
   <script src="js/modules/dosificacion.js"></script>
+  <script src="js/modules/flashcards-morfologia.js"></script>
+  <script src="js/modules/calculadoras-nutricion.js"></script>
 </body>
 </html>
