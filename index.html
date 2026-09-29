@@ -5,7 +5,7 @@
   <!-- viewport-fit=cover: prepara la app para pantallas con notch/gestos, aunque hoy no lo usemos -->
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#1D4F4F">
-  <title>Estudiante de Enfermería</title>
+  <title>Enfermería UNEFA · 1er Semestre</title>
 
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="assets/icons/icon-192.png">
@@ -67,8 +67,18 @@
         del procedimiento para que entiendas el porqué, no solo el número.
       </p>
 
+      <!-- Pestañas de sub-navegación: una calculadora visible a la vez -->
+      <div class="campo">
+        <span class="campo__label" id="label-subnav-practico">Herramienta</span>
+        <div class="segmented" role="tablist" aria-labelledby="label-subnav-practico">
+          <button type="button" class="segmented__opcion" data-subvista="goteo" aria-pressed="true">Goteo</button>
+          <button type="button" class="segmented__opcion" data-subvista="conversor" aria-pressed="false">Conversor</button>
+          <button type="button" class="segmented__opcion" data-subvista="dosis" aria-pressed="false">Dosis</button>
+        </div>
+      </div>
+
       <!-- ---------- Calculadora de goteo (macro/microgotero) ---------- -->
-      <div class="tool-card">
+      <div class="tool-card" data-subvista-contenido="goteo">
         <h2 class="tool-card__titulo">Calculadora de goteo</h2>
 
         <div class="campo">
@@ -114,7 +124,10 @@
           </div>
         </div>
 
-        <button class="boton-primario" id="btn-calcular-goteo" type="button">Calcular</button>
+        <div class="acciones-calculadora">
+          <button class="boton-primario" id="btn-calcular-goteo" type="button">Calcular</button>
+          <button class="boton-secundario" id="btn-limpiar-goteo" type="button">Limpiar</button>
+        </div>
 
         <p class="campo__error" id="error-goteo" hidden></p>
 
@@ -125,7 +138,7 @@
       </div>
 
       <!-- ---------- Conversor de unidades (masa y volumen) ---------- -->
-      <div class="tool-card">
+      <div class="tool-card" data-subvista-contenido="conversor" hidden>
         <h2 class="tool-card__titulo">Conversor de unidades</h2>
 
         <div class="campo">
@@ -152,7 +165,10 @@
           </div>
         </div>
 
-        <button class="boton-primario" id="btn-convertir" type="button">Convertir</button>
+        <div class="acciones-calculadora">
+          <button class="boton-primario" id="btn-convertir" type="button">Convertir</button>
+          <button class="boton-secundario" id="btn-limpiar-conversor" type="button">Limpiar</button>
+        </div>
 
         <p class="campo__error" id="error-conversor" hidden></p>
 
@@ -165,7 +181,7 @@
       </div>
 
       <!-- ---------- Regla de tres para dosificación (ampolla / tableta) ---------- -->
-      <div class="tool-card">
+      <div class="tool-card" data-subvista-contenido="dosis" hidden>
         <h2 class="tool-card__titulo">Regla de tres para dosificación</h2>
 
         <p class="campo__nota">
@@ -220,7 +236,10 @@
           </div>
         </div>
 
-        <button class="boton-primario" id="btn-calcular-dosis" type="button">Calcular</button>
+        <div class="acciones-calculadora">
+          <button class="boton-primario" id="btn-calcular-dosis" type="button">Calcular</button>
+          <button class="boton-secundario" id="btn-limpiar-dosis" type="button">Limpiar</button>
+        </div>
 
         <p class="campo__error" id="error-dosis" hidden></p>
 
@@ -240,7 +259,16 @@
         de Nutrición y Dietética.
       </p>
 
-      <div class="tool-card">
+      <!-- Pestañas de sub-navegación: una herramienta visible a la vez -->
+      <div class="campo">
+        <span class="campo__label" id="label-subnav-teorico">Herramienta</span>
+        <div class="segmented" role="tablist" aria-labelledby="label-subnav-teorico">
+          <button type="button" class="segmented__opcion" data-subvista="flashcards" aria-pressed="true">Flashcards</button>
+          <button type="button" class="segmented__opcion" data-subvista="nutricion" aria-pressed="false">Nutrición</button>
+        </div>
+      </div>
+
+      <div class="tool-card" data-subvista-contenido="flashcards">
         <h2 class="tool-card__titulo">Flashcards de Morfología</h2>
         <p class="campo__nota">
           Set inicial: planos anatómicos, ejes corporales, términos direccionales
@@ -263,7 +291,7 @@
       </div>
 
       <!-- ---------- Calculadoras de Nutrición (adulto / niño) ---------- -->
-      <div class="tool-card">
+      <div class="tool-card" data-subvista-contenido="nutricion" hidden>
         <h2 class="tool-card__titulo">Calculadoras de Nutrición</h2>
 
         <div class="campo">
@@ -295,7 +323,10 @@
           según edad y sexo. Por eso aquí solo se calcula el requerimiento hídrico.
         </p>
 
-        <button class="boton-primario" id="btn-calcular-nutri" type="button">Calcular</button>
+        <div class="acciones-calculadora">
+          <button class="boton-primario" id="btn-calcular-nutri" type="button">Calcular</button>
+          <button class="boton-secundario" id="btn-limpiar-nutri" type="button">Limpiar</button>
+        </div>
 
         <p class="campo__error" id="error-nutri" hidden></p>
 
@@ -342,6 +373,7 @@
   </nav>
 
   <script src="app.js"></script>
+  <script src="js/subnav.js"></script>
   <script src="js/modules/goteo.js"></script>
   <script src="js/modules/conversor-unidades.js"></script>
   <script src="js/modules/dosificacion.js"></script>
