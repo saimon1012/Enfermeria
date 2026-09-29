@@ -23,6 +23,7 @@
   const botonesUnidadTiempo = document.querySelectorAll('[data-unidad-tiempo]');
 
   const btnCalcular = document.getElementById('btn-calcular-goteo');
+  const btnLimpiar = document.getElementById('btn-limpiar-goteo');
   const errorEl = document.getElementById('error-goteo');
   const resultadoEl = document.getElementById('resultado-goteo');
   const resultadoValorEl = document.getElementById('resultado-valor');
@@ -65,6 +66,28 @@
 
   // ---------- Cálculo principal ----------
   btnCalcular.addEventListener('click', calcularGoteo);
+  btnLimpiar.addEventListener('click', limpiarGoteo);
+
+  function limpiarGoteo() {
+    // Vacía los campos numéricos
+    inputVolumen.value = '';
+    inputTiempo.value = '';
+
+    // Vuelve el equipo a Macrogotero (opción por defecto)
+    tipoEquipo = 'macro';
+    botonesEquipo.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tipoEquipo === 'macro')));
+    campoFactorMacro.hidden = false;
+    notaFactorMicro.hidden = true;
+    selectFactorMacro.value = '20';
+
+    // Vuelve la unidad de tiempo a Horas (opción por defecto)
+    unidadTiempo = 'horas';
+    botonesUnidadTiempo.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.unidadTiempo === 'horas')));
+    sufijoTiempo.textContent = 'h';
+
+    ocultarResultadoYError();
+    inputVolumen.focus(); // deja el cursor listo para el siguiente caso
+  }
 
   function calcularGoteo() {
     ocultarResultadoYError();

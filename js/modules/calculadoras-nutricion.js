@@ -25,6 +25,7 @@
   const campoEstatura = document.getElementById('campo-estatura-nutri');
   const notaNino = document.getElementById('nota-nino-nutri');
   const btnCalcular = document.getElementById('btn-calcular-nutri');
+  const btnLimpiar = document.getElementById('btn-limpiar-nutri');
   const errorEl = document.getElementById('error-nutri');
 
   const resultadoImc = document.getElementById('resultado-imc');
@@ -54,6 +55,21 @@
   });
 
   btnCalcular.addEventListener('click', calcular);
+  btnLimpiar.addEventListener('click', limpiarNutricion);
+
+  function limpiarNutricion() {
+    inputPeso.value = '';
+    inputEstatura.value = '';
+
+    // Vuelve a "Adulto" (opción por defecto)
+    grupo = 'adulto';
+    botonesGrupo.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.grupoNutri === 'adulto')));
+    campoEstatura.hidden = false;
+    notaNino.hidden = true;
+
+    ocultarTodo();
+    inputPeso.focus();
+  }
 
   function calcular() {
     ocultarTodo();

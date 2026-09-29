@@ -24,6 +24,7 @@
   const inputDosisDisponibleTab = document.getElementById('input-dosis-disponible-tab');
 
   const btnCalcular = document.getElementById('btn-calcular-dosis');
+  const btnLimpiar = document.getElementById('btn-limpiar-dosis');
   const errorEl = document.getElementById('error-dosis');
   const resultadoEl = document.getElementById('resultado-dosis');
   const resultadoValorEl = document.getElementById('resultado-dosis-valor');
@@ -50,6 +51,23 @@
 
   // ---------- Cálculo principal ----------
   btnCalcular.addEventListener('click', calcularDosis);
+  btnLimpiar.addEventListener('click', limpiarDosis);
+
+  function limpiarDosis() {
+    inputDosisIndicada.value = '';
+    inputDosisDisponibleAmp.value = '';
+    inputVolumenDisponibleAmp.value = '';
+    inputDosisDisponibleTab.value = '';
+
+    // Vuelve a "Ampolla (líquido)" (opción por defecto)
+    tipoActual = 'ampolla';
+    botonesTipo.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tipoDosificacion === 'ampolla')));
+    bloqueAmpolla.hidden = false;
+    bloqueTableta.hidden = true;
+
+    ocultarResultadoYError();
+    inputDosisIndicada.focus();
+  }
 
   function calcularDosis() {
     ocultarResultadoYError();

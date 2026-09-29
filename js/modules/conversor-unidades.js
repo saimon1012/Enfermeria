@@ -35,6 +35,7 @@
   const selectDesde = document.getElementById('select-unidad-desde');
   const selectHasta = document.getElementById('select-unidad-hasta');
   const btnConvertir = document.getElementById('btn-convertir');
+  const btnLimpiar = document.getElementById('btn-limpiar-conversor');
   const errorEl = document.getElementById('error-conversor');
   const resultadoEl = document.getElementById('resultado-conversor');
   const resultadoValorEl = document.getElementById('resultado-conversor-valor');
@@ -74,6 +75,19 @@
 
   // ---------- Conversión ----------
   btnConvertir.addEventListener('click', convertir);
+  btnLimpiar.addEventListener('click', limpiarConversor);
+
+  function limpiarConversor() {
+    inputValor.value = '';
+
+    // Vuelve a la categoría "Masa" (opción por defecto)
+    categoriaActual = 'masa';
+    botonesCategoria.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.categoriaConversor === 'masa')));
+    poblarSelects('masa');
+
+    ocultarResultadoYError();
+    inputValor.focus();
+  }
 
   function convertir() {
     ocultarResultadoYError();
