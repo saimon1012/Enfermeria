@@ -64,3 +64,15 @@ function actualizarEstadoConexion() {
 window.addEventListener('online', actualizarEstadoConexion);
 window.addEventListener('offline', actualizarEstadoConexion);
 actualizarEstadoConexion(); // estado inicial al cargar la app
+
+// ---------- Registro del Service Worker (caché offline) ----------
+// 'serviceWorker' en navigator no existe en navegadores muy viejos, y
+// SIEMPRE es undefined si la página se abre como file:// — por eso esto
+// nunca corre en index-movil.html, solo en la versión desplegada (https).
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch((error) => {
+      console.error('No se pudo registrar el Service Worker:', error);
+    });
+  });
+}
