@@ -1,7 +1,7 @@
 {
   "name": "Enfermería",
   "short_name": "Enfermería",
-  "description": "Calculadoras clínicas y fichas de estudio offline para 1er semestre de TSU en Enfermería (UNEFA).",
+  "description": "Calculadoras clínicas y fichas de estudio offline para 1er semestre de TSU en Enfermería.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
