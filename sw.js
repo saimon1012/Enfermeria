@@ -1,9 +1,7 @@
-const CACHE_NAME = 'enfermeria-pwa-v3'; // Incrementamos a v3 para forzar la actualización en los teléfonos
+const CACHE_NAME = 'enfermeria-pwa-v5'; // Forzamos v5 para que el teléfono limpie la caché rota anterior
 
-// Lista corregida con rutas absolutas desde la raíz
 const ARCHIVOS_APP_SHELL = [
-  '/',
-  '/index.html',
+  '/', // Mantenemos la raíz (Vercel se encarga de servir el index aquí)
   '/styles.css',
   '/app.js',
   '/manifest.json',
