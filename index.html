@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <!-- viewport-fit=cover: prepara la app para pantallas con notch/gestos, aunque hoy no lo usemos -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1D4F4F">
+  <title>Enfermería UNEFA · 1er Semestre</title>
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="assets/icons/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ==================== HEADER FIJO ==================== -->
+  <header class="app-header">
+    <h1 class="app-header__title" id="vista-titulo">Inicio</h1>
+    <span class="app-header__badge" id="estado-conexion" aria-live="polite">Sin conexión</span>
+  </header>
+
+  <!-- ==================== CONTENEDOR PRINCIPAL ====================
+       El router (app.js) muestra/oculta las <section> según la pestaña activa.
+       No usamos innerHTML dinámico todavía: cada vista ya vive en el DOM,
+       lo cual es más simple de depurar en esta fase inicial. -->
+  <main class="app-main" id="app">
+
+    <!-- ---------- VISTA: INICIO ---------- -->
+    <section class="vista" id="vista-inicio" data-vista>
+      <p class="vista__intro">
+        Herramientas de estudio y cálculo clínico para tu primer semestre.
+        Todo funciona sin conexión a internet.
+      </p>
+
+      <div class="card-grid">
+        <a class="card" href="#" data-ir-a="practico">
+          <span class="card__icono" aria-hidden="true">💉</span>
+          <span class="card__texto">
+            <strong>Módulo Práctico</strong>
+            <small>Goteo, conversor de unidades y dosificación</small>
+          </span>
+        </a>
+
+        <a class="card" href="#" data-ir-a="teorico">
+          <span class="card__icono" aria-hidden="true">🦴</span>
+          <span class="card__texto">
+            <strong>Módulo Teórico</strong>
+            <small>Flashcards de Morfología y calculadoras de Nutrición</small>
+          </span>
+        </a>
+
+        <a class="card card--deshabilitada" href="#" aria-disabled="true">
+          <span class="card__icono" aria-hidden="true">⚙️</span>
+          <span class="card__texto">
+            <strong>Ajustes e instalación</strong>
+            <small>Disponible en el Módulo 3</small>
+          </span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ---------- VISTA: MÓDULO PRÁCTICO (Enfermería Básica) ---------- -->
+    <section class="vista" id="vista-practico" data-vista hidden>
+      <p class="vista__intro">
+        Herramientas de cálculo clínico. Cada resultado incluye el desglose
+        del procedimiento para que entiendas el porqué, no solo el número.
+      </p>
+
+      <!-- Pestañas de sub-navegación: una calculadora visible a la vez -->
+      <div class="campo">
+        <span class="campo__label" id="label-subnav-practico">Herramienta</span>
+        <div class="segmented" role="tablist" aria-labelledby="label-subnav-practico">
+          <button type="button" class="segmented__opcion" data-subvista="goteo" aria-pressed="true">Goteo</button>
+          <button type="button" class="segmented__opcion" data-subvista="conversor" aria-pressed="false">Conversor</button>
+          <button type="button" class="segmented__opcion" data-subvista="dosis" aria-pressed="false">Dosis</button>
+        </div>
+      </div>
+
+      <!-- ---------- Calculadora de goteo (macro/microgotero) ---------- -->
+      <div class="tool-card" data-subvista-contenido="goteo">
+        <h2 class="tool-card__titulo">Calculadora de goteo</h2>
+
+        <div class="campo">
+          <span class="campo__label" id="label-tipo-equipo">Tipo de equipo</span>
+          <div class="segmented" role="radiogroup" aria-labelledby="label-tipo-equipo">
+            <button type="button" class="segmented__opcion" data-tipo-equipo="macro" aria-pressed="true">Macrogotero</button>
+            <button type="button" class="segmented__opcion" data-tipo-equipo="micro" aria-pressed="false">Microgotero</button>
+          </div>
+        </div>
+
+        <div class="campo" id="campo-factor-macro">
+          <label class="campo__label" for="select-factor-macro">Factor del equipo (revisa el empaque)</label>
+          <select class="campo__select" id="select-factor-macro">
+            <option value="10">10 gtt/ml</option>
+            <option value="15">15 gtt/ml</option>
+            <option value="20" selected>20 gtt/ml</option>
+          </select>
+        </div>
+
+        <p class="campo__nota" id="nota-factor-micro" hidden>
+          El microgotero siempre usa <strong>60 gtt/ml</strong> — es un estándar fijo, no varía por fabricante.
+        </p>
+
+        <div class="campo">
+          <label class="campo__label" for="input-volumen">Volumen a infundir</label>
+          <div class="campo__con-sufijo">
+            <input class="campo__input" type="number" id="input-volumen" inputmode="decimal" min="0" step="0.1" placeholder="Ej. 500">
+            <span class="campo__sufijo">ml</span>
+          </div>
+        </div>
+
+        <div class="campo">
+          <span class="campo__label" id="label-tiempo">Tiempo de infusión</span>
+          <div class="campo__fila">
+            <div class="campo__con-sufijo campo__con-sufijo--flex">
+              <input class="campo__input" type="number" id="input-tiempo" inputmode="decimal" min="0" step="0.1" placeholder="Ej. 8">
+              <span class="campo__sufijo" id="sufijo-tiempo">h</span>
+            </div>
+            <div class="segmented segmented--compacto" role="radiogroup" aria-labelledby="label-tiempo">
+              <button type="button" class="segmented__opcion" data-unidad-tiempo="horas" aria-pressed="true">Horas</button>
+              <button type="button" class="segmented__opcion" data-unidad-tiempo="minutos" aria-pressed="false">Minutos</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="acciones-calculadora">
+          <button class="boton-primario" id="btn-calcular-goteo" type="button">Calcular</button>
+          <button class="boton-secundario" id="btn-limpiar-goteo" type="button">Limpiar</button>
+        </div>
+
+        <p class="campo__error" id="error-goteo" hidden></p>
+
+        <div class="resultado" id="resultado-goteo" hidden>
+          <p class="resultado__cifra"><span id="resultado-valor">0</span> <small>gotas/min</small></p>
+          <div class="resultado__desglose" id="desglose-goteo"></div>
+        </div>
+      </div>
+
+      <!-- ---------- Conversor de unidades (masa y volumen) ---------- -->
+      <div class="tool-card" data-subvista-contenido="conversor" hidden>
+        <h2 class="tool-card__titulo">Conversor de unidades</h2>
+
+        <div class="campo">
+          <span class="campo__label" id="label-categoria-conversor">Tipo de unidad</span>
+          <div class="segmented" role="radiogroup" aria-labelledby="label-categoria-conversor">
+            <button type="button" class="segmented__opcion" data-categoria-conversor="masa" aria-pressed="true">Masa</button>
+            <button type="button" class="segmented__opcion" data-categoria-conversor="volumen" aria-pressed="false">Volumen</button>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label class="campo__label" for="input-valor-conversor">Valor a convertir</label>
+          <input class="campo__input" type="number" id="input-valor-conversor" inputmode="decimal" step="any" placeholder="Ej. 500">
+        </div>
+
+        <div class="campo campo__fila">
+          <div class="campo__col">
+            <label class="campo__label" for="select-unidad-desde">De</label>
+            <select class="campo__select" id="select-unidad-desde"></select>
+          </div>
+          <div class="campo__col">
+            <label class="campo__label" for="select-unidad-hasta">A</label>
+            <select class="campo__select" id="select-unidad-hasta"></select>
+          </div>
+        </div>
+
+        <div class="acciones-calculadora">
+          <button class="boton-primario" id="btn-convertir" type="button">Convertir</button>
+          <button class="boton-secundario" id="btn-limpiar-conversor" type="button">Limpiar</button>
+        </div>
+
+        <p class="campo__error" id="error-conversor" hidden></p>
+
+        <div class="resultado" id="resultado-conversor" hidden>
+          <p class="resultado__cifra">
+            <span id="resultado-conversor-valor">0</span> <small id="resultado-conversor-unidad"></small>
+          </p>
+          <div class="resultado__desglose" id="desglose-conversor"></div>
+        </div>
+      </div>
+
+      <!-- ---------- Regla de tres para dosificación (ampolla / tableta) ---------- -->
+      <div class="tool-card" data-subvista-contenido="dosis" hidden>
+        <h2 class="tool-card__titulo">Regla de tres para dosificación</h2>
+
+        <p class="campo__nota">
+          Todos los valores deben estar en la misma unidad (ej. mg). Si no,
+          conviértelos primero en el Conversor de unidades de arriba.
+        </p>
+
+        <div class="campo">
+          <span class="campo__label" id="label-tipo-dosificacion">Presentación del medicamento</span>
+          <div class="segmented" role="radiogroup" aria-labelledby="label-tipo-dosificacion">
+            <button type="button" class="segmented__opcion" data-tipo-dosificacion="ampolla" aria-pressed="true">Ampolla (líquido)</button>
+            <button type="button" class="segmented__opcion" data-tipo-dosificacion="tableta" aria-pressed="false">Tableta</button>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label class="campo__label" for="input-dosis-indicada">Dosis indicada (prescrita por el médico)</label>
+          <div class="campo__con-sufijo">
+            <input class="campo__input" type="number" id="input-dosis-indicada" inputmode="decimal" min="0" step="any" placeholder="Ej. 250">
+            <span class="campo__sufijo">mg</span>
+          </div>
+        </div>
+
+        <!-- Campos específicos de ampolla -->
+        <div id="bloque-ampolla">
+          <div class="campo campo__fila">
+            <div class="campo__col">
+              <label class="campo__label" for="input-dosis-disponible-amp">Dosis disponible</label>
+              <div class="campo__con-sufijo">
+                <input class="campo__input" type="number" id="input-dosis-disponible-amp" inputmode="decimal" min="0" step="any" placeholder="Ej. 500">
+                <span class="campo__sufijo">mg</span>
+              </div>
+            </div>
+            <div class="campo__col">
+              <label class="campo__label" for="input-volumen-disponible-amp">Volumen del frasco</label>
+              <div class="campo__con-sufijo">
+                <input class="campo__input" type="number" id="input-volumen-disponible-amp" inputmode="decimal" min="0" step="any" placeholder="Ej. 2">
+                <span class="campo__sufijo">ml</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Campos específicos de tableta -->
+        <div id="bloque-tableta" hidden>
+          <div class="campo">
+            <label class="campo__label" for="input-dosis-disponible-tab">Dosis por tableta</label>
+            <div class="campo__con-sufijo">
+              <input class="campo__input" type="number" id="input-dosis-disponible-tab" inputmode="decimal" min="0" step="any" placeholder="Ej. 500">
+              <span class="campo__sufijo">mg</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="acciones-calculadora">
+          <button class="boton-primario" id="btn-calcular-dosis" type="button">Calcular</button>
+          <button class="boton-secundario" id="btn-limpiar-dosis" type="button">Limpiar</button>
+        </div>
+
+        <p class="campo__error" id="error-dosis" hidden></p>
+
+        <div class="resultado" id="resultado-dosis" hidden>
+          <p class="resultado__cifra">
+            <span id="resultado-dosis-valor">0</span> <small id="resultado-dosis-unidad"></small>
+          </p>
+          <div class="resultado__desglose" id="desglose-dosis"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- VISTA: MÓDULO TEÓRICO (Morfología + Nutrición) ---------- -->
+    <section class="vista" id="vista-teorico" data-vista hidden>
+      <p class="vista__intro">
+        Repasa Morfología con fichas de estudio y resuelve cálculos rápidos
+        de Nutrición y Dietética.
+      </p>
+
+      <!-- Pestañas de sub-navegación: una herramienta visible a la vez -->
+      <div class="campo">
+        <span class="campo__label" id="label-subnav-teorico">Herramienta</span>
+        <div class="segmented" role="tablist" aria-labelledby="label-subnav-teorico">
+          <button type="button" class="segmented__opcion" data-subvista="flashcards" aria-pressed="true">Flashcards</button>
+          <button type="button" class="segmented__opcion" data-subvista="nutricion" aria-pressed="false">Nutrición</button>
+        </div>
+      </div>
+
+      <div class="tool-card" data-subvista-contenido="flashcards">
+        <h2 class="tool-card__titulo">Flashcards de Morfología</h2>
+        <p class="campo__nota">
+          Set inicial: planos anatómicos, ejes corporales, términos direccionales
+          y huesos principales. Si tu profesor pide otros temas, avísame y
+          actualizamos las fichas.
+        </p>
+
+        <p class="flashcard__progreso" id="flashcard-progreso">Ficha 1 de 18</p>
+
+        <button class="flashcard" id="flashcard" type="button" aria-live="polite">
+          <span class="flashcard__etiqueta" id="flashcard-etiqueta">Pregunta</span>
+          <span class="flashcard__texto" id="flashcard-texto"></span>
+          <span class="flashcard__pista" id="flashcard-pista">Toca para ver la respuesta</span>
+        </button>
+
+        <div class="flashcard__controles">
+          <button class="boton-secundario" id="btn-flashcard-anterior" type="button">← Anterior</button>
+          <button class="boton-secundario" id="btn-flashcard-siguiente" type="button">Siguiente →</button>
+        </div>
+      </div>
+
+      <!-- ---------- Calculadoras de Nutrición (adulto / niño) ---------- -->
+      <div class="tool-card" data-subvista-contenido="nutricion" hidden>
+        <h2 class="tool-card__titulo">Calculadoras de Nutrición</h2>
+
+        <div class="campo">
+          <span class="campo__label" id="label-grupo-nutri">Grupo de edad</span>
+          <div class="segmented" role="radiogroup" aria-labelledby="label-grupo-nutri">
+            <button type="button" class="segmented__opcion" data-grupo-nutri="adulto" aria-pressed="true">Adulto (18+)</button>
+            <button type="button" class="segmented__opcion" data-grupo-nutri="nino" aria-pressed="false">Niño</button>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label class="campo__label" for="input-peso-nutri">Peso</label>
+          <div class="campo__con-sufijo">
+            <input class="campo__input" type="number" id="input-peso-nutri" inputmode="decimal" min="0" step="any" placeholder="Ej. 70">
+            <span class="campo__sufijo">kg</span>
+          </div>
+        </div>
+
+        <div class="campo" id="campo-estatura-nutri">
+          <label class="campo__label" for="input-estatura-nutri">Estatura</label>
+          <div class="campo__con-sufijo">
+            <input class="campo__input" type="number" id="input-estatura-nutri" inputmode="decimal" min="0" step="any" placeholder="Ej. 170">
+            <span class="campo__sufijo">cm</span>
+          </div>
+        </div>
+
+        <p class="campo__nota" id="nota-nino-nutri" hidden>
+          En niños el IMC no se interpreta con rangos fijos: requiere percentiles
+          según edad y sexo. Por eso aquí solo se calcula el requerimiento hídrico.
+        </p>
+
+        <div class="acciones-calculadora">
+          <button class="boton-primario" id="btn-calcular-nutri" type="button">Calcular</button>
+          <button class="boton-secundario" id="btn-limpiar-nutri" type="button">Limpiar</button>
+        </div>
+
+        <p class="campo__error" id="error-nutri" hidden></p>
+
+        <div class="resultado" id="resultado-imc" hidden>
+          <p class="resultado__cifra"><span id="resultado-imc-valor">0</span> <small>IMC (kg/m²)</small></p>
+          <div class="resultado__desglose" id="desglose-imc"></div>
+        </div>
+
+        <div class="resultado" id="resultado-hidrico" hidden style="margin-top: var(--space-3);">
+          <p class="resultado__cifra"><span id="resultado-hidrico-valor">0</span> <small>ml/día</small></p>
+          <div class="resultado__desglose" id="desglose-hidrico"></div>
+        </div>
+
+        <p class="campo__nota" style="margin-top: var(--space-3); margin-bottom: 0;">
+          Valores de referencia educativos. No reemplazan la indicación médica
+          ni la evaluación individual del paciente.
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== NAVEGACIÓN INFERIOR ====================
+       Fija al fondo, 4 pestañas, cada botón con área táctil ≥48px.
+       Es <nav> con <button>, no enlaces reales: no hay páginas distintas,
+       solo cambio de vista dentro de la misma app. -->
+  <nav class="bottom-nav" aria-label="Navegación principal">
+    <button class="bottom-nav__item" data-ir-a="inicio" aria-current="page">
+      <span class="bottom-nav__icono" aria-hidden="true">🏠</span>
+      <span class="bottom-nav__label">Inicio</span>
+    </button>
+    <button class="bottom-nav__item" data-ir-a="practico">
+      <span class="bottom-nav__icono" aria-hidden="true">💉</span>
+      <span class="bottom-nav__label">Práctico</span>
+    </button>
+    <button class="bottom-nav__item" data-ir-a="teorico">
+      <span class="bottom-nav__icono" aria-hidden="true">🦴</span>
+      <span class="bottom-nav__label">Teórico</span>
+    </button>
+    <button class="bottom-nav__item" data-ir-a="ajustes" disabled>
+      <span class="bottom-nav__icono" aria-hidden="true">⚙️</span>
+      <span class="bottom-nav__label">Ajustes</span>
+    </button>
+  </nav>
+
+  <script src="app.js"></script>
+  <script src="js/subnav.js"></script>
+  <script src="js/modules/goteo.js"></script>
+  <script src="js/modules/conversor-unidades.js"></script>
+  <script src="js/modules/dosificacion.js"></script>
+  <script src="js/modules/flashcards-morfologia.js"></script>
+  <script src="js/modules/calculadoras-nutricion.js"></script>
+</body>
+</html>
