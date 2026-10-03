@@ -95,10 +95,23 @@ a { color: inherit; text-decoration: none; }
   z-index: 10;
 }
 
+.app-header__titulos {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
 .app-header__title {
   font-size: var(--fs-lg);
   font-weight: 700;
   letter-spacing: -0.01em;
+}
+
+.app-header__autor {
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.65);
 }
 
 .app-header__badge {
@@ -355,6 +368,14 @@ a { color: inherit; text-decoration: none; }
   background: var(--color-primary);
 }
 
+/* El botón de comentarios es un <a>, no un <button> — necesita su propio
+   display:flex para centrar el texto igual que un botón real. */
+.boton-primario--enlace {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* ---------- 6f. BLOQUE DE RESULTADO ---------- */
 .resultado {
   padding: var(--space-4);
@@ -494,6 +515,22 @@ a { color: inherit; text-decoration: none; }
 .acciones-calculadora .boton-secundario {
   flex: 1;
   margin-bottom: 0;
+}
+
+/* ---------- 6h. AJUSTES: texto de estado y créditos ---------- */
+.ajustes__estado {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--color-ink-muted);
+  margin-top: var(--space-3);
+}
+
+.ajustes__creditos {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: var(--color-ink-muted);
+  text-align: center;
+  margin: 0;
 }
 
 /* ---------- 7. NAVEGACIÓN INFERIOR ---------- */

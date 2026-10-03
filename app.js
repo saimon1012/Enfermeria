@@ -8,6 +8,7 @@ const VISTAS = {
   inicio:   { seccion: 'vista-inicio',   titulo: 'Inicio' },
   practico: { seccion: 'vista-practico', titulo: 'Módulo Práctico' },
   teorico:  { seccion: 'vista-teorico',  titulo: 'Módulo Teórico' },
+  ajustes:  { seccion: 'vista-ajustes',  titulo: 'Ajustes' },
 };
 
 const tituloEl = document.getElementById('vista-titulo');

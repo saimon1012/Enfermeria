@@ -16,7 +16,10 @@
 
   <!-- ==================== HEADER FIJO ==================== -->
   <header class="app-header">
-    <h1 class="app-header__title" id="vista-titulo">Inicio</h1>
+    <div class="app-header__titulos">
+      <h1 class="app-header__title" id="vista-titulo">Inicio</h1>
+      <span class="app-header__autor">por FABSI</span>
+    </div>
     <span class="app-header__badge" id="estado-conexion" aria-live="polite">Sin conexión</span>
   </header>
 
@@ -50,11 +53,11 @@
           </span>
         </a>
 
-        <a class="card card--deshabilitada" href="#" aria-disabled="true">
+        <a class="card" href="#" data-ir-a="ajustes">
           <span class="card__icono" aria-hidden="true">⚙️</span>
           <span class="card__texto">
             <strong>Ajustes e instalación</strong>
-            <small>Disponible en el Módulo 3</small>
+            <small>Instalar, actualizar y estado sin conexión</small>
           </span>
         </a>
       </div>
@@ -347,6 +350,77 @@
       </div>
     </section>
 
+    <!-- ---------- VISTA: AJUSTES ---------- -->
+    <section class="vista" id="vista-ajustes" data-vista hidden>
+
+      <!-- ---------- Instalación ---------- -->
+      <div class="tool-card">
+        <h2 class="tool-card__titulo">Instalar la app</h2>
+        <p class="campo__nota" id="ajustes-mensaje-instalar">
+          Si tu navegador lo permite, aparecerá un botón abajo. Si no aparece,
+          usa el menú ⋮ de tu navegador → "Instalar app" o "Agregar a pantalla de inicio".
+        </p>
+        <button class="boton-primario" id="btn-instalar-app" type="button" hidden>
+          Instalar en este dispositivo
+        </button>
+      </div>
+
+      <!-- ---------- Buscar actualizaciones ---------- -->
+      <div class="tool-card">
+        <h2 class="tool-card__titulo">Actualizaciones</h2>
+        <p class="campo__nota">
+          Si acabamos de agregar contenido nuevo (más fichas, otra calculadora),
+          usa este botón para que tu teléfono lo descargue.
+        </p>
+        <button class="boton-secundario" id="btn-buscar-actualizaciones" type="button">
+          Buscar actualizaciones
+        </button>
+        <p class="ajustes__estado" id="ajustes-estado-actualizacion"></p>
+      </div>
+
+      <!-- ---------- Estado del caché offline ---------- -->
+      <div class="tool-card">
+        <h2 class="tool-card__titulo">Estado sin conexión</h2>
+        <p class="ajustes__estado" id="ajustes-estado-cache">Comprobando…</p>
+        <p class="campo__nota" style="margin-bottom: 0;">
+          Versión guardada en este dispositivo: <strong id="ajustes-version">—</strong>
+        </p>
+      </div>
+
+      <!-- ---------- Comentarios ----------
+           LISTO PARA ACTIVAR: cuando tengas el link de Google Forms,
+           1) reemplaza PEGA-AQUI-EL-LINK-DE-TU-GOOGLE-FORM por el link real
+           2) borra el atributo hidden de este <div>
+           y el botón queda funcionando, sin tocar nada más. -->
+      <div class="tool-card" hidden>
+        <h2 class="tool-card__titulo">Danos tu opinión</h2>
+        <p class="campo__nota">
+          Cuéntanos qué deberíamos mejorar o si encontraste algún error.
+        </p>
+        <a
+          class="boton-primario boton-primario--enlace"
+          href="PEGA-AQUI-EL-LINK-DE-TU-GOOGLE-FORM"
+          target="_blank"
+          rel="noopener"
+        >Dejar un comentario</a>
+      </div>
+
+      <!-- ---------- Acerca de ---------- -->
+      <div class="tool-card">
+        <h2 class="tool-card__titulo">Acerca de</h2>
+        <p class="resultado__equivalente" style="margin-bottom: var(--space-2);">Enfermería — 1er Semestre</p>
+        <p class="campo__nota" style="margin-bottom: var(--space-2);">
+          Calculadoras clínicas y fichas de estudio para estudiantes de
+          Enfermería de primer semestre. Funciona sin conexión a internet.
+        </p>
+        <p class="campo__nota" style="margin-bottom: var(--space-2);">
+          Todos los resultados son de referencia educativa. No reemplazan la
+          indicación médica ni la evaluación individual del paciente.
+        </p>
+        <p class="ajustes__creditos">Hecho por FABSI</p>
+      </div>
+    </section>
+
   </main>
 
   <!-- ==================== NAVEGACIÓN INFERIOR ====================
@@ -366,7 +440,7 @@
       <span class="bottom-nav__icono" aria-hidden="true">🦴</span>
       <span class="bottom-nav__label">Teórico</span>
     </button>
-    <button class="bottom-nav__item" data-ir-a="ajustes" disabled>
+    <button class="bottom-nav__item" data-ir-a="ajustes">
       <span class="bottom-nav__icono" aria-hidden="true">⚙️</span>
       <span class="bottom-nav__label">Ajustes</span>
     </button>
@@ -379,5 +453,6 @@
   <script src="js/modules/dosificacion.js"></script>
   <script src="js/modules/flashcards-morfologia.js"></script>
   <script src="js/modules/calculadoras-nutricion.js"></script>
+  <script src="js/ajustes.js"></script>
 </body>
 </html>

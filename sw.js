@@ -7,7 +7,7 @@
 // vieja guardada en caché, sin importar que subas cambios a Vercel.
 // ============================================================
 
-const CACHE_NAME = 'enfermeria-pwa-v6'; // v6: restaurados los handlers activate/fetch que faltaban
+const CACHE_NAME = 'enfermeria-pwa-v7'; // v7: agregada la vista Ajustes (instalar, actualizar, estado offline)
 
 const ARCHIVOS_APP_SHELL = [
   '/',
@@ -16,6 +16,7 @@ const ARCHIVOS_APP_SHELL = [
   '/app.js',
   '/manifest.json',
   '/js/subnav.js',
+  '/js/ajustes.js',
   '/js/modules/goteo.js',
   '/js/modules/conversor-unidades.js',
   '/js/modules/dosificacion.js',
