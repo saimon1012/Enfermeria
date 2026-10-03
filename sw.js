@@ -7,7 +7,7 @@
 // vieja guardada en caché, sin importar que subas cambios a Vercel.
 // ============================================================
 
-const CACHE_NAME = 'enfermeria-pwa-v7'; // v7: agregada la vista Ajustes (instalar, actualizar, estado offline)
+const CACHE_NAME = 'enfermeria-pwa-v8'; // v7: agregada la vista Ajustes (instalar, actualizar, estado offline)
 
 const ARCHIVOS_APP_SHELL = [
   '/',
