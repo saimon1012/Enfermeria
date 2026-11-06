@@ -1,69 +1,65 @@
 // ============================================================
-// subnav.js — Navegación interna de módulos (Práctico / Teórico)
+// subnav.js — Navegación interna anidada (Práctico / Teórico)
 //
-// Maneja 3 niveles de anidamiento:
+// Arquitectura de 3 niveles dentro de #vista-teorico:
 //
-//   NIVEL 1 — Selector de semestre dentro del Teórico:
-//     [data-semestre-teorico="1"|"2"] → [data-bloque-semestre="1"|"2"]
+//   N1  [data-semestre-teorico]  ↔  [data-bloque-semestre]
+//   N2  [data-subvista]          ↔  [data-subvista-contenido]
+//       (acotado por bloque de semestre para evitar colisiones)
+//   N3  [data-tipo-bioq]         ↔  [data-tipo-bioq-contenido]
+//       [data-sub-farmaco]       ↔  [data-sub-farmaco-contenido]
+//       [data-sub-materno]       ↔  [data-sub-materno-contenido]
 //
-//   NIVEL 2 — Subvista por materia dentro del semestre:
-//     [data-subvista="..."], [data-subvista-contenido="..."]
-//     Se busca DENTRO del bloque de semestre para evitar colisiones
-//     entre el 1° y el 2° semestre.
-//
-//   NIVEL 3 — Submenú interno de una materia (farmacología, materno):
-//     [data-sub-farmaco="..."], [data-sub-farmaco-contenido="..."]
-//     [data-sub-materno="..."], [data-sub-materno-contenido="..."]
-//
-// El módulo Práctico reutiliza el mismo motor del NIVEL 2 pero
-// acotado a #vista-practico.
+// El módulo Práctico reutiliza el motor de N2, acotado a #vista-practico.
 // ============================================================
 
 (function () {
   'use strict';
 
   // ----------------------------------------------------------
-  // Motor genérico: activa un grupo de botones ↔ paneles
+  // Motor genérico reutilizable
+  //
+  // @param {HTMLElement} contenedor  Raíz donde buscar botones y paneles
+  // @param {string}      keyBoton    Propiedad de dataset del botón (camelCase)
+  // @param {string}      keyPanel    Propiedad de dataset del panel (camelCase)
   // ----------------------------------------------------------
-  /**
-   * @param {HTMLElement} contenedor  Raíz donde buscar botones y paneles
-   * @param {string} atributoBoton    Ej. 'subvista'  (dataset: data-subvista)
-   * @param {string} atributoPanel    Ej. 'subvistaContenido'
-   * @param {string} atributoValor    Ej. 'subvista'  (clave del dataset a comparar)
-   */
-  function activarGrupo(contenedor, atributoBoton, atributoPanel, atributoValor) {
+  function activarGrupo(contenedor, keyBoton, keyPanel) {
     if (!contenedor) return;
 
-    const selectorBoton = `[data-${kebab(atributoBoton)}]`;
-    const selectorPanel = `[data-${kebab(atributoPanel)}]`;
+    const selBoton = `[data-${kebab(keyBoton)}]`;
+    const selPanel = `[data-${kebab(keyPanel)}]`;
 
-    const botones = contenedor.querySelectorAll(selectorBoton);
-    const paneles = contenedor.querySelectorAll(selectorPanel);
-    if (!botones.length) return;
+    const botones = contenedor.querySelectorAll(selBoton);
+    const paneles = contenedor.querySelectorAll(selPanel);
+    if (!botones.length || !paneles.length) return;
 
+    // Normaliza: panel más cercano por data-* a cada botón, pero
+    // como en este proyecto los grupos están en un solo scope,
+    // basta con comparar por valor.
     botones.forEach((boton) => {
       boton.addEventListener('click', () => {
-        const objetivo = boton.dataset[atributoValor];
+        const objetivo = boton.dataset[keyBoton];
 
         botones.forEach((b) =>
           b.setAttribute('aria-pressed', String(b === boton))
         );
+
         paneles.forEach((panel) => {
-          panel.hidden = panel.dataset[atributoPanel] !== objetivo;
+          panel.hidden = panel.dataset[keyPanel] !== objetivo;
         });
       });
     });
   }
 
-  // Convierte camelCase → kebab-case para selectores CSS
+  // camelCase → kebab-case (para selectores CSS válidos)
   function kebab(s) {
     return s.replace(/[A-Z]/g, (m) => '-' + m.toLowerCase());
   }
 
   // ----------------------------------------------------------
-  // NIVEL 1 — Selector de semestre dentro del Teórico
+  // N1 — Selector de semestre dentro del Teórico
   // ----------------------------------------------------------
-  function activarSelectorSemestreTeorico() {
+  function montarN1() {
     const vista = document.getElementById('vista-teorico');
     if (!vista) return;
 
@@ -82,101 +78,73 @@
           bloque.hidden = bloque.dataset.bloqueSemestre !== objetivo;
         });
 
-        // Al cambiar de semestre, volver al top y re-inicializar
-        // el subnav del bloque recién mostrado, porque sus botones
-        // ya existían pero debían reflejar su estado inicial.
+        // Al cambiar de semestre, subir al top (misma UX que el router)
         window.scrollTo(0, 0);
       });
     });
   }
 
   // ----------------------------------------------------------
-  // NIVEL 2 — Subnav dentro de cada bloque de semestre
+  // N2 — Subnav de materias, uno por bloque de semestre
   //
-  // Importante: buscamos los botones DENTRO del bloque de cada
-  // semestre para que el 1° y 2° no compartan listeners ni se
-  // pisen los paneles (ambos tienen data-subvista, pero nombres
-  // distintos: morfología/psicología/nutrición vs bioquímica/...).
+  // Se monta POR BLOQUE para que cada semestre tenga sus propios
+  // listeners. Si algún día el 3° semestre se agrega, solo hay que
+  // meter su bloque en el HTML y este código lo detecta sin tocar.
   // ----------------------------------------------------------
-  function activarSubnavPorSemestre() {
+  function montarN2() {
     const vista = document.getElementById('vista-teorico');
     if (!vista) return;
 
     vista.querySelectorAll('[data-bloque-semestre]').forEach((bloque) => {
-      activarGrupo(bloque, 'subvista', 'subvistaContenido', 'subvista');
+      activarGrupo(bloque, 'subvista', 'subvistaContenido');
     });
   }
 
   // ----------------------------------------------------------
-  // NIVEL 3 — Submenús internos de materias del 2° semestre
+  // N3 — Submenús internos por materia
+  //
+  // Se acotan al contenedor del panel de la materia para no
+  // interferir con otros submenús del mismo bloque.
   // ----------------------------------------------------------
-  function activarSubmenusInternos() {
+  function montarN3() {
     const vista = document.getElementById('vista-teorico');
     if (!vista) return;
 
-    // Farmacología: Flashcards ↔ Dosis pediátrica
-    const bloqueFarmaco = vista.querySelector('[data-subvista-contenido="farmacologia"]');
-    if (bloqueFarmaco) {
-      activarGrupo(
-        bloqueFarmaco,
-        'subFarmaco',
-        'subFarmacoContenido',
-        'subFarmaco'
-      );
-    }
-
-    // Materno Infantil: Flashcards ↔ Edad gestacional
-    const bloqueMaterno = vista.querySelector('[data-subvista-contenido="materno-infantil"]');
-    if (bloqueMaterno) {
-      activarGrupo(
-        bloqueMaterno,
-        'subMaterno',
-        'subMaternoContenido',
-        'subMaterno'
-      );
-    }
-
     // Bioquímica: Glucosa ↔ Osmolaridad
-    const bloqueBioq = vista.querySelector('[data-subvista-contenido="bioquimica"]');
-    if (bloqueBioq) {
-      // El toggle de tipo (glucosa / osmolaridad) usa data-tipo-bioq.
-      // No usa paneles data-*-contenido, sino bloques con id:
-      //   #bloque-bioq-glucosa y #bloque-bioq-osmolaridad.
-      // Ese toggle ya lo maneja bioquimica.js para mantener el
-      // estado de dirección de glucosa. No lo duplicamos aquí.
-    }
+    const panelBioq = vista.querySelector('[data-subvista-contenido="bioquimica"]');
+    activarGrupo(panelBioq, 'tipoBioq', 'tipoBioqContenido');
+
+    // Farmacología: Flashcards ↔ Dosis pediátrica
+    const panelFarma = vista.querySelector('[data-subvista-contenido="farmacologia"]');
+    activarGrupo(panelFarma, 'subFarmaco', 'subFarmacoContenido');
+
+    // Materno: Flashcards ↔ Edad gestacional
+    const panelMaterno = vista.querySelector('[data-subvista-contenido="materno-infantil"]');
+    activarGrupo(panelMaterno, 'subMaterno', 'subMaternoContenido');
   }
 
   // ----------------------------------------------------------
-  // Módulo Práctico — subnav clásico (goteo / conversor / dosis)
+  // Práctico — reutiliza el motor de N2, acotado a #vista-practico
   // ----------------------------------------------------------
-  function activarSubnavPractico() {
+  function montarPractico() {
     const vista = document.getElementById('vista-practico');
     if (!vista) return;
-    activarGrupo(vista, 'subvista', 'subvistaContenido', 'subvista');
+    activarGrupo(vista, 'subvista', 'subvistaContenido');
   }
 
   // ----------------------------------------------------------
-  // Inicialización
+  // Init
   // ----------------------------------------------------------
-  // El orden importa poco, pero dejamos primero el nivel más alto
-  // (semestre) para que los bloques ocultos no interfieran.
-  activarSelectorSemestreTeorico();
-  activarSubnavPorSemestre();
-  activarSubmenusInternos();
-  activarSubnavPractico();
+  montarN1();
+  montarN2();
+  montarN3();
+  montarPractico();
 
-  // ----------------------------------------------------------
-  // Refresco al mostrar la vista Teórico por primera vez
-  // ----------------------------------------------------------
-  // Cuando app.js cambia a la vista teórico, los listeners ya
-  // están registrados (corren al cargar el DOM), así que no hace
-  // falta re-inicializar. Pero si en el futuro agregas bloques
-  // dinámicos (por ejemplo, desde un fetch), exponemos un hook:
+  // Hook por si en el futuro agregas bloques dinámicos (fetch, etc.)
   window.FABSI_subnavRefresh = function () {
-    activarSelectorSemestreTeorico();
-    activarSubnavPorSemestre();
-    activarSubmenusInternos();
-    activarSubnavPractico();
+    montarN1();
+    montarN2();
+    montarN3();
+    montarPractico();
   };
 })();
