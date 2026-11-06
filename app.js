@@ -3,17 +3,18 @@
 // ============================================================
 
 const VISTAS = {
-  inicio:    { seccion: 'vista-inicio',    titulo: 'Inicio' },
-  semestres: { seccion: 'vista-semestres', titulo: 'Plan de Estudios' },
-  practico:  { seccion: 'vista-practico',  titulo: 'Central de Prácticas' },
-  teorico:   { seccion: 'vista-teorico',   titulo: 'Módulo Teórico' },
-  ajustes:   { seccion: 'vista-ajustes',   titulo: 'Ajustes' },
+  inicio:           { seccion: 'vista-inicio',           titulo: 'Inicio' },
+  semestres:        { seccion: 'vista-semestres',        titulo: 'Plan de Estudios' },
+  practico:         { seccion: 'vista-practico',         titulo: 'Central de Prácticas' },
+  teorico:          { seccion: 'vista-teorico',          titulo: 'Módulo Teórico' },
+  'semestre-2':     { seccion: 'vista-semestre-2',     titulo: '2.° Semestre' }, // <- Vista independiente del 2do semestre
+  ajustes:          { seccion: 'vista-ajustes',          titulo: 'Ajustes' },
 };
 
 const tituloEl = document.getElementById('vista-titulo');
 
 // ------------------------------------------------------------
-// Datos del pensum (Plan 2010 UNEFA) — Semestres 1 al 5
+// Datos del pensum (Plan 2010 UNEFA) — Escalable para 1 al 5
 // ------------------------------------------------------------
 const DATOS_SEMESTRES = {
   1: {
@@ -25,15 +26,11 @@ const DATOS_SEMESTRES = {
       { icono: '🧠', texto: 'Psicología General y Social', desc: 'Bases de la conducta y relación enfermero-paciente.', ir: 'teorico' },
     ],
   },
-    2: {
+  2: {
     titulo: '2.do Semestre',
     desc: 'Bioquímica, farmacología fundamental, microbiología y anatomía.',
     items: [
-      { icono: '🧪', texto: 'Bioquímica Clínica', desc: 'Conversión de glucosa, osmolaridad y rangos de referencia.', ir: 'bioquimica' },
-      { icono: '💊', texto: 'Farmacología', desc: 'Flashcards de grupos farmacológicos y dosis pediátrica.', ir: 'farmacologia' },
-      { icono: '🤰', texto: 'Materno Infantil I', desc: 'Flashcards de embarazo y edad gestacional (Naegele).', ir: 'materno-infantil' },
-      { icono: '🫀', texto: 'Anatomía Humana', desc: 'Flashcards de sistemas anatómicos.', ir: 'anatomia' },
-      { icono: '🦠', texto: 'Microbiología y Parasitología', desc: 'Flashcards de microorganismos y cadenas de infección.', ir: 'microbiologia' },
+      { icono: '🧬', texto: 'Asignaturas del 2.° Semestre', desc: 'Bioquímica, Farmacología, Materno-Infantil, Anatomía y Microbiología.', ir: 'semestre-2' },
     ],
   },
   3: {
@@ -270,27 +267,32 @@ if (toggleGuardia) {
 })();
 
 // ------------------------------------------------------------
-// Selector de semestre dentro de la vista Teórico (1° / 2°)
+// Manejo de pestañas/subvistas internas (para cualquier vista con materias o herramientas)
 // ------------------------------------------------------------
-(function () {
-  const contenedor = document.getElementById('vista-teorico');
+function inicializarSubvistasContenedor(contenedorId) {
+  const contenedor = document.getElementById(contenedorId);
   if (!contenedor) return;
 
-  const botonesSemestre = contenedor.querySelectorAll('[data-semestre-teorico]');
-  const bloques = contenedor.querySelectorAll('[data-bloque-semestre]');
+  const botones = contenedor.querySelectorAll('[data-subvista]');
+  const paneles = contenedor.querySelectorAll('[data-subvista-contenido]');
 
-  botonesSemestre.forEach((btn) => {
+  botones.forEach((btn) => {
     btn.addEventListener('click', () => {
-      const num = btn.dataset.semestreTeorico;
-      botonesSemestre.forEach((b) =>
+      const objetivo = btn.dataset.subvista;
+
+      botones.forEach((b) =>
         b.setAttribute('aria-pressed', b === btn ? 'true' : 'false')
       );
-      bloques.forEach((bloque) => {
-        bloque.hidden = bloque.dataset.bloqueSemestre !== num;
+      paneles.forEach((panel) => {
+        panel.hidden = panel.dataset.subvistaContenido !== objetivo;
       });
     });
   });
-})();
+}
+
+// Inicializar subvistas en el 2do semestre y en el teórico
+inicializarSubvistasContenedor('vista-semestre-2');
+inicializarSubvistasContenedor('vista-teorico');
 
 // ------------------------------------------------------------
 // Inicialización
