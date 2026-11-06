@@ -1,11 +1,6 @@
 // ============================================================
-// flashcards-morfologia.js — Módulo 2: Flashcards de Morfología
-//
-// Las fichas van incrustadas directamente aquí (no en un .json externo)
-// a propósito: fetch() de un archivo local falla en navegadores móviles
-// cuando la app se abre como file://. Cuando publiquemos la app en
-// internet (Módulo 3), se puede migrar esto a /data si se prefiere
-// mantener el contenido separado del código.
+// flashcards-morfologia.js — Módulo 2a: Flashcards de Morfología
+// IDs usados en index.html: flashcard-morfo-*
 // ============================================================
 
 (function () {
@@ -30,56 +25,53 @@
     { pregunta: 'Tibia y peroné (fíbula)', respuesta: 'Los dos huesos de la pierna: la tibia soporta el peso, el peroné es más delgado y lateral. "Peroné" es el nombre más usado en Latinoamérica; el término oficial internacional es "fíbula".' },
   ];
 
-  // ---------- Estado local ----------
   let indice = 0;
   let mostrandoRespuesta = false;
 
-  // ---------- Referencias al DOM ----------
-  const elProgreso = document.getElementById('flashcard-progreso');
-  const elTarjeta = document.getElementById('flashcard');
-  const elEtiqueta = document.getElementById('flashcard-etiqueta');
-  const elTexto = document.getElementById('flashcard-texto');
-  const elPista = document.getElementById('flashcard-pista');
-  const btnAnterior = document.getElementById('btn-flashcard-anterior');
-  const btnSiguiente = document.getElementById('btn-flashcard-siguiente');
+  const elProgreso   = document.getElementById('flashcard-morfo-progreso');
+  const elTarjeta    = document.getElementById('flashcard-morfo');
+  const elEtiqueta   = document.getElementById('flashcard-morfo-etiqueta');
+  const elTexto      = document.getElementById('flashcard-morfo-texto');
+  const elPista      = document.getElementById('flashcard-morfo-pista');
+  const btnAnterior  = document.getElementById('btn-flashcard-morfo-anterior');
+  const btnSiguiente = document.getElementById('btn-flashcard-morfo-siguiente');
 
-  if (!elTarjeta) return; // esta vista no está en el DOM, no hace nada
+  if (!elTarjeta) return;
 
   function render() {
     const ficha = FICHAS[indice];
-    elProgreso.textContent = `Ficha ${indice + 1} de ${FICHAS.length}`;
+
+    if (elProgreso) elProgreso.textContent = `Ficha ${indice + 1} de ${FICHAS.length}`;
 
     if (mostrandoRespuesta) {
-      elEtiqueta.textContent = 'Respuesta';
-      elTexto.textContent = ficha.respuesta;
-      elPista.textContent = 'Toca para ver la pregunta';
+      if (elEtiqueta) elEtiqueta.textContent = 'Respuesta';
+      if (elTexto)    elTexto.textContent = ficha.respuesta;
+      if (elPista)    elPista.textContent = 'Toca para ver la pregunta';
       elTarjeta.classList.add('flashcard--respuesta');
     } else {
-      elEtiqueta.textContent = 'Pregunta';
-      elTexto.textContent = ficha.pregunta;
-      elPista.textContent = 'Toca para ver la respuesta';
+      if (elEtiqueta) elEtiqueta.textContent = 'Pregunta';
+      if (elTexto)    elTexto.textContent = ficha.pregunta;
+      if (elPista)    elPista.textContent = 'Toca para ver la respuesta';
       elTarjeta.classList.remove('flashcard--respuesta');
     }
   }
 
-  // Tocar la tarjeta voltea entre pregunta y respuesta
   elTarjeta.addEventListener('click', () => {
     mostrandoRespuesta = !mostrandoRespuesta;
     render();
   });
 
-  // Navegación circular: después de la última ficha vuelve a la primera
-  btnAnterior.addEventListener('click', () => {
+  btnAnterior?.addEventListener('click', () => {
     indice = (indice - 1 + FICHAS.length) % FICHAS.length;
-    mostrandoRespuesta = false; // cada ficha nueva empieza mostrando la pregunta
+    mostrandoRespuesta = false;
     render();
   });
 
-  btnSiguiente.addEventListener('click', () => {
+  btnSiguiente?.addEventListener('click', () => {
     indice = (indice + 1) % FICHAS.length;
     mostrandoRespuesta = false;
     render();
   });
 
-  render(); // estado inicial al cargar la página
+  render();
 })();
