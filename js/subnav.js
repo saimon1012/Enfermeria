@@ -1,37 +1,27 @@
 // ============================================================
-// subnav.js — Pestañas internas de cada módulo (Práctico / Teórico)
-//
-// Genérico y reutilizable: no sabe nada de goteo, flashcards, etc.
-// Solo busca botones [data-subvista] y paneles [data-subvista-contenido]
-// DENTRO de un mismo contenedor, y muestra el panel cuyo nombre coincide
-// con el botón activo. Cada módulo (Práctico, Teórico) se conecta aparte
-// para que sus pestañas no interfieran entre sí.
+// subnav.js — Control universal de subpestañas internas
 // ============================================================
 
-(function () {
-  function activarSubnav(contenedor) {
-    const botones = contenedor.querySelectorAll('[data-subvista]');
-    const paneles = contenedor.querySelectorAll('[data-subvista-contenido]');
-    if (!botones.length) return;
+document.addEventListener('click', (evento) => {
+  // Buscar si se hizo clic en un botón de subnavegación ([data-subvista])
+  const botonSub = evento.target.closest('[data-subvista]');
+  if (!botonSub) return;
 
-    botones.forEach((boton) => {
-      boton.addEventListener('click', () => {
-        const objetivo = boton.dataset.subvista;
+  // Encontrar la sección o vista padre donde está el submenú
+  const vistaActual = botonSub.closest('.vista') || botonSub.closest('section');
+  if (!vistaActual) return;
 
-        botones.forEach((b) => b.setAttribute('aria-pressed', String(b === boton)));
-        paneles.forEach((panel) => {
-          panel.hidden = panel.dataset.subvistaContenido !== objetivo;
-        });
+  const destino = botonSub.dataset.subvista;
 
-        // Sube el scroll al tope al cambiar de herramienta, igual que el router principal
-        window.scrollTo(0, 0);
-      });
-    });
-  }
+  // 1. Actualizar el estado visual de los botones (aria-pressed) solo en esta vista
+  vistaActual.querySelectorAll('[data-subvista]').forEach((btn) => {
+    const esActivo = btn === botonSub;
+    btn.setAttribute('aria-pressed', esActivo ? 'true' : 'false');
+  });
 
-  const vistaPractico = document.getElementById('vista-practico');
-  const vistaTeorico = document.getElementById('vista-teorico');
-
-  if (vistaPractico) activarSubnav(vistaPractico);
-  if (vistaTeorico) activarSubnav(vistaTeorico);
-})();
+  // 2. Mostrar el contenido correspondiente y ocultar los demás dentro de esta vista
+  vistaActual.querySelectorAll('[data-subvista-contenido]').forEach((contenido) => {
+    const coincide = contenido.dataset.subvistaContenido === destino;
+    contenido.hidden = !coincide;
+  });
+});
