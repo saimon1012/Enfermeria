@@ -35,11 +35,11 @@ const DATOS_SEMESTRES = {
     titulo: '2.do Semestre',
     desc: 'Bioquímica, farmacología fundamental, microbiología y anatomía.',
     items: [
-      { icono: '🧪', texto: 'Bioquímica Clínica', desc: 'Glucosa, osmolaridad y rangos de referencia.', ir: 'teorico' },
-      { icono: '💊', texto: 'Farmacología', desc: 'Grupos farmacológicos y dosis pediátrica.', ir: 'teorico' },
-      { icono: '🤰', texto: 'Materno Infantil I', desc: 'Embarazo y edad gestacional (Naegele).', ir: 'teorico' },
-      { icono: '🫀', texto: 'Anatomía Humana', desc: 'Sistemas anatómicos y estructuras.', ir: 'teorico' },
-      { icono: '🦠', texto: 'Microbiología y Parasitología', desc: 'Microorganismos y cadenas de infección.', ir: 'teorico' },
+      { icono: '🧪', texto: 'Bioquímica Clínica', desc: 'Glucosa, osmolaridad y rangos de referencia.', ir: 'bioquimica' },
+      { icono: '💊', texto: 'Farmacología', desc: 'Grupos farmacológicos y dosis pediátrica.', ir: 'farmacologia' },
+      { icono: '🤰', texto: 'Materno Infantil I', desc: 'Embarazo y edad gestacional (Naegele).', ir: 'materno-infantil' },
+      { icono: '🫀', texto: 'Anatomía Humana', desc: 'Sistemas anatómicos y estructuras.', ir: 'anatomia' },
+      { icono: '🦠', texto: 'Microbiología y Parasitología', desc: 'Microorganismos y cadenas de infección.', ir: 'microbiologia' },
     ],
   },
   3: {
