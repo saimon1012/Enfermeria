@@ -3,11 +3,17 @@
 // ============================================================
 
 const VISTAS = {
-  inicio:    { seccion: 'vista-inicio',    titulo: 'Inicio' },
-  semestres: { seccion: 'vista-semestres', titulo: 'Plan de Estudios' },
-  practico:  { seccion: 'vista-practico',  titulo: 'Central de Prácticas' },
-  teorico:   { seccion: 'vista-teorico',   titulo: 'Módulo Teórico' },
-  ajustes:   { seccion: 'vista-ajustes',   titulo: 'Ajustes' },
+  inicio:             { seccion: 'vista-inicio',             titulo: 'Inicio' },
+  semestres:          { seccion: 'vista-semestres',          titulo: 'Plan de Estudios' },
+  practico:           { seccion: 'vista-practico',           titulo: 'Central de Prácticas' },
+  teorico:            { seccion: 'vista-teorico',            titulo: 'Módulo Teórico' },
+  // Vistas independientes para cada materia del 2do Semestre:
+  bioquimica:         { seccion: 'vista-bioquimica',         titulo: 'Bioquímica Clínica' },
+  farmacologia:       { seccion: 'vista-farmacologia',       titulo: 'Farmacología' },
+  'materno-infantil': { seccion: 'vista-materno-infantil',   titulo: 'Materno Infantil I' },
+  anatomia:           { seccion: 'vista-anatomia',           titulo: 'Anatomía Humana' },
+  microbiologia:      { seccion: 'vista-microbiologia',      titulo: 'Microbiología y Parasitología' },
+  ajustes:            { seccion: 'vista-ajustes',            titulo: 'Ajustes' },
 };
 
 const tituloEl = document.getElementById('vista-titulo');
