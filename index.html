@@ -341,6 +341,11 @@
     <!-- ---------- 2-SEMESTRE ---------- -->
     <!-- ---------- VISTA: BIOQUÍMICA CLÍNICA ---------- -->
     <section class="vista" id="vista-bioquimica" data-vista hidden>
+      <p class="vista__intro">
+        Calculadoras y valores de referencia para Bioquímica Clínica.
+      </p>
+
+      <!-- Subnavegación interna controlada por subnav.js -->
       <div class="campo">
         <span class="campo__label" id="label-subnav-bioq">Herramienta</span>
         <div class="segmented" role="tablist" aria-labelledby="label-subnav-bioq">
@@ -349,47 +354,60 @@
         </div>
       </div>
 
-      <!-- Aquí irá el contenido de Bioquímica (manejado por bioquimica.js y subnav.js) -->
+      <!-- Módulo de Glucosa (Conectado con bioquimica.js) -->
       <div class="tool-card" data-subvista-contenido="glucosa">
         <h2 class="tool-card__titulo">Calculadora de Glucosa</h2>
-        <p class="vista__intro">Módulo de bioquímica en desarrollo.</p>
+        <div class="campo">
+          <label class="campo__label" for="input-glucosa">Glicemia en ayunas</label>
+          <div class="campo__con-sufijo">
+            <input class="campo__input" type="number" id="input-glucosa" inputmode="decimal" min="0" step="any" placeholder="Ej. 110">
+            <span class="campo__sufijo">mg/dl</span>
+          </div>
+        </div>
+        <div class="acciones-calculadora">
+          <button class="boton-primario" id="btn-calcular-glucosa" type="button">Calcular</button>
+          <button class="boton-secundario" id="btn-limpiar-glucosa" type="button">Limpiar</button>
+        </div>
+        <p class="campo__error" id="error-glucosa" hidden></p>
+        <div class="resultado" id="resultado-glucosa" hidden>
+          <p class="resultado__cifra"><span id="resultado-glucosa-valor">0</span> <small>estado</small></p>
+          <div class="resultado__desglose" id="desglose-glucosa"></div>
+        </div>
       </div>
 
+      <!-- Módulo de Osmolaridad (Conectado con bioquimica.js) -->
       <div class="tool-card" data-subvista-contenido="osmolaridad" hidden>
-        <h2 class="tool-card__titulo">Calculadora de Osmolaridad</h2>
-        <p class="vista__intro">Módulo de osmolaridad en desarrollo.</p>
-      </div>
-    </section>
-
-    <!-- ---------- VISTA: FARMACOLOGÍA ---------- -->
-    <section class="vista" id="vista-farmacologia" data-vista hidden>
-      <div class="tool-card">
-        <h2 class="tool-card__titulo">Farmacología</h2>
-        <p class="vista__intro">Contenido de farmacología y dosis pediátrica.</p>
-      </div>
-    </section>
-
-    <!-- ---------- VISTA: MATERNO INFANTIL I ---------- -->
-    <section class="vista" id="vista-materno-infantil" data-vista hidden>
-      <div class="tool-card">
-        <h2 class="tool-card__titulo">Materno Infantil I</h2>
-        <p class="vista__intro">Contenido de gestación y cálculo por FUM.</p>
-      </div>
-    </section>
-
-    <!-- ---------- VISTA: ANATOMÍA HUMANA ---------- -->
-    <section class="vista" id="vista-anatomia" data-vista hidden>
-      <div class="tool-card">
-        <h2 class="tool-card__titulo">Anatomía Humana</h2>
-        <p class="vista__intro">Sistemas anatómicos y estructuras.</p>
-      </div>
-    </section>
-
-    <!-- ---------- VISTA: MICROBIOLOGÍA ---------- -->
-    <section class="vista" id="vista-microbiologia" data-vista hidden>
-      <div class="tool-card">
-        <h2 class="tool-card__titulo">Microbiología y Parasitología</h2>
-        <p class="vista__intro">Microorganismos y cadenas de infección.</p>
+        <h2 class="tool-card__titulo">Calculadora de Osmolaridad Sérica</h2>
+        <div class="campo">
+          <label class="campo__label" for="input-sodio">Sodio sérico (Na)</label>
+          <div class="campo__con-sufijo">
+            <input class="campo__input" type="number" id="input-sodio" inputmode="decimal" min="0" step="any" placeholder="Ej. 140">
+            <span class="campo__sufijo">mEq/L</span>
+          </div>
+        </div>
+        <div class="campo">
+          <label class="campo__label" for="input-glucosa-osm">Glucosa</label>
+          <div class="campo__con-sufijo">
+            <input class="campo__input" type="number" id="input-glucosa-osm" inputmode="decimal" min="0" step="any" placeholder="Ej. 100">
+            <span class="campo__sufijo">mg/dl</span>
+          </div>
+        </div>
+        <div class="campo">
+          <label class="campo__label" for="input-bun">BUN (Nitrógeno ureico)</label>
+          <div class="campo__con-sufijo">
+            <input class="campo__input" type="number" id="input-bun" inputmode="decimal" min="0" step="any" placeholder="Ej. 15">
+            <span class="campo__sufijo">mg/dl</span>
+          </div>
+        </div>
+        <div class="acciones-calculadora">
+          <button class="boton-primario" id="btn-calcular-osmolaridad" type="button">Calcular</button>
+          <button class="boton-secundario" id="btn-limpiar-osmolaridad" type="button">Limpiar</button>
+        </div>
+        <p class="campo__error" id="error-osmolaridad" hidden></p>
+        <div class="resultado" id="resultado-osmolaridad" hidden>
+          <p class="resultado__cifra"><span id="resultado-osmolaridad-valor">0</span> <small>mOsm/L</small></p>
+          <div class="resultado__desglose" id="desglose-osmolaridad"></div>
+        </div>
       </div>
     </section>
 
