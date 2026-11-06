@@ -338,6 +338,60 @@
         </div>
       </div>
     </section>
+    <!-- ---------- 2-SEMESTRE ---------- -->
+    <!-- ---------- VISTA: BIOQUÍMICA CLÍNICA ---------- -->
+    <section class="vista" id="vista-bioquimica" data-vista hidden>
+      <div class="campo">
+        <span class="campo__label" id="label-subnav-bioq">Herramienta</span>
+        <div class="segmented" role="tablist" aria-labelledby="label-subnav-bioq">
+          <button type="button" class="segmented__opcion" data-subvista="glucosa" aria-pressed="true">Glucosa</button>
+          <button type="button" class="segmented__opcion" data-subvista="osmolaridad" aria-pressed="false">Osmolaridad</button>
+        </div>
+      </div>
+
+      <!-- Aquí irá el contenido de Bioquímica (manejado por bioquimica.js y subnav.js) -->
+      <div class="tool-card" data-subvista-contenido="glucosa">
+        <h2 class="tool-card__titulo">Calculadora de Glucosa</h2>
+        <p class="vista__intro">Módulo de bioquímica en desarrollo.</p>
+      </div>
+
+      <div class="tool-card" data-subvista-contenido="osmolaridad" hidden>
+        <h2 class="tool-card__titulo">Calculadora de Osmolaridad</h2>
+        <p class="vista__intro">Módulo de osmolaridad en desarrollo.</p>
+      </div>
+    </section>
+
+    <!-- ---------- VISTA: FARMACOLOGÍA ---------- -->
+    <section class="vista" id="vista-farmacologia" data-vista hidden>
+      <div class="tool-card">
+        <h2 class="tool-card__titulo">Farmacología</h2>
+        <p class="vista__intro">Contenido de farmacología y dosis pediátrica.</p>
+      </div>
+    </section>
+
+    <!-- ---------- VISTA: MATERNO INFANTIL I ---------- -->
+    <section class="vista" id="vista-materno-infantil" data-vista hidden>
+      <div class="tool-card">
+        <h2 class="tool-card__titulo">Materno Infantil I</h2>
+        <p class="vista__intro">Contenido de gestación y cálculo por FUM.</p>
+      </div>
+    </section>
+
+    <!-- ---------- VISTA: ANATOMÍA HUMANA ---------- -->
+    <section class="vista" id="vista-anatomia" data-vista hidden>
+      <div class="tool-card">
+        <h2 class="tool-card__titulo">Anatomía Humana</h2>
+        <p class="vista__intro">Sistemas anatómicos y estructuras.</p>
+      </div>
+    </section>
+
+    <!-- ---------- VISTA: MICROBIOLOGÍA ---------- -->
+    <section class="vista" id="vista-microbiologia" data-vista hidden>
+      <div class="tool-card">
+        <h2 class="tool-card__titulo">Microbiología y Parasitología</h2>
+        <p class="vista__intro">Microorganismos y cadenas de infección.</p>
+      </div>
+    </section>
 
     <!-- ---------- VISTA: AJUSTES ---------- -->
     <section class="vista" id="vista-ajustes" data-vista hidden>
