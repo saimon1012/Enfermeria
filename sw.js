@@ -14,7 +14,7 @@
 // CACHE_VERSION (ej. 'v9' → 'v10').
 // ============================================================
 
-const CACHE_VERSION = 'enfermeria-pwa-v18';
+const CACHE_VERSION = 'enfermeria-pwa-v19';
 const CACHE_NAME = CACHE_VERSION;
 
 const ARCHIVOS_APP_SHELL = [
