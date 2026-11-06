@@ -270,6 +270,29 @@ if (toggleGuardia) {
 })();
 
 // ------------------------------------------------------------
+// Selector de semestre dentro de la vista Teórico (1° / 2°)
+// ------------------------------------------------------------
+(function () {
+  const contenedor = document.getElementById('vista-teorico');
+  if (!contenedor) return;
+
+  const botonesSemestre = contenedor.querySelectorAll('[data-semestre-teorico]');
+  const bloques = contenedor.querySelectorAll('[data-bloque-semestre]');
+
+  botonesSemestre.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const num = btn.dataset.semestreTeorico;
+      botonesSemestre.forEach((b) =>
+        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false')
+      );
+      bloques.forEach((bloque) => {
+        bloque.hidden = bloque.dataset.bloqueSemestre !== num;
+      });
+    });
+  });
+})();
+
+// ------------------------------------------------------------
 // Inicialización
 // ------------------------------------------------------------
 seleccionarSemestre(1);
