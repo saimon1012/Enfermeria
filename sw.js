@@ -31,6 +31,11 @@ const ARCHIVOS_APP_SHELL = [
   './js/modules/flashcards-morfologia.js',
   './js/modules/flashcards-psicologia.js',
   './js/modules/calculadoras-nutricion.js',
+  './js/modules/bioquimica.js',
+  './js/modules/farmacologia.js',
+  './js/modules/materno-infantil.js',
+  './js/modules/anatomia.js',
+  './js/modules/microbiologia.js',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
 ];
