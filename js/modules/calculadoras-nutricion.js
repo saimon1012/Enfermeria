@@ -48,7 +48,11 @@
 
       const esAdulto = grupo === 'adulto';
       campoEstatura.hidden = !esAdulto; // niño: no se usa estatura
-      notaNino.hidden = esAdulto;
+      
+      // Blindaje añadido aquí para evitar errores si el elemento no existe en el HTML
+      if (notaNino) {
+        notaNino.hidden = esAdulto;
+      }
 
       ocultarTodo();
     });
@@ -65,7 +69,10 @@
     grupo = 'adulto';
     botonesGrupo.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.grupoNutri === 'adulto')));
     campoEstatura.hidden = false;
-    notaNino.hidden = true;
+    
+    if (notaNino) {
+      notaNino.hidden = true;
+    }
 
     ocultarTodo();
     inputPeso.focus();
@@ -147,7 +154,7 @@
 
   // ---------- Requerimiento hídrico: niño (Holliday-Segar) ----------
   function calcularHidricoNino(peso) {
-    // Cada tramo se acumula y se guarda su línea de explicación
+    // Cada tramo se acumula y se guarda sua línea de explicación
     const pasos = [];
     let total = 0;
 
