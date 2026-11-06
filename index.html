@@ -346,42 +346,63 @@
         </div>
       </div>
 
-      <!-- ========== CONTENIDO 2° SEMESTRE ========== -->
+            <!-- ============================================================
+           BLOQUE: 2° SEMESTRE (Teórico)
+           Se activa con los botones [data-semestre-teorico="2"]
+           Contiene 5 materias con sus subvistas internas.
+           ============================================================ -->
       <div data-bloque-semestre="2" hidden>
+
+        <!-- Selector de materia dentro del 2° semestre -->
         <div class="campo">
-          <span class="campo__label" id="label-subnav-teorico-2">Herramienta</span>
+          <span class="campo__label" id="label-subnav-teorico-2">Materia</span>
           <div class="segmented" role="tablist" aria-labelledby="label-subnav-teorico-2">
-            <button type="button" class="segmented__opcion" data-subvista="bioquimica" aria-pressed="true">Bioquímica</button>
-            <button type="button" class="segmented__opcion" data-subvista="farmacologia" aria-pressed="false">Farmacología</button>
-            <button type="button" class="segmented__opcion" data-subvista="materno-infantil" aria-pressed="false">Materno Infantil</button>
-            <button type="button" class="segmented__opcion" data-subvista="anatomia" aria-pressed="false">Anatomía</button>
-            <button type="button" class="segmented__opcion" data-subvista="microbiologia" aria-pressed="false">Microbiología</button>
+            <button type="button" class="segmented__opcion"
+                    data-subvista="bioquimica" aria-pressed="true">Bioquímica</button>
+            <button type="button" class="segmented__opcion"
+                    data-subvista="farmacologia" aria-pressed="false">Farmacología</button>
+            <button type="button" class="segmented__opcion"
+                    data-subvista="materno-infantil" aria-pressed="false">Materno Infantil</button>
+            <button type="button" class="segmented__opcion"
+                    data-subvista="anatomia" aria-pressed="false">Anatomía</button>
+            <button type="button" class="segmented__opcion"
+                    data-subvista="microbiologia" aria-pressed="false">Microbiología</button>
           </div>
         </div>
 
-        <!-- Bioquímica Clínica -->
+        <!-- =====================================================
+             MATERIA 1: BIOQUÍMICA
+             Submenú interno: Glucosa ↔ Osmolaridad
+             ===================================================== -->
         <div class="tool-card" data-subvista-contenido="bioquimica">
           <h2 class="tool-card__titulo">Bioquímica Clínica</h2>
+
           <div class="campo">
             <span class="campo__label" id="label-tipo-bioq">Calculadora</span>
             <div class="segmented" role="radiogroup" aria-labelledby="label-tipo-bioq">
-              <button type="button" class="segmented__opcion" data-tipo-bioq="glucosa" aria-pressed="true">Glucosa</button>
-              <button type="button" class="segmented__opcion" data-tipo-bioq="osmolaridad" aria-pressed="false">Osmolaridad</button>
+              <button type="button" class="segmented__opcion"
+                      data-tipo-bioq="glucosa" aria-pressed="true">Glucosa</button>
+              <button type="button" class="segmented__opcion"
+                      data-tipo-bioq="osmolaridad" aria-pressed="false">Osmolaridad</button>
             </div>
           </div>
-          <!-- Glucosa -->
-          <div id="bloque-bioq-glucosa">
+
+          <!-- Panel interno: Glucosa -->
+          <div data-tipo-bioq-contenido="glucosa">
             <div class="campo">
-              <span class="campo__label">Dirección</span>
-              <div class="segmented" role="radiogroup">
-                <button type="button" class="segmented__opcion" data-dir-glucosa="a-mmol" aria-pressed="true">mg/dL → mmol/L</button>
-                <button type="button" class="segmented__opcion" data-dir-glucosa="a-mgdl" aria-pressed="false">mmol/L → mg/dL</button>
+              <span class="campo__label" id="label-dir-glucosa">Dirección</span>
+              <div class="segmented" role="radiogroup" aria-labelledby="label-dir-glucosa">
+                <button type="button" class="segmented__opcion"
+                        data-dir-glucosa="a-mmol" aria-pressed="true">mg/dL → mmol/L</button>
+                <button type="button" class="segmented__opcion"
+                        data-dir-glucosa="a-mgdl" aria-pressed="false">mmol/L → mg/dL</button>
               </div>
             </div>
             <div class="campo">
               <label class="campo__label" for="input-glucosa">Valor</label>
               <div class="campo__con-sufijo">
-                <input class="campo__input" type="number" id="input-glucosa" inputmode="decimal" min="0" step="any" placeholder="Ej. 90">
+                <input class="campo__input" type="number" id="input-glucosa"
+                       inputmode="decimal" min="0" step="any" placeholder="Ej. 90">
                 <span class="campo__sufijo" id="sufijo-glucosa">mg/dL</span>
               </div>
             </div>
@@ -391,16 +412,21 @@
             </div>
             <p class="campo__error" id="error-glucosa" hidden></p>
             <div class="resultado" id="resultado-glucosa" hidden>
-              <p class="resultado__cifra"><span id="resultado-glucosa-valor">0</span> <small id="resultado-glucosa-unidad"></small></p>
+              <p class="resultado__cifra">
+                <span id="resultado-glucosa-valor">0</span>
+                <small id="resultado-glucosa-unidad"></small>
+              </p>
               <div class="resultado__desglose" id="desglose-glucosa"></div>
             </div>
           </div>
-          <!-- Osmolaridad -->
-          <div id="bloque-bioq-osmolaridad" hidden>
+
+          <!-- Panel interno: Osmolaridad -->
+          <div data-tipo-bioq-contenido="osmolaridad" hidden>
             <div class="campo">
               <label class="campo__label" for="input-na">Sodio (Na⁺)</label>
               <div class="campo__con-sufijo">
-                <input class="campo__input" type="number" id="input-na" inputmode="decimal" min="0" step="any">
+                <input class="campo__input" type="number" id="input-na"
+                       inputmode="decimal" min="0" step="any" placeholder="Ej. 140">
                 <span class="campo__sufijo">mEq/L</span>
               </div>
             </div>
@@ -408,14 +434,16 @@
               <div class="campo__col">
                 <label class="campo__label" for="input-glucosa-osm">Glucosa</label>
                 <div class="campo__con-sufijo">
-                  <input class="campo__input" type="number" id="input-glucosa-osm" inputmode="decimal" min="0" step="any">
+                  <input class="campo__input" type="number" id="input-glucosa-osm"
+                         inputmode="decimal" min="0" step="any" placeholder="Ej. 90">
                   <span class="campo__sufijo">mg/dL</span>
                 </div>
               </div>
               <div class="campo__col">
                 <label class="campo__label" for="input-bun">BUN</label>
                 <div class="campo__con-sufijo">
-                  <input class="campo__input" type="number" id="input-bun" inputmode="decimal" min="0" step="any">
+                  <input class="campo__input" type="number" id="input-bun"
+                         inputmode="decimal" min="0" step="any" placeholder="Ej. 14">
                   <span class="campo__sufijo">mg/dL</span>
                 </div>
               </div>
@@ -426,23 +454,33 @@
             </div>
             <p class="campo__error" id="error-osm" hidden></p>
             <div class="resultado" id="resultado-osm" hidden>
-              <p class="resultado__cifra"><span id="resultado-osm-valor">0</span> <small>mOsm/kg</small></p>
+              <p class="resultado__cifra">
+                <span id="resultado-osm-valor">0</span>
+                <small>mOsm/kg</small>
+              </p>
               <div class="resultado__desglose" id="desglose-osm"></div>
             </div>
           </div>
         </div>
 
-        <!-- Farmacología -->
+        <!-- =====================================================
+             MATERIA 2: FARMACOLOGÍA
+             Submenú interno: Flashcards ↔ Dosis pediátrica
+             ===================================================== -->
         <div class="tool-card" data-subvista-contenido="farmacologia" hidden>
           <h2 class="tool-card__titulo">Farmacología</h2>
+
           <div class="campo">
-            <span class="campo__label">Herramienta</span>
-            <div class="segmented" role="tablist">
-              <button type="button" class="segmented__opcion" data-sub-farmaco="flashcards" aria-pressed="true">Flashcards</button>
-              <button type="button" class="segmented__opcion" data-sub-farmaco="dosis-ped" aria-pressed="false">Dosis pediátrica</button>
+            <span class="campo__label" id="label-sub-farmaco">Herramienta</span>
+            <div class="segmented" role="tablist" aria-labelledby="label-sub-farmaco">
+              <button type="button" class="segmented__opcion"
+                      data-sub-farmaco="flashcards" aria-pressed="true">Flashcards</button>
+              <button type="button" class="segmented__opcion"
+                      data-sub-farmaco="dosis-ped" aria-pressed="false">Dosis pediátrica</button>
             </div>
           </div>
-          <!-- Flashcards farmacología -->
+
+          <!-- Panel interno: Flashcards -->
           <div data-sub-farmaco-contenido="flashcards">
             <p class="flashcard__progreso" id="flashcard-farma-progreso">Ficha 1 de 15</p>
             <button class="flashcard" id="flashcard-farma" type="button" aria-live="polite">
@@ -455,29 +493,36 @@
               <button class="boton-secundario" id="btn-flashcard-farma-siguiente" type="button">Siguiente →</button>
             </div>
           </div>
-          <!-- Dosis pediátrica -->
+
+          <!-- Panel interno: Dosis pediátrica -->
           <div data-sub-farmaco-contenido="dosis-ped" hidden>
             <div class="campo">
               <label class="campo__label" for="input-peso-ped">Peso del niño</label>
               <div class="campo__con-sufijo">
-                <input class="campo__input" type="number" id="input-peso-ped" inputmode="decimal" min="0" step="any" placeholder="Ej. 12">
+                <input class="campo__input" type="number" id="input-peso-ped"
+                       inputmode="decimal" min="0" step="any" placeholder="Ej. 12">
                 <span class="campo__sufijo">kg</span>
               </div>
             </div>
             <div class="campo">
               <label class="campo__label" for="input-dosis-kg">Dosis indicada</label>
               <div class="campo__con-sufijo">
-                <input class="campo__input" type="number" id="input-dosis-kg" inputmode="decimal" min="0" step="any" placeholder="Ej. 50">
+                <input class="campo__input" type="number" id="input-dosis-kg"
+                       inputmode="decimal" min="0" step="any" placeholder="Ej. 50">
                 <span class="campo__sufijo">mg/kg/día</span>
               </div>
             </div>
             <div class="campo">
-              <span class="campo__label" id="label-frecuencia">Frecuencia de administración</span>
+              <span class="campo__label" id="label-frecuencia">Frecuencia</span>
               <div class="segmented" role="radiogroup" aria-labelledby="label-frecuencia">
-                <button type="button" class="segmented__opcion" data-frecuencia="1" aria-pressed="false">c/24h</button>
-                <button type="button" class="segmented__opcion" data-frecuencia="2" aria-pressed="false">c/12h</button>
-                <button type="button" class="segmented__opcion" data-frecuencia="3" aria-pressed="true">c/8h</button>
-                <button type="button" class="segmented__opcion" data-frecuencia="4" aria-pressed="false">c/6h</button>
+                <button type="button" class="segmented__opcion"
+                        data-frecuencia="1" aria-pressed="false">c/24h</button>
+                <button type="button" class="segmented__opcion"
+                        data-frecuencia="2" aria-pressed="false">c/12h</button>
+                <button type="button" class="segmented__opcion"
+                        data-frecuencia="3" aria-pressed="true">c/8h</button>
+                <button type="button" class="segmented__opcion"
+                        data-frecuencia="4" aria-pressed="false">c/6h</button>
               </div>
             </div>
             <div class="acciones-calculadora">
@@ -486,23 +531,33 @@
             </div>
             <p class="campo__error" id="error-dosis-ped" hidden></p>
             <div class="resultado" id="resultado-dosis-ped" hidden>
-              <p class="resultado__cifra"><span id="resultado-dosis-ped-valor">0</span> <small>mg por dosis</small></p>
+              <p class="resultado__cifra">
+                <span id="resultado-dosis-ped-valor">0</span>
+                <small>mg por dosis</small>
+              </p>
               <div class="resultado__desglose" id="desglose-dosis-ped"></div>
             </div>
           </div>
         </div>
 
-        <!-- Materno Infantil I -->
+        <!-- =====================================================
+             MATERIA 3: MATERNO INFANTIL
+             Submenú interno: Flashcards ↔ Edad gestacional (FUM)
+             ===================================================== -->
         <div class="tool-card" data-subvista-contenido="materno-infantil" hidden>
           <h2 class="tool-card__titulo">Materno Infantil I</h2>
+
           <div class="campo">
-            <span class="campo__label">Herramienta</span>
-            <div class="segmented" role="tablist">
-              <button type="button" class="segmented__opcion" data-sub-materno="flashcards" aria-pressed="true">Flashcards</button>
-              <button type="button" class="segmented__opcion" data-sub-materno="gestacion" aria-pressed="false">Edad gestacional</button>
+            <span class="campo__label" id="label-sub-materno">Herramienta</span>
+            <div class="segmented" role="tablist" aria-labelledby="label-sub-materno">
+              <button type="button" class="segmented__opcion"
+                      data-sub-materno="flashcards" aria-pressed="true">Flashcards</button>
+              <button type="button" class="segmented__opcion"
+                      data-sub-materno="gestacion" aria-pressed="false">Edad gestacional</button>
             </div>
           </div>
-          <!-- Flashcards materno -->
+
+          <!-- Panel interno: Flashcards -->
           <div data-sub-materno-contenido="flashcards">
             <p class="flashcard__progreso" id="flashcard-materno-progreso">Ficha 1 de 16</p>
             <button class="flashcard" id="flashcard-materno" type="button" aria-live="polite">
@@ -515,13 +570,15 @@
               <button class="boton-secundario" id="btn-flashcard-materno-siguiente" type="button">Siguiente →</button>
             </div>
           </div>
-          <!-- Edad gestacional -->
+
+          <!-- Panel interno: Edad gestacional (FUM) -->
           <div data-sub-materno-contenido="gestacion" hidden>
             <p class="campo__nota">
-              Se calcula a partir del primer día de la última menstruación (FUM) con la Regla de Naegele.
+              Se calcula a partir del primer día de la última menstruación (FUM)
+              con la Regla de Naegele.
             </p>
             <div class="campo">
-              <label class="campo__label" for="input-fum">Fecha de última menstruación (FUM)</label>
+              <label class="campo__label" for="input-fum">Fecha de última menstruación</label>
               <input class="campo__input" type="date" id="input-fum">
             </div>
             <div class="acciones-calculadora">
@@ -530,16 +587,21 @@
             </div>
             <p class="campo__error" id="error-fum" hidden></p>
             <div class="resultado" id="resultado-fum" hidden>
-              <p class="resultado__cifra"><span id="resultado-fum-valor">0</span> <small id="resultado-fum-unidad"></small></p>
+              <p class="resultado__cifra">
+                <span id="resultado-fum-valor">0</span>
+                <small id="resultado-fum-unidad"></small>
+              </p>
               <div class="resultado__desglose" id="desglose-fum"></div>
             </div>
           </div>
         </div>
 
-        <!-- Anatomía Humana -->
+        <!-- =====================================================
+             MATERIA 4: ANATOMÍA HUMANA (solo flashcards)
+             ===================================================== -->
         <div class="tool-card" data-subvista-contenido="anatomia" hidden>
           <h2 class="tool-card__titulo">Anatomía Humana</h2>
-          <p class="flashcard__progreso" id="flashcard-anatomia-progreso">Ficha 1 de 16</p>
+          <p class="flashcard__progreso" id="flashcard-anatomia-progreso">Ficha 1 de 17</p>
           <button class="flashcard" id="flashcard-anatomia" type="button" aria-live="polite">
             <span class="flashcard__etiqueta" id="flashcard-anatomia-etiqueta">Pregunta</span>
             <span class="flashcard__texto" id="flashcard-anatomia-texto"></span>
@@ -551,7 +613,9 @@
           </div>
         </div>
 
-        <!-- Microbiología -->
+        <!-- =====================================================
+             MATERIA 5: MICROBIOLOGÍA (solo flashcards)
+             ===================================================== -->
         <div class="tool-card" data-subvista-contenido="microbiologia" hidden>
           <h2 class="tool-card__titulo">Microbiología y Parasitología</h2>
           <p class="flashcard__progreso" id="flashcard-micro-progreso">Ficha 1 de 14</p>
@@ -565,7 +629,8 @@
             <button class="boton-secundario" id="btn-flashcard-micro-siguiente" type="button">Siguiente →</button>
           </div>
         </div>
-      </div>
+
+      </div><!-- /data-bloque-semestre="2" -->
     </section>
 
     <!-- ---------- VISTA: AJUSTES ---------- -->
