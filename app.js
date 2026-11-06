@@ -25,13 +25,15 @@ const DATOS_SEMESTRES = {
       { icono: '🧠', texto: 'Psicología General y Social', desc: 'Bases de la conducta y relación enfermero-paciente.', ir: 'teorico' },
     ],
   },
-  2: {
+    2: {
     titulo: '2.do Semestre',
-    desc: 'Bioquímica, farmacología fundamental y microbiología.',
+    desc: 'Bioquímica, farmacología fundamental, microbiología y anatomía.',
     items: [
-      { icono: '💊', texto: 'Farmacología Fundamental', desc: 'Vías de administración y grupos farmacológicos.', ir: '' },
-      { icono: '👶', texto: 'Enfermería Materno Infantil I', desc: 'Cuidados esenciales en el binomio madre-hijo.', ir: '' },
-      { icono: '🦠', texto: 'Microbiología y Parasitología', desc: 'Control de infecciones y agentes patógenos.', ir: '' },
+      { icono: '🧪', texto: 'Bioquímica Clínica', desc: 'Conversión de glucosa, osmolaridad y rangos de referencia.', ir: 'bioquimica' },
+      { icono: '💊', texto: 'Farmacología', desc: 'Flashcards de grupos farmacológicos y dosis pediátrica.', ir: 'farmacologia' },
+      { icono: '🤰', texto: 'Materno Infantil I', desc: 'Flashcards de embarazo y edad gestacional (Naegele).', ir: 'materno-infantil' },
+      { icono: '🫀', texto: 'Anatomía Humana', desc: 'Flashcards de sistemas anatómicos.', ir: 'anatomia' },
+      { icono: '🦠', texto: 'Microbiología y Parasitología', desc: 'Flashcards de microorganismos y cadenas de infección.', ir: 'microbiologia' },
     ],
   },
   3: {
