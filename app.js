@@ -3,12 +3,11 @@
 // ============================================================
 
 const VISTAS = {
-  inicio:           { seccion: 'vista-inicio',           titulo: 'Inicio' },
-  semestres:        { seccion: 'vista-semestres',        titulo: 'Plan de Estudios' },
-  practico:         { seccion: 'vista-practico',         titulo: 'Central de Prácticas' },
-  teorico:          { seccion: 'vista-teorico',          titulo: 'Módulo Teórico' },
-  'semestre-2':     { seccion: 'vista-semestre-2',     titulo: '2.° Semestre' }, // <- Vista independiente del 2do semestre
-  ajustes:          { seccion: 'vista-ajustes',          titulo: 'Ajustes' },
+  inicio:    { seccion: 'vista-inicio',    titulo: 'Inicio' },
+  semestres: { seccion: 'vista-semestres', titulo: 'Plan de Estudios' },
+  practico:  { seccion: 'vista-practico',  titulo: 'Central de Prácticas' },
+  teorico:   { seccion: 'vista-teorico',   titulo: 'Módulo Teórico' },
+  ajustes:   { seccion: 'vista-ajustes',   titulo: 'Ajustes' },
 };
 
 const tituloEl = document.getElementById('vista-titulo');
@@ -30,7 +29,11 @@ const DATOS_SEMESTRES = {
     titulo: '2.do Semestre',
     desc: 'Bioquímica, farmacología fundamental, microbiología y anatomía.',
     items: [
-      { icono: '🧬', texto: 'Asignaturas del 2.° Semestre', desc: 'Bioquímica, Farmacología, Materno-Infantil, Anatomía y Microbiología.', ir: 'semestre-2' },
+      { icono: '🧪', texto: 'Bioquímica Clínica', desc: 'Glucosa, osmolaridad y rangos de referencia.', ir: 'teorico' },
+      { icono: '💊', texto: 'Farmacología', desc: 'Grupos farmacológicos y dosis pediátrica.', ir: 'teorico' },
+      { icono: '🤰', texto: 'Materno Infantil I', desc: 'Embarazo y edad gestacional (Naegele).', ir: 'teorico' },
+      { icono: '🫀', texto: 'Anatomía Humana', desc: 'Sistemas anatómicos y estructuras.', ir: 'teorico' },
+      { icono: '🦠', texto: 'Microbiología y Parasitología', desc: 'Microorganismos y cadenas de infección.', ir: 'teorico' },
     ],
   },
   3: {
@@ -82,7 +85,7 @@ function mostrarVista(nombreVista) {
 }
 
 // ------------------------------------------------------------
-// Render dinámico de semestres
+// Render dinámico de semestres (en #vista-semestres)
 // ------------------------------------------------------------
 function seleccionarSemestre(num) {
   num = String(num);
@@ -127,7 +130,7 @@ function seleccionarSemestre(num) {
 }
 
 // ------------------------------------------------------------
-// Delegación global: tabs + navegación
+// Delegación global: tabs de semestres + navegación
 // ------------------------------------------------------------
 document.body.addEventListener('click', (evento) => {
   const tab = evento.target.closest('.tab-btn[data-semestre]');
@@ -186,113 +189,6 @@ if (toggleGuardia) {
     catch (_) { /* silencioso */ }
   });
 }
-
-// ------------------------------------------------------------
-// Registro de Service Worker + aviso de actualización
-// ------------------------------------------------------------
-(function () {
-  if (!('serviceWorker' in navigator)) return;
-
-  let swRegistrado = null;
-  let recargaPendiente = false;
-
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (recargaPendiente) {
-      window.location.reload();
-    }
-  });
-
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then((reg) => {
-        swRegistrado = reg;
-
-        if (reg.waiting && navigator.serviceWorker.controller) {
-          mostrarBannerActualizacion(reg.waiting);
-        }
-
-        reg.addEventListener('updatefound', () => {
-          const nuevoSW = reg.installing;
-          if (!nuevoSW) return;
-          nuevoSW.addEventListener('statechange', () => {
-            if (nuevoSW.state === 'installed' && navigator.serviceWorker.controller) {
-              mostrarBannerActualizacion(nuevoSW);
-            }
-          });
-        });
-      })
-      .catch((error) => {
-        console.error('[FABSI] Error al registrar SW:', error);
-      });
-  });
-
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && swRegistrado) {
-      swRegistrado.update().catch(() => {});
-    }
-  });
-
-  function mostrarBannerActualizacion(swEsperando) {
-    if (document.getElementById('banner-update')) return;
-
-    const banner = document.createElement('div');
-    banner.id = 'banner-update';
-    banner.className = 'banner-update';
-    banner.setAttribute('role', 'status');
-    banner.setAttribute('aria-live', 'polite');
-    banner.innerHTML = `
-      <span class="banner-update__texto">
-        <strong>Nueva versión disponible</strong>
-        <small>Actualiza para ver los últimos cambios.</small>
-      </span>
-      <button type="button" class="banner-update__boton" id="btn-aplicar-update">
-        Actualizar
-      </button>
-      <button type="button" class="banner-update__cerrar" aria-label="Cerrar aviso" id="btn-cerrar-update">×</button>
-    `;
-    document.body.appendChild(banner);
-
-    document.getElementById('btn-cerrar-update')?.addEventListener('click', () => {
-      banner.remove();
-    });
-
-    document.getElementById('btn-aplicar-update')?.addEventListener('click', () => {
-      recargaPendiente = true;
-      swEsperando.postMessage({ type: 'SKIP_WAITING' });
-      setTimeout(() => {
-        if (recargaPendiente) window.location.reload();
-      }, 3000);
-    });
-  }
-})();
-
-// ------------------------------------------------------------
-// Manejo de pestañas/subvistas internas (para cualquier vista con materias o herramientas)
-// ------------------------------------------------------------
-function inicializarSubvistasContenedor(contenedorId) {
-  const contenedor = document.getElementById(contenedorId);
-  if (!contenedor) return;
-
-  const botones = contenedor.querySelectorAll('[data-subvista]');
-  const paneles = contenedor.querySelectorAll('[data-subvista-contenido]');
-
-  botones.forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const objetivo = btn.dataset.subvista;
-
-      botones.forEach((b) =>
-        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false')
-      );
-      paneles.forEach((panel) => {
-        panel.hidden = panel.dataset.subvistaContenido !== objetivo;
-      });
-    });
-  });
-}
-
-// Inicializar subvistas en el 2do semestre y en el teórico
-inicializarSubvistasContenedor('vista-semestre-2');
-inicializarSubvistasContenedor('vista-teorico');
 
 // ------------------------------------------------------------
 // Inicialización
