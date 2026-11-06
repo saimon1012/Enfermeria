@@ -251,345 +251,92 @@
       </div>
     </section>
 
-    <!-- ---------- VISTA: TEÓRICO (ESTRUCTURA ORIGINAL CON SELECTOR DE SEMESTRE) ---------- -->
+    <!-- ---------- VISTA: TEÓRICO (Flashcards + Nutrición) ---------- -->
     <section class="vista" id="vista-teorico" data-vista hidden>
-      <!-- Selector de semestre dentro del teórico -->
+      <p class="vista__intro">
+        Repasa Morfología y Psicología, y resuelve cálculos de Nutrición y Dietética.
+      </p>
+
       <div class="campo">
-        <span class="campo__label" id="label-semestre-teorico">Semestre</span>
-        <div class="segmented" role="tablist" aria-labelledby="label-semestre-teorico">
-          <button type="button" class="segmented__opcion" data-semestre-teorico="1" aria-pressed="true">1° Semestre</button>
-          <button type="button" class="segmented__opcion" data-semestre-teorico="2" aria-pressed="false">2° Semestre</button>
+        <span class="campo__label" id="label-subnav-teorico">Herramienta</span>
+        <div class="segmented" role="tablist" aria-labelledby="label-subnav-teorico">
+          <button type="button" class="segmented__opcion" data-subvista="flashcards-morfologia" aria-pressed="true">Morfología</button>
+          <button type="button" class="segmented__opcion" data-subvista="flashcards-psicologia" aria-pressed="false">Psicología</button>
+          <button type="button" class="segmented__opcion" data-subvista="nutricion" aria-pressed="false">Nutrición</button>
         </div>
       </div>
 
-      <!-- ========== CONTENIDO 1° SEMESTRE ========== -->
-      <div data-bloque-semestre="1">
-        <div class="campo">
-          <span class="campo__label" id="label-subnav-teorico">Herramienta</span>
-          <div class="segmented" role="tablist" aria-labelledby="label-subnav-teorico">
-            <button type="button" class="segmented__opcion" data-subvista="flashcards-morfologia" aria-pressed="true">Morfología</button>
-            <button type="button" class="segmented__opcion" data-subvista="flashcards-psicologia" aria-pressed="false">Psicología</button>
-            <button type="button" class="segmented__opcion" data-subvista="nutricion" aria-pressed="false">Nutrición</button>
-          </div>
-        </div>
-
-        <!-- Flashcards Morfología -->
-        <div class="tool-card" data-subvista-contenido="flashcards-morfologia">
-          <h2 class="tool-card__titulo">Flashcards de Morfología</h2>
-          <p class="flashcard__progreso" id="flashcard-morfo-progreso">Ficha 1 de 18</p>
-          <button class="flashcard" id="flashcard-morfo" type="button" aria-live="polite">
-            <span class="flashcard__etiqueta" id="flashcard-morfo-etiqueta">Pregunta</span>
-            <span class="flashcard__texto" id="flashcard-morfo-texto"></span>
-            <span class="flashcard__pista" id="flashcard-morfo-pista">Toca para ver la respuesta</span>
-          </button>
-          <div class="flashcard__controles">
-            <button class="boton-secundario" id="btn-flashcard-morfo-anterior" type="button">← Anterior</button>
-            <button class="boton-secundario" id="btn-flashcard-morfo-siguiente" type="button">Siguiente →</button>
-          </div>
-        </div>
-
-        <!-- Flashcards Psicología -->
-        <div class="tool-card" data-subvista-contenido="flashcards-psicologia" hidden>
-          <h2 class="tool-card__titulo">Psicología General y Social</h2>
-          <p class="flashcard__progreso" id="flashcard-psi-progreso">Ficha 1 de 18</p>
-          <button class="flashcard" id="flashcard-psi" type="button" aria-live="polite">
-            <span class="flashcard__etiqueta" id="flashcard-psi-etiqueta">Pregunta</span>
-            <span class="flashcard__texto" id="flashcard-psi-texto"></span>
-            <span class="flashcard__pista" id="flashcard-psi-pista">Toca para ver la respuesta</span>
-          </button>
-          <div class="flashcard__controles">
-            <button class="boton-secundario" id="btn-flashcard-psi-anterior" type="button">← Anterior</button>
-            <button class="boton-secundario" id="btn-flashcard-psi-siguiente" type="button">Siguiente →</button>
-          </div>
-        </div>
-
-        <!-- Nutrición -->
-        <div class="tool-card" data-subvista-contenido="nutricion" hidden>
-          <h2 class="tool-card__titulo">Calculadoras de Nutrición</h2>
-          <div class="campo">
-            <span class="campo__label" id="label-grupo-nutri">Grupo de edad</span>
-            <div class="segmented" role="radiogroup" aria-labelledby="label-grupo-nutri">
-              <button type="button" class="segmented__opcion" data-grupo-nutri="adulto" aria-pressed="true">Adulto (18+)</button>
-              <button type="button" class="segmented__opcion" data-grupo-nutri="nino" aria-pressed="false">Niño</button>
-            </div>
-          </div>
-          <div class="campo">
-            <label class="campo__label" for="input-peso-nutri">Peso</label>
-            <div class="campo__con-sufijo">
-              <input class="campo__input" type="number" id="input-peso-nutri" inputmode="decimal" min="0" step="any">
-              <span class="campo__sufijo">kg</span>
-            </div>
-          </div>
-          <div class="campo" id="campo-estatura-nutri">
-            <label class="campo__label" for="input-estatura-nutri">Estatura</label>
-            <div class="campo__con-sufijo">
-              <input class="campo__input" type="number" id="input-estatura-nutri" inputmode="decimal" min="0" step="any">
-              <span class="campo__sufijo">cm</span>
-            </div>
-          </div>
-          <p class="campo__nota" id="nota-nino-nutri" hidden>
-            En niños se usa el método Holliday-Segar para el requerimiento hídrico. El IMC pediátrico requiere percentiles por edad y sexo, así que no se calcula aquí.
-          </p>
-          <div class="acciones-calculadora">
-            <button class="boton-primario" id="btn-calcular-nutri" type="button">Calcular</button>
-            <button class="boton-secundario" id="btn-limpiar-nutri" type="button">Limpiar</button>
-          </div>
-          <p class="campo__error" id="error-nutri" hidden></p>
-          <div class="resultado" id="resultado-imc" hidden>
-            <p class="resultado__cifra"><span id="resultado-imc-valor">0</span> <small>IMC</small></p>
-            <div class="resultado__desglose" id="desglose-imc"></div>
-          </div>
-          <div class="resultado" id="resultado-hidrico" hidden style="margin-top: 12px;">
-            <p class="resultado__cifra"><span id="resultado-hidrico-valor">0</span> <small>ml/día</small></p>
-            <div class="resultado__desglose" id="desglose-hidrico"></div>
-          </div>
+      <!-- Flashcards Morfología -->
+      <div class="tool-card" data-subvista-contenido="flashcards-morfologia">
+        <h2 class="tool-card__titulo">Flashcards de Morfología</h2>
+        <p class="flashcard__progreso" id="flashcard-morfo-progreso">Ficha 1 de 18</p>
+        <button class="flashcard" id="flashcard-morfo" type="button" aria-live="polite">
+          <span class="flashcard__etiqueta" id="flashcard-morfo-etiqueta">Pregunta</span>
+          <span class="flashcard__texto" id="flashcard-morfo-texto"></span>
+          <span class="flashcard__pista" id="flashcard-morfo-pista">Toca para ver la respuesta</span>
+        </button>
+        <div class="flashcard__controles">
+          <button class="boton-secundario" id="btn-flashcard-morfo-anterior" type="button">← Anterior</button>
+          <button class="boton-secundario" id="btn-flashcard-morfo-siguiente" type="button">Siguiente →</button>
         </div>
       </div>
 
-      <!-- ========== CONTENIDO 2° SEMESTRE ========== -->
-      <div data-bloque-semestre="2" hidden>
+      <!-- Flashcards Psicología -->
+      <div class="tool-card" data-subvista-contenido="flashcards-psicologia" hidden>
+        <h2 class="tool-card__titulo">Psicología General y Social</h2>
+        <p class="flashcard__progreso" id="flashcard-psi-progreso">Ficha 1 de 16</p>
+        <button class="flashcard" id="flashcard-psi" type="button" aria-live="polite">
+          <span class="flashcard__etiqueta" id="flashcard-psi-etiqueta">Pregunta</span>
+          <span class="flashcard__texto" id="flashcard-psi-texto"></span>
+          <span class="flashcard__pista" id="flashcard-psi-pista">Toca para ver la respuesta</span>
+        </button>
+        <div class="flashcard__controles">
+          <button class="boton-secundario" id="btn-flashcard-psi-anterior" type="button">← Anterior</button>
+          <button class="boton-secundario" id="btn-flashcard-psi-siguiente" type="button">Siguiente →</button>
+        </div>
+      </div>
 
-        <!-- Selector de materia dentro del 2° semestre -->
+      <!-- Nutrición -->
+      <div class="tool-card" data-subvista-contenido="nutricion" hidden>
+        <h2 class="tool-card__titulo">Calculadoras de Nutrición</h2>
         <div class="campo">
-          <span class="campo__label" id="label-subnav-teorico-2">Materia</span>
-          <div class="segmented" role="tablist" aria-labelledby="label-subnav-teorico-2">
-            <button type="button" class="segmented__opcion" data-subvista="bioquimica" aria-pressed="true">Bioquímica</button>
-            <button type="button" class="segmented__opcion" data-subvista="farmacologia" aria-pressed="false">Farmacología</button>
-            <button type="button" class="segmented__opcion" data-subvista="materno-infantil" aria-pressed="false">Materno Infantil</button>
-            <button type="button" class="segmented__opcion" data-subvista="anatomia" aria-pressed="false">Anatomía</button>
-            <button type="button" class="segmented__opcion" data-subvista="microbiologia" aria-pressed="false">Microbiología</button>
+          <span class="campo__label" id="label-grupo-nutri">Grupo de edad</span>
+          <div class="segmented" role="radiogroup" aria-labelledby="label-grupo-nutri">
+            <button type="button" class="segmented__opcion" data-grupo-nutri="adulto" aria-pressed="true">Adulto (18+)</button>
+            <button type="button" class="segmented__opcion" data-grupo-nutri="nino" aria-pressed="false">Niño</button>
           </div>
         </div>
-
-        <!-- MATERIA 1: BIOQUÍMICA (Asociado a bioquimica.js) -->
-        <div class="tool-card" data-subvista-contenido="bioquimica">
-          <h2 class="tool-card__titulo">Bioquímica Clínica</h2>
-
-          <div class="campo">
-            <span class="campo__label" id="label-tipo-bioq">Calculadora</span>
-            <div class="segmented" role="radiogroup" aria-labelledby="label-tipo-bioq">
-              <button type="button" class="segmented__opcion" data-tipo-bioq="glucosa" aria-pressed="true">Glucosa</button>
-              <button type="button" class="segmented__opcion" data-tipo-bioq="osmolaridad" aria-pressed="false">Osmolaridad</button>
-            </div>
-          </div>
-
-          <!-- Panel interno: Glucosa -->
-          <div data-tipo-bioq-contenido="glucosa">
-            <div class="campo">
-              <span class="campo__label" id="label-dir-glucosa">Dirección</span>
-              <div class="segmented" role="radiogroup" aria-labelledby="label-dir-glucosa">
-                <button type="button" class="segmented__opcion" data-dir-glucosa="a-mmol" aria-pressed="true">mg/dL → mmol/L</button>
-                <button type="button" class="segmented__opcion" data-dir-glucosa="a-mgdl" aria-pressed="false">mmol/L → mg/dL</button>
-              </div>
-            </div>
-            <div class="campo">
-              <label class="campo__label" for="input-glucosa">Valor</label>
-              <div class="campo__con-sufijo">
-                <input class="campo__input" type="number" id="input-glucosa" inputmode="decimal" min="0" step="any" placeholder="Ej. 90">
-                <span class="campo__sufijo" id="sufijo-glucosa">mg/dL</span>
-              </div>
-            </div>
-            <div class="acciones-calculadora">
-              <button class="boton-primario" id="btn-calcular-glucosa" type="button">Calcular</button>
-              <button class="boton-secundario" id="btn-limpiar-glucosa" type="button">Limpiar</button>
-            </div>
-            <p class="campo__error" id="error-glucosa" hidden></p>
-            <div class="resultado" id="resultado-glucosa" hidden>
-              <p class="resultado__cifra">
-                <span id="resultado-glucosa-valor">0</span>
-                <small id="resultado-glucosa-unidad"></small>
-              </p>
-              <div class="resultado__desglose" id="desglose-glucosa"></div>
-            </div>
-          </div>
-
-          <!-- Panel interno: Osmolaridad -->
-          <div data-tipo-bioq-contenido="osmolaridad" hidden>
-            <div class="campo">
-              <label class="campo__label" for="input-na">Sodio (Na⁺)</label>
-              <div class="campo__con-sufijo">
-                <input class="campo__input" type="number" id="input-na" inputmode="decimal" min="0" step="any" placeholder="Ej. 140">
-                <span class="campo__sufijo">mEq/L</span>
-              </div>
-            </div>
-            <div class="campo campo__fila">
-              <div class="campo__col">
-                <label class="campo__label" for="input-glucosa-osm">Glucosa</label>
-                <div class="campo__con-sufijo">
-                  <input class="campo__input" type="number" id="input-glucosa-osm" inputmode="decimal" min="0" step="any" placeholder="Ej. 90">
-                  <span class="campo__sufijo">mg/dL</span>
-                </div>
-              </div>
-              <div class="campo__col">
-                <label class="campo__label" for="input-bun">BUN</label>
-                <div class="campo__con-sufijo">
-                  <input class="campo__input" type="number" id="input-bun" inputmode="decimal" min="0" step="any" placeholder="Ej. 14">
-                  <span class="campo__sufijo">mg/dL</span>
-                </div>
-              </div>
-            </div>
-            <div class="acciones-calculadora">
-              <button class="boton-primario" id="btn-calcular-osm" type="button">Calcular</button>
-              <button class="boton-secundario" id="btn-limpiar-osm" type="button">Limpiar</button>
-            </div>
-            <p class="campo__error" id="error-osm" hidden></p>
-            <div class="resultado" id="resultado-osm" hidden>
-              <p class="resultado__cifra">
-                <span id="resultado-osm-valor">0</span>
-                <small>mOsm/kg</small>
-              </p>
-              <div class="resultado__desglose" id="desglose-osm"></div>
-            </div>
+        <div class="campo">
+          <label class="campo__label" for="input-peso-nutri">Peso</label>
+          <div class="campo__con-sufijo">
+            <input class="campo__input" type="number" id="input-peso-nutri" inputmode="decimal" min="0" step="any">
+            <span class="campo__sufijo">kg</span>
           </div>
         </div>
-
-        <!-- MATERIA 2: FARMACOLOGÍA (Asociado a farmacologia.js) -->
-        <div class="tool-card" data-subvista-contenido="farmacologia" hidden>
-          <h2 class="tool-card__titulo">Farmacología</h2>
-
-          <div class="campo">
-            <span class="campo__label" id="label-sub-farmaco">Herramienta</span>
-            <div class="segmented" role="tablist" aria-labelledby="label-sub-farmaco">
-              <button type="button" class="segmented__opcion" data-sub-farmaco="flashcards" aria-pressed="true">Flashcards</button>
-              <button type="button" class="segmented__opcion" data-sub-farmaco="dosis-ped" aria-pressed="false">Dosis pediátrica</button>
-            </div>
-          </div>
-
-          <!-- Panel interno: Flashcards -->
-          <div data-sub-farmaco-contenido="flashcards">
-            <p class="flashcard__progreso" id="flashcard-farma-progreso">Ficha 1 de 15</p>
-            <button class="flashcard" id="flashcard-farma" type="button" aria-live="polite">
-              <span class="flashcard__etiqueta" id="flashcard-farma-etiqueta">Pregunta</span>
-              <span class="flashcard__texto" id="flashcard-farma-texto"></span>
-              <span class="flashcard__pista" id="flashcard-farma-pista">Toca para ver la respuesta</span>
-            </button>
-            <div class="flashcard__controles">
-              <button class="boton-secundario" id="btn-flashcard-farma-anterior" type="button">← Anterior</button>
-              <button class="boton-secundario" id="btn-flashcard-farma-siguiente" type="button">Siguiente →</button>
-            </div>
-          </div>
-
-          <!-- Panel interno: Dosis pediátrica -->
-          <div data-sub-farmaco-contenido="dosis-ped" hidden>
-            <div class="campo">
-              <label class="campo__label" for="input-peso-ped">Peso del niño</label>
-              <div class="campo__con-sufijo">
-                <input class="campo__input" type="number" id="input-peso-ped" inputmode="decimal" min="0" step="any" placeholder="Ej. 12">
-                <span class="campo__sufijo">kg</span>
-              </div>
-            </div>
-            <div class="campo">
-              <label class="campo__label" for="input-dosis-kg">Dosis indicada</label>
-              <div class="campo__con-sufijo">
-                <input class="campo__input" type="number" id="input-dosis-kg" inputmode="decimal" min="0" step="any" placeholder="Ej. 50">
-                <span class="campo__sufijo">mg/kg/día</span>
-              </div>
-            </div>
-            <div class="campo">
-              <span class="campo__label" id="label-frecuencia">Frecuencia</span>
-              <div class="segmented" role="radiogroup" aria-labelledby="label-frecuencia">
-                <button type="button" class="segmented__opcion" data-frecuencia="1" aria-pressed="false">c/24h</button>
-                <button type="button" class="segmented__opcion" data-frecuencia="2" aria-pressed="false">c/12h</button>
-                <button type="button" class="segmented__opcion" data-frecuencia="3" aria-pressed="true">c/8h</button>
-                <button type="button" class="segmented__opcion" data-frecuencia="4" aria-pressed="false">c/6h</button>
-              </div>
-            </div>
-            <div class="acciones-calculadora">
-              <button class="boton-primario" id="btn-calcular-dosis-ped" type="button">Calcular</button>
-              <button class="boton-secundario" id="btn-limpiar-dosis-ped" type="button">Limpiar</button>
-            </div>
-            <p class="campo__error" id="error-dosis-ped" hidden></p>
-            <div class="resultado" id="resultado-dosis-ped" hidden>
-              <p class="resultado__cifra">
-                <span id="resultado-dosis-ped-valor">0</span>
-                <small>mg por dosis</small>
-              </p>
-              <div class="resultado__desglose" id="desglose-dosis-ped"></div>
-            </div>
+        <div class="campo" id="campo-estatura-nutri">
+          <label class="campo__label" for="input-estatura-nutri">Estatura</label>
+          <div class="campo__con-sufijo">
+            <input class="campo__input" type="number" id="input-estatura-nutri" inputmode="decimal" min="0" step="any">
+            <span class="campo__sufijo">cm</span>
           </div>
         </div>
-
-        <!-- MATERIA 3: MATERNO INFANTIL (Asociado a materno-infantil.js) -->
-        <div class="tool-card" data-subvista-contenido="materno-infantil" hidden>
-          <h2 class="tool-card__titulo">Materno Infantil I</h2>
-
-          <div class="campo">
-            <span class="campo__label" id="label-sub-materno">Herramienta</span>
-            <div class="segmented" role="tablist" aria-labelledby="label-sub-materno">
-              <button type="button" class="segmented__opcion" data-sub-materno="flashcards" aria-pressed="true">Flashcards</button>
-              <button type="button" class="segmented__opcion" data-sub-materno="gestacion" aria-pressed="false">Edad gestacional</button>
-            </div>
-          </div>
-
-          <!-- Panel interno: Flashcards -->
-          <div data-sub-materno-contenido="flashcards">
-            <p class="flashcard__progreso" id="flashcard-materno-progreso">Ficha 1 de 16</p>
-            <button class="flashcard" id="flashcard-materno" type="button" aria-live="polite">
-              <span class="flashcard__etiqueta" id="flashcard-materno-etiqueta">Pregunta</span>
-              <span class="flashcard__texto" id="flashcard-materno-texto"></span>
-              <span class="flashcard__pista" id="flashcard-materno-pista">Toca para ver la respuesta</span>
-            </button>
-            <div class="flashcard__controles">
-              <button class="boton-secundario" id="btn-flashcard-materno-anterior" type="button">← Anterior</button>
-              <button class="boton-secundario" id="btn-flashcard-materno-siguiente" type="button">Siguiente →</button>
-            </div>
-          </div>
-
-          <!-- Panel interno: Edad gestacional (FUM) -->
-          <div data-sub-materno-contenido="gestacion" hidden>
-            <p class="campo__nota">
-              Se calcula a partir del primer día de la última menstruación (FUM) con la Regla de Naegele.
-            </p>
-            <div class="campo">
-              <label class="campo__label" for="input-fum">Fecha de última menstruación</label>
-              <input class="campo__input" type="date" id="input-fum">
-            </div>
-            <div class="acciones-calculadora">
-              <button class="boton-primario" id="btn-calcular-fum" type="button">Calcular</button>
-              <button class="boton-secundario" id="btn-limpiar-fum" type="button">Limpiar</button>
-            </div>
-            <p class="campo__error" id="error-fum" hidden></p>
-            <div class="resultado" id="resultado-fum" hidden>
-              <p class="resultado__cifra">
-                <span id="resultado-fum-valor">0</span>
-                <small id="resultado-fum-unidad"></small>
-              </p>
-              <div class="resultado__desglose" id="desglose-fum"></div>
-            </div>
-          </div>
+        <p class="campo__nota" id="nota-nino-nutri" hidden>
+          En niños se usa el método Holliday-Segar para el requerimiento hídrico. El IMC pediátrico requiere percentiles por edad y sexo, así que no se calcula aquí.
+        </p>
+        <div class="acciones-calculadora">
+          <button class="boton-primario" id="btn-calcular-nutri" type="button">Calcular</button>
+          <button class="boton-secundario" id="btn-limpiar-nutri" type="button">Limpiar</button>
         </div>
-
-        <!-- MATERIA 4: ANATOMÍA HUMANA (Asociado a anatomia.js) -->
-        <div class="tool-card" data-subvista-contenido="anatomia" hidden>
-          <h2 class="tool-card__titulo">Anatomía Humana</h2>
-          <p class="flashcard__progreso" id="flashcard-anatomia-progreso">Ficha 1 de 17</p>
-          <button class="flashcard" id="flashcard-anatomia" type="button" aria-live="polite">
-            <span class="flashcard__etiqueta" id="flashcard-anatomia-etiqueta">Pregunta</span>
-            <span class="flashcard__texto" id="flashcard-anatomia-texto"></span>
-            <span class="flashcard__pista" id="flashcard-anatomia-pista">Toca para ver la respuesta</span>
-          </button>
-          <div class="flashcard__controles">
-            <button class="boton-secundario" id="btn-flashcard-anatomia-anterior" type="button">← Anterior</button>
-            <button class="boton-secundario" id="btn-flashcard-anatomia-siguiente" type="button">Siguiente →</button>
-          </div>
+        <p class="campo__error" id="error-nutri" hidden></p>
+        <div class="resultado" id="resultado-imc" hidden>
+          <p class="resultado__cifra"><span id="resultado-imc-valor">0</span> <small>IMC</small></p>
+          <div class="resultado__desglose" id="desglose-imc"></div>
         </div>
-
-        <!-- MATERIA 5: MICROBIOLOGÍA (Asociado a microbiologia.js) -->
-        <div class="tool-card" data-subvista-contenido="microbiologia" hidden>
-          <h2 class="tool-card__titulo">Microbiología y Parasitología</h2>
-          <p class="flashcard__progreso" id="flashcard-micro-progreso">Ficha 1 de 14</p>
-          <button class="flashcard" id="flashcard-micro" type="button" aria-live="polite">
-            <span class="flashcard__etiqueta" id="flashcard-micro-etiqueta">Pregunta</span>
-            <span class="flashcard__texto" id="flashcard-micro-texto"></span>
-            <span class="flashcard__pista" id="flashcard-micro-pista">Toca para ver la respuesta</span>
-          </button>
-          <div class="flashcard__controles">
-            <button class="boton-secundario" id="btn-flashcard-micro-anterior" type="button">← Anterior</button>
-            <button class="boton-secundario" id="btn-flashcard-micro-siguiente" type="button">Siguiente →</button>
-          </div>
+        <div class="resultado" id="resultado-hidrico" hidden style="margin-top: 12px;">
+          <p class="resultado__cifra"><span id="resultado-hidrico-valor">0</span> <small>ml/día</small></p>
+          <div class="resultado__desglose" id="desglose-hidrico"></div>
         </div>
-
-      </div><!-- /data-bloque-semestre="2" -->
+      </div>
     </section>
 
     <!-- ---------- VISTA: AJUSTES ---------- -->
@@ -618,9 +365,6 @@
 
       <div class="tool-card">
         <h2 class="tool-card__titulo">Actualizaciones</h2>
-        <p class="vista__intro" style="margin-bottom: 12px;">
-          FABSI se actualiza sola en segundo plano. Si quieres forzar la comprobación, pulsa aquí.
-        </p>
         <button class="boton-secundario" id="btn-buscar-actualizaciones" type="button">
           Buscar actualizaciones
         </button>
@@ -671,10 +415,5 @@
   <script src="js/modules/flashcards-psicologia.js"></script>
   <script src="js/modules/calculadoras-nutricion.js"></script>
   <script src="js/ajustes.js"></script>
-  <script src="js/modules/bioquimica.js"></script>
-  <script src="js/modules/farmacologia.js"></script>
-  <script src="js/modules/materno-infantil.js"></script>
-  <script src="js/modules/anatomia.js"></script>
-  <script src="js/modules/microbiologia.js"></script>
 </body>
 </html>
