@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="es" data-modo="normal">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1D4F4F">
+  <meta name="description" content="FABSI — Herramientas académicas para TSU en Enfermería">
+  <title>FABSI · TSU Enfermería</title>
+  <link rel="stylesheet" href="styles.css">
+   
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="iconos/icon-192.png">
+  <link rel="apple-touch-icon" href="iconos/icon-192.png">
+</head>
+<body>
+
+  <!-- ============ HEADER ============ -->
+  <header class="app-header">
+    <div class="app-header__titulos">
+      <h1 class="app-header__title">FABSI</h1>
+      <span class="app-header__autor">TSU Enfermería · by FABSI</span>
+    </div>
+    <span class="app-header__badge" id="badge-conexion" aria-live="polite">Offline</span>
+  </header>
+
+  <!-- ============ MAIN ============ -->
+  <main class="app-main">
+
+    <!-- ===== VISTA: INICIO ===== -->
+    <section id="vista-inicio" class="vista" aria-labelledby="titulo-inicio">
+      <p class="vista__intro" id="titulo-inicio">
+        Herramientas académicas para TSU Enfermería. Elige una opción para comenzar.
+      </p>
+
+      <div class="card-grid">
+        <div class="card" data-ir-a="pensum" role="button" tabindex="0">
+          <span class="card__icono" aria-hidden="true">📚</span>
+          <div class="card__texto">
+            <strong>Pensum de materias</strong>
+            <small>Consulta las asignaturas por semestre</small>
+          </div>
+        </div>
+
+        <div class="card" data-ir-a="calculadora" role="button" tabindex="0">
+          <span class="card__icono" aria-hidden="true">🧮</span>
+          <div class="card__texto">
+            <strong>Calculadora de notas</strong>
+            <small>Lleva el control de tus calificaciones</small>
+          </div>
+        </div>
+
+        <div class="card" data-ir-a="flashcards" role="button" tabindex="0">
+          <span class="card__icono" aria-hidden="true">🃏</span>
+          <div class="card__texto">
+            <strong>Flashcards</strong>
+            <small>Repasa conceptos clave por materia</small>
+          </div>
+        </div>
+
+        <div class="card" data-ir-a="herramientas" role="button" tabindex="0">
+          <span class="card__icono" aria-hidden="true">🩺</span>
+          <div class="card__texto">
+            <strong>Herramientas clínicas</strong>
+            <small>Goteo, dosificación, conversión y más</small>
+          </div>
+        </div>
+
+        <div class="card" data-ir-a="ajustes" role="button" tabindex="0">
+          <span class="card__icono" aria-hidden="true">⚙️</span>
+          <div class="card__texto">
+            <strong>Ajustes</strong>
+            <small>Modo guardia y preferencias</small>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== VISTA: PENSUM ===== -->
+    <section id="vista-pensum" class="vista" aria-labelledby="titulo-pensum" hidden>
+      <p class="vista__intro" id="titulo-pensum">
+        Selecciona un semestre para ver sus asignaturas.
+      </p>
+
+      <div class="semester-tabs" role="tablist" aria-label="Semestres" id="semester-tabs"></div>
+      <div id="pensum-lista" role="tabpanel"></div>
+    </section>
+
+    <!-- ===== VISTA: CALCULADORA DE NOTAS ===== -->
+    <section id="vista-calculadora" class="vista" aria-labelledby="titulo-calculadora" hidden>
+      <p class="vista__intro" id="titulo-calculadora">
+        Lleva el control de tus notas por materia. Los datos se guardan en tu dispositivo.
+      </p>
+
+      <div class="filtros-rapidos" role="group" aria-label="Filtros de materias">
+        <button class="filtros-rapidos__btn" data-filtro="todas" aria-pressed="true" type="button">Todas</button>
+        <button class="filtros-rapidos__btn" data-filtro="semestre-actual" aria-pressed="false" type="button">Semestre actual</button>
+        <button class="filtros-rapidos__btn" data-filtro="con-notas" aria-pressed="false" type="button">Con notas</button>
+      </div>
+
+      <div id="calculadora-lista"></div>
+
+      <div class="tool-card" style="margin-top: 16px;">
+        <button class="boton-primario" id="btn-agregar-materia" type="button">+ Agregar materia</button>
+      </div>
+
+      <!-- Panel de detalle de materia (oculto por defecto) -->
+      <div id="detalle-notas" class="herramienta-panel" hidden>
+        <button class="boton-secundario volver-notas" type="button" style="margin-bottom: 12px; width: 100%;">← Volver a mis materias</button>
+        
+        <div class="tool-card">
+          <h2 class="tool-card__titulo" id="notas-materia-nombre">Materia</h2>
+          <p class="campo__nota" id="notas-materia-meta">—</p>
+
+          <div id="notas-cortes-lista"></div>
+
+          <div class="form-materia" style="margin-top: 16px; padding: 0;">
+            <h3 style="font-size: var(--fs-sm); font-weight: 700; margin-bottom: 8px;">Agregar corte</h3>
+            <div class="campo__fila">
+              <div class="campo__col">
+                <label class="campo__label" for="nuevo-corte-nota">Nota (/20)</label>
+                <input class="campo__input" type="number" id="nuevo-corte-nota" min="0" max="20" step="0.1" placeholder="0 - 20">
+              </div>
+              <div class="campo__col">
+                <label class="campo__label" for="nuevo-corte-porcentaje">Porcentaje (%)</label>
+                <input class="campo__input" type="number" id="nuevo-corte-porcentaje" min="1" max="100" step="1" placeholder="0 - 100">
+              </div>
+            </div>
+            <button class="boton-primario" id="btn-agregar-corte" type="button" style="margin-top: 8px;">Añadir corte</button>
+            <p class="campo__error" id="error-corte" hidden></p>
+          </div>
+
+          <div class="resumen-materia" id="resumen-materia" hidden>
+            <div class="resumen-materia__linea">
+              <span>Acumulado:</span>
+              <strong id="resumen-acumulado">—</strong>
+            </div>
+            <div class="resumen-materia__linea">
+              <span>Porcentaje evaluado:</span>
+              <strong id="resumen-porcentaje">—</strong>
+            </div>
+            <div class="resumen-materia__linea" style="margin-top: 8px; border-top: 1px dashed var(--color-line); padding-top: 8px; color: var(--color-primary-dark);">
+              <span id="resumen-falta-texto">Para aprobar (10/20) necesitas:</span>
+              <strong id="resumen-falta-valor">—</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+            <!-- Panel para Materia Personalizada -->
+      <div id="form-materia-personalizada" class="herramienta-panel" hidden>
+        <button class="boton-secundario" id="btn-cancelar-custom" type="button" style="margin-bottom: 12px; width: 100%;">← Cancelar</button>
+        
+        <div class="tool-card">
+          <h2 class="tool-card__titulo">Nueva materia</h2>
+          <p class="campo__nota">Agrega una materia optativa, electiva o taller que no esté en el pensum.</p>
+
+          <div class="campo">
+            <label class="campo__label" for="materia-custom-nombre">Nombre de la materia</label>
+            <input class="campo__input" type="text" id="materia-custom-nombre" placeholder="Ej. Primeros Auxilios">
+          </div>
+
+          <div class="campo">
+            <label class="campo__label" for="materia-custom-semestre">Semestre al que pertenece</label>
+            <select class="campo__select" id="materia-custom-semestre">
+              <option value="1">1er semestre</option>
+              <option value="2">2do semestre</option>
+              <option value="3">3er semestre</option>
+              <option value="4">4to semestre</option>
+              <option value="5">5to semestre</option>
+            </select>
+          </div>
+
+          <button class="boton-primario" id="btn-guardar-custom" type="button">Guardar y ver notas</button>
+          <p class="campo__error" id="error-custom" hidden></p>
+        </div>
+      </div>
+    </section>
+
+        <!-- ===== VISTA: FLASHCARDS ===== -->
+    <section id="vista-flashcards" class="vista" aria-labelledby="titulo-flashcards" hidden>
+      <p class="vista__intro" id="titulo-flashcards">
+        Selecciona una materia para repasar con flashcards.
+      </p>
+      <div id="flashcards-lista"></div>
+      <!-- Este contenedor vacío es donde el JS creará los paneles automáticamente -->
+      <div id="flash-panel-contenedor"></div>
+    </section>
+
+    <!-- ===== VISTA: HERRAMIENTAS CLÍNICAS ===== -->
+    <section id="vista-herramientas" class="vista" aria-labelledby="titulo-herramientas" hidden>
+      <p class="vista__intro" id="titulo-herramientas">
+        Calculadoras de uso clínico. Funcionan sin internet.
+      </p>
+
+      <div class="card-grid">
+        <div class="card" data-herramienta="goteo" role="button" tabindex="0">
+          <span class="card__icono" aria-hidden="true">💧</span>
+          <div class="card__texto">
+            <strong>Goteo IV</strong>
+            <small>Macro y microgotero</small>
+          </div>
+        </div>
+
+        <div class="card" data-herramienta="dosificacion" role="button" tabindex="0">
+          <span class="card__icono" aria-hidden="true">💉</span>
+          <div class="card__texto">
+            <strong>Dosificación</strong>
+            <small>Regla de tres (ampolla y tableta)</small>
+          </div>
+        </div>
+
+        <div class="card" data-herramienta="conversor" role="button" tabindex="0">
+          <span class="card__icono" aria-hidden="true">🧪</span>
+          <div class="card__texto">
+            <strong>Conversor de unidades</strong>
+            <small>Masa y volumen</small>
+          </div>
+        </div>
+
+        <div class="card" data-herramienta="bioquimica" role="button" tabindex="0">
+          <span class="card__icono" aria-hidden="true">🩸</span>
+          <div class="card__texto">
+            <strong>Bioquímica</strong>
+            <small>Glucosa y osmolaridad</small>
+          </div>
+        </div>
+
+        <div class="card" data-herramienta="nutricion" role="button" tabindex="0">
+          <span class="card__icono" aria-hidden="true">⚖️</span>
+          <div class="card__texto">
+            <strong>Nutrición</strong>
+            <small>IMC y requerimiento hídrico</small>
+          </div>
+        </div>
+
+        <div class="card" data-herramienta="materno" role="button" tabindex="0">
+          <span class="card__icono" aria-hidden="true">🤰</span>
+          <div class="card__texto">
+            <strong>Edad gestacional</strong>
+            <small>FUM y regla de Naegele</small>
+          </div>
+        </div>
+      </div>
+
+            <!-- ===== PANEL: GOTEO ===== -->
+      <div id="herramienta-goteo" class="herramienta-panel" hidden>
+        <div class="tool-card">
+          <h2 class="tool-card__titulo">Cálculo de goteo IV</h2>
+
+          <div class="campo">
+            <span class="campo__label">Tipo de equipo</span>
+            <div class="segmented">
+              <button class="segmented__opcion" data-tipo-equipo="macro" aria-pressed="true" type="button">Macrogotero</button>
+              <button class="segmented__opcion" data-tipo-equipo="micro" aria-pressed="false" type="button">Microgotero</button>
+            </div>
+          </div>
+
+          <div class="campo" id="campo-factor-macro">
+            <label class="campo__label" for="select-factor-macro">Factor del macrogotero (gtt/ml)</label>
+            <select class="campo__select" id="select-factor-macro">
+              <option value="10">10 gtt/ml</option>
+              <option value="15">15 gtt/ml</option>
+              <option value="20" selected>20 gtt/ml</option>
+            </select>
+          </div>
+
+          <p class="campo__nota" id="nota-factor-micro" hidden>
+            Microgotero: factor fijo de 60 gtt/ml.
+          </p>
+
+          <div class="campo">
+            <label class="campo__label" for="input-volumen">Volumen a infundir</label>
+            <div class="campo__con-sufijo">
+              <input class="campo__input" type="number" id="input-volumen" inputmode="decimal" min="0" step="1" placeholder="0">
+              <span class="campo__sufijo">ml</span>
+            </div>
+          </div>
+
+          <div class="campo">
+            <span class="campo__label">Unidad de tiempo</span>
+            <div class="campo__fila">
+              <div class="campo__col">
+                <input class="campo__input" type="number" id="input-tiempo" inputmode="decimal" min="0" step="1" placeholder="0">
+              </div>
+              <div class="segmented segmented--compacto">
+                <button class="segmented__opcion" data-unidad-tiempo="horas" aria-pressed="true" type="button">Horas</button>
+                <button class="segmented__opcion" data-unidad-tiempo="minutos" aria-pressed="false" type="button">Min</button>
+              </div>
+            </div>
+            <span class="campo__sufijo" id="sufijo-tiempo" style="display:inline-block;margin-top:8px;padding:4px 8px;border-radius:8px;">h</span>
+          </div>
+
+          <div class="acciones-calculadora">
+            <button class="boton-primario" id="btn-calcular-goteo" type="button">Calcular</button>
+            <button class="boton-secundario" id="btn-limpiar-goteo" type="button">Limpiar</button>
+          </div>
+
+          <p class="campo__error" id="error-goteo" hidden></p>
+
+          <div class="resultado" id="resultado-goteo" hidden>
+            <div class="resultado__cifra"><span id="resultado-valor">—</span> gotas/min</div>
+            <div class="resultado__desglose" id="desglose-goteo"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PANEL: DOSIFICACIÓN ===== -->
+      <div id="herramienta-dosificacion" class="herramienta-panel" hidden>
+        <div class="tool-card">
+          <h2 class="tool-card__titulo">Dosificación (regla de tres)</h2>
+
+          <div class="campo">
+            <span class="campo__label">Tipo de presentación</span>
+            <div class="segmented">
+              <button class="segmented__opcion" data-tipo-dosificacion="ampolla" aria-pressed="true" type="button">Ampolla</button>
+              <button class="segmented__opcion" data-tipo-dosificacion="tableta" aria-pressed="false" type="button">Tableta</button>
+            </div>
+          </div>
+
+          <div class="campo">
+            <label class="campo__label" for="input-dosis-indicada">Dosis indicada</label>
+            <div class="campo__con-sufijo">
+              <input class="campo__input" type="number" id="input-dosis-indicada" inputmode="decimal" min="0" step="0.1" placeholder="0">
+              <span class="campo__sufijo">mg</span>
+            </div>
+          </div>
+
+          <div id="bloque-ampolla">
+            <div class="campo">
+              <label class="campo__label" for="input-dosis-disponible-amp">Dosis disponible en el frasco</label>
+              <div class="campo__con-sufijo">
+                <input class="campo__input" type="number" id="input-dosis-disponible-amp" inputmode="decimal" min="0" step="0.1" placeholder="0">
+                <span class="campo__sufijo">mg</span>
+              </div>
+            </div>
+            <div class="campo">
+              <label class="campo__label" for="input-volumen-disponible-amp">Volumen del frasco</label>
+              <div class="campo__con-sufijo">
+                <input class="campo__input" type="number" id="input-volumen-disponible-amp" inputmode="decimal" min="0" step="0.1" placeholder="0">
+                <span class="campo__sufijo">ml</span>
+              </div>
+            </div>
+          </div>
+
+          <div id="bloque-tableta" hidden>
+            <div class="campo">
+              <label class="campo__label" for="input-dosis-disponible-tab">Dosis por tableta</label>
+              <div class="campo__con-sufijo">
+                <input class="campo__input" type="number" id="input-dosis-disponible-tab" inputmode="decimal" min="0" step="0.1" placeholder="0">
+                <span class="campo__sufijo">mg</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="acciones-calculadora">
+            <button class="boton-primario" id="btn-calcular-dosis" type="button">Calcular</button>
+            <button class="boton-secundario" id="btn-limpiar-dosis" type="button">Limpiar</button>
+          </div>
+
+          <p class="campo__error" id="error-dosis" hidden></p>
+
+          <div class="resultado" id="resultado-dosis" hidden>
+            <div class="resultado__cifra"><span id="resultado-dosis-valor">—</span> <span id="resultado-dosis-unidad"></span></div>
+            <div class="resultado__desglose" id="desglose-dosis"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PANEL: CONVERSOR ===== -->
+      <div id="herramienta-conversor" class="herramienta-panel" hidden>
+        <div class="tool-card">
+          <h2 class="tool-card__titulo">Conversor de unidades</h2>
+
+          <div class="campo">
+            <span class="campo__label">Categoría</span>
+            <div class="segmented">
+              <button class="segmented__opcion" data-categoria-conversor="masa" aria-pressed="true" type="button">Masa</button>
+              <button class="segmented__opcion" data-categoria-conversor="volumen" aria-pressed="false" type="button">Volumen</button>
+            </div>
+          </div>
+
+          <div class="campo">
+            <label class="campo__label" for="input-valor-conversor">Valor</label>
+            <input class="campo__input" type="number" id="input-valor-conversor" inputmode="decimal" step="any" placeholder="0">
+          </div>
+
+          <div class="campo__fila">
+            <div class="campo__col">
+              <label class="campo__label" for="select-unidad-desde">De</label>
+              <select class="campo__select" id="select-unidad-desde"></select>
+            </div>
+            <div class="campo__col">
+              <label class="campo__label" for="select-unidad-hasta">A</label>
+              <select class="campo__select" id="select-unidad-hasta"></select>
+            </div>
+          </div>
+
+          <div class="acciones-calculadora">
+            <button class="boton-primario" id="btn-convertir" type="button">Convertir</button>
+            <button class="boton-secundario" id="btn-limpiar-conversor" type="button">Limpiar</button>
+          </div>
+
+          <p class="campo__error" id="error-conversor" hidden></p>
+
+          <div class="resultado" id="resultado-conversor" hidden>
+            <div class="resultado__cifra"><span id="resultado-conversor-valor">—</span> <span id="resultado-conversor-unidad"></span></div>
+            <div class="resultado__desglose" id="desglose-conversor"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PANEL: BIOQUÍMICA ===== -->
+      <div id="herramienta-bioquimica" class="herramienta-panel" hidden>
+        <div class="tool-card">
+          <h2 class="tool-card__titulo">Bioquímica clínica</h2>
+
+          <div class="campo">
+            <span class="campo__label">Calculadora</span>
+            <div class="segmented">
+              <button class="segmented__opcion" data-tipo-bioq="glucosa" aria-pressed="true" type="button">Glucosa</button>
+              <button class="segmented__opcion" data-tipo-bioq="osmolaridad" aria-pressed="false" type="button">Osmolaridad</button>
+            </div>
+          </div>
+
+          <div id="bloque-bioq-glucosa">
+            <div class="campo">
+              <span class="campo__label">Dirección</span>
+              <div class="segmented">
+                <button class="segmented__opcion" data-dir-glucosa="a-mmol" aria-pressed="true" type="button">mg/dL → mmol/L</button>
+                <button class="segmented__opcion" data-dir-glucosa="a-mgdl" aria-pressed="false" type="button">mmol/L → mg/dL</button>
+              </div>
+            </div>
+
+            <div class="campo">
+              <label class="campo__label" for="input-glucosa">Valor</label>
+              <div class="campo__con-sufijo">
+                <input class="campo__input" type="number" id="input-glucosa" inputmode="decimal" step="0.1" placeholder="0">
+                <span class="campo__sufijo" id="sufijo-glucosa">mg/dL</span>
+              </div>
+            </div>
+
+            <div class="acciones-calculadora">
+              <button class="boton-primario" id="btn-calcular-glucosa" type="button">Calcular</button>
+              <button class="boton-secundario" id="btn-limpiar-glucosa" type="button">Limpiar</button>
+            </div>
+
+            <p class="campo__error" id="error-glucosa" hidden></p>
+
+            <div class="resultado" id="resultado-glucosa" hidden>
+              <div class="resultado__cifra"><span id="resultado-glucosa-valor">—</span> <span id="resultado-glucosa-unidad"></span></div>
+              <div class="resultado__desglose" id="desglose-glucosa"></div>
+            </div>
+          </div>
+
+          <div id="bloque-bioq-osmolaridad" hidden>
+            <div class="campo">
+              <label class="campo__label" for="input-na">Sodio (Na⁺)</label>
+              <div class="campo__con-sufijo">
+                <input class="campo__input" type="number" id="input-na" inputmode="decimal" step="0.1" placeholder="0">
+                <span class="campo__sufijo">mEq/L</span>
+              </div>
+            </div>
+            <div class="campo">
+              <label class="campo__label" for="input-glucosa-osm">Glucosa</label>
+              <div class="campo__con-sufijo">
+                <input class="campo__input" type="number" id="input-glucosa-osm" inputmode="decimal" step="0.1" placeholder="0">
+                <span class="campo__sufijo">mg/dL</span>
+              </div>
+            </div>
+            <div class="campo">
+              <label class="campo__label" for="input-bun">BUN</label>
+              <div class="campo__con-sufijo">
+                <input class="campo__input" type="number" id="input-bun" inputmode="decimal" step="0.1" placeholder="0">
+                <span class="campo__sufijo">mg/dL</span>
+              </div>
+            </div>
+
+            <div class="acciones-calculadora">
+              <button class="boton-primario" id="btn-calcular-osm" type="button">Calcular</button>
+              <button class="boton-secundario" id="btn-limpiar-osm" type="button">Limpiar</button>
+            </div>
+
+            <p class="campo__error" id="error-osm" hidden></p>
+
+            <div class="resultado" id="resultado-osm" hidden>
+              <div class="resultado__cifra"><span id="resultado-osm-valor">—</span> mOsm/kg</div>
+              <div class="resultado__desglose" id="desglose-osm"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PANEL: NUTRICIÓN ===== -->
+      <div id="herramienta-nutricion" class="herramienta-panel" hidden>
+        <div class="tool-card">
+          <h2 class="tool-card__titulo">Nutrición y dietética</h2>
+
+          <div class="campo">
+            <span class="campo__label">Grupo</span>
+            <div class="segmented">
+              <button class="segmented__opcion" data-grupo-nutri="adulto" aria-pressed="true" type="button">Adulto</button>
+              <button class="segmented__opcion" data-grupo-nutri="nino" aria-pressed="false" type="button">Niño</button>
+            </div>
+          </div>
+
+          <div class="campo">
+            <label class="campo__label" for="input-peso-nutri">Peso</label>
+            <div class="campo__con-sufijo">
+              <input class="campo__input" type="number" id="input-peso-nutri" inputmode="decimal" step="0.1" placeholder="0">
+              <span class="campo__sufijo">kg</span>
+            </div>
+          </div>
+
+          <div class="campo" id="campo-estatura-nutri">
+            <label class="campo__label" for="input-estatura-nutri">Estatura</label>
+            <div class="campo__con-sufijo">
+              <input class="campo__input" type="number" id="input-estatura-nutri" inputmode="decimal" step="0.1" placeholder="0">
+              <span class="campo__sufijo">cm</span>
+            </div>
+          </div>
+
+          <p class="campo__nota" id="nota-nino-nutri" hidden>
+            En niños no se calcula IMC (requiere percentiles). Se calcula el
+            requerimiento hídrico por Holliday-Segar.
+          </p>
+
+          <div class="acciones-calculadora">
+            <button class="boton-primario" id="btn-calcular-nutri" type="button">Calcular</button>
+            <button class="boton-secundario" id="btn-limpiar-nutri" type="button">Limpiar</button>
+          </div>
+
+          <p class="campo__error" id="error-nutri" hidden></p>
+
+          <div class="resultado" id="resultado-imc" hidden>
+            <div class="resultado__cifra"><span id="resultado-imc-valor">—</span> kg/m²</div>
+            <div class="resultado__desglose" id="desglose-imc"></div>
+          </div>
+
+          <div class="resultado" id="resultado-hidrico" hidden style="margin-top:12px;">
+            <div class="resultado__cifra"><span id="resultado-hidrico-valor">—</span> ml/día</div>
+            <div class="resultado__desglose" id="desglose-hidrico"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PANEL: MATERNO (FUM) ===== -->
+      <div id="herramienta-materno" class="herramienta-panel" hidden>
+        <div class="tool-card">
+          <h2 class="tool-card__titulo">Edad gestacional</h2>
+
+          <div class="campo">
+            <label class="campo__label" for="input-fum">Fecha de última menstruación (FUM)</label>
+            <input class="campo__input" type="date" id="input-fum">
+          </div>
+
+          <div class="acciones-calculadora">
+            <button class="boton-primario" id="btn-calcular-fum" type="button">Calcular</button>
+            <button class="boton-secundario" id="btn-limpiar-fum" type="button">Limpiar</button>
+          </div>
+
+          <p class="campo__error" id="error-fum" hidden></p>
+
+          <div class="resultado" id="resultado-fum" hidden>
+            <div class="resultado__cifra"><span id="resultado-fum-valor">—</span> <span id="resultado-fum-unidad"></span></div>
+            <div class="resultado__desglose" id="desglose-fum"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== VISTA: AJUSTES ===== -->
+    <section id="vista-ajustes" class="vista" aria-labelledby="titulo-ajustes" hidden>
+      <p class="vista__intro" id="titulo-ajustes">Personaliza tu experiencia.</p>
+
+      <div class="tool-card">
+        <h2 class="tool-card__titulo">Modo guardia</h2>
+        <div class="campo">
+          <label class="ajuste-toggle" for="toggle-guardia">
+            <input type="checkbox" id="toggle-guardia">
+            <span class="ajuste-toggle__slider" aria-hidden="true"></span>
+            <span class="ajuste-toggle__label">Activar modo guardia</span>
+          </label>
+        </div>
+        <p class="campo__nota">
+          El modo guardia aumenta el tamaño del texto y usa fondo blanco para
+          facilitar la lectura durante turnos nocturnos.
+        </p>
+      </div>
+
+      <div class="tool-card">
+        <h2 class="tool-card__titulo">Semestre actual</h2>
+        <div class="campo">
+          <label class="campo__label" for="select-semestre-actual">¿En qué semestre estás?</label>
+          <select class="campo__select" id="select-semestre-actual">
+            <option value="1">1er semestre</option>
+            <option value="2">2do semestre</option>
+            <option value="3">3er semestre</option>
+            <option value="4">4to semestre</option>
+            <option value="5">5to semestre</option>
+          </select>
+        </div>
+        <p class="campo__nota">
+          Se usa para mostrar solo las materias de tu semestre actual en la calculadora de notas.
+        </p>
+      </div>
+
+      <div class="tool-card">
+        <h2 class="tool-card__titulo">Acerca de</h2>
+        <p class="ajustes__creditos">FABSI · TSU Enfermería · Pensum 2010</p>
+        <p class="campo__nota" style="margin-top: 12px;">
+          Hecho con 🩺 por FABSI. Esta app funciona sin internet y guarda tus datos
+          solo en tu dispositivo.
+        </p>
+      </div>
+            <!-- ===== FORMULARIO DE FEEDBACK ===== -->
+      <div class="tool-card" style="margin-top: 16px;">
+        <h2 class="tool-card__titulo">Enviar comentario o sugerencia</h2>
+        <p class="campo__nota">¿Encontraste un error? ¿Falta una flashcard? Escríbenos.</p>
+        
+        <form id="form-feedback" action="https://formspree.io/f/xwlljwep" method="POST">
+          <div class="campo">
+            <label class="campo__label" for="feedback-tipo">Tipo de comentario</label>
+            <select class="campo__select" id="feedback-tipo" name="tipo" required>
+              <option value="error">Reportar un error</option>
+              <option value="contenido">Contenido faltante (flashcards)</option>
+              <option value="sugerencia">Sugerencia de mejora</option>
+            </select>
+          </div>
+          
+          <div class="campo">
+            <label class="campo__label" for="feedback-mensaje">Mensaje</label>
+            <textarea class="campo__input" id="feedback-mensaje" name="mensaje" rows="3" required style="padding: 12px; font-family: var(--font-ui);"></textarea>
+          </div>
+
+          <button class="boton-primario" type="submit">Enviar comentario</button>
+          <p class="campo__error" id="feedback-error" hidden></p>
+          <p class="campo__nota" id="feedback-exito" hidden style="background: var(--color-primary); color: white;">¡Gracias! Tu mensaje ha sido enviado.</p>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============ FOOTER (solo desktop) ============ -->
+  <footer class="app-footer">
+    © FABSI · TSU Enfermería · Hecho con 🩺
+  </footer>
+    <!-- ============ BANNER DE ACTUALIZACIÓN ============ -->
+  <div class="banner-update" id="banner-update" hidden>
+    <div class="banner-update__texto">
+      <strong>Nueva versión disponible</strong>
+      <small>Actualiza para ver los últimos cambios.</small>
+    </div>
+    <button class="banner-update__boton" id="btn-actualizar" type="button">Actualizar</button>
+    <button class="banner-update__cerrar" id="btn-cerrar-banner" type="button" aria-label="Cerrar">×</button>
+  </div>
+
+  <!-- ============ BOTTOM NAV ============ -->
+  <nav class="bottom-nav" aria-label="Navegación principal">
+    <a class="bottom-nav__item" href="#inicio" data-vista="inicio" aria-current="page">
+      <span class="bottom-nav__icono" aria-hidden="true">🏠</span>
+      <span class="bottom-nav__label">Inicio</span>
+    </a>
+    <a class="bottom-nav__item" href="#pensum" data-vista="pensum">
+      <span class="bottom-nav__icono" aria-hidden="true">📚</span>
+      <span class="bottom-nav__label">Pensum</span>
+    </a>
+    <a class="bottom-nav__item" href="#calculadora" data-vista="calculadora">
+      <span class="bottom-nav__icono" aria-hidden="true">🧮</span>
+      <span class="bottom-nav__label">Notas</span>
+    </a>
+    <a class="bottom-nav__item" href="#flashcards" data-vista="flashcards">
+      <span class="bottom-nav__icono" aria-hidden="true">🃏</span>
+      <span class="bottom-nav__label">Repaso</span>
+    </a>
+    <a class="bottom-nav__item" href="#herramientas" data-vista="herramientas">
+      <span class="bottom-nav__icono" aria-hidden="true">🩺</span>
+      <span class="bottom-nav__label">Clínicas</span>
+    </a>
+    <a class="bottom-nav__item" href="#ajustes" data-vista="ajustes">
+      <span class="bottom-nav__icono" aria-hidden="true">⚙️</span>
+      <span class="bottom-nav__label">Ajustes</span>
+    </a>
+  </nav>
+
+  <!-- ============ SELECTOR DE MATERIA (panel oculto) ============ -->
+  <div class="selector-materia" id="selector-materia" hidden>
+    <div class="selector-materia__panel" role="dialog" aria-labelledby="selector-titulo">
+      <div class="selector-materia__header">
+        <h2 class="selector-materia__titulo" id="selector-titulo">Agregar materia</h2>
+        <input class="campo__input" type="search" id="selector-buscar"
+               placeholder="Buscar materia…" autocomplete="off">
+      </div>
+      <div class="selector-materia__lista" id="selector-lista"></div>
+    </div>
+  </div>
+
+   <!-- ============ DATOS ============ -->
+  <script src="js/datos-pensum.js"></script>
+
+
+  <!-- ============ HERRAMIENTAS CLÍNICAS ============ -->
+  <script src="js/goteo.js"></script>
+  <script src="js/dosificacion.js"></script>
+  <script src="js/conversor-unidades.js"></script>
+  <script src="js/bioquimica.js"></script>
+  <script src="js/calculadoras-nutricion.js"></script>
+  <script src="js/materno-infantil.js"></script>
+
+  <!-- ============ FLASHCARDS ============ -->
+  <script src="js/flashcards-morfologia.js"></script>
+  <script src="js/flashcards-psicologia.js"></script>
+  <script src="js/anatomia.js"></script>
+  <script src="js/farmacologia.js"></script>
+  <script src="js/microbiologia.js"></script>
+
+  <!-- ============ APP PRINCIPAL ============ -->
+  <script src="js/app.js"></script>
+</body>
+</html>
