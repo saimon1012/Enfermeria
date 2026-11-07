@@ -1,2 +1,0 @@
-# Enfermeria
-Estudiante de Enfermeria
