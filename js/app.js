@@ -1067,6 +1067,62 @@
     });
   }
 
+    // ============================================================
+  // 13. BOTÓN DE INSTALACIÓN (PWA)
+  // ============================================================
+  let deferredPrompt; // Guarda el evento de instalación de Android/PC
+  const btnInstalar = document.getElementById('btn-instalar-app');
+  const instruccionesIOS = document.getElementById('instrucciones-ios');
+  const cardInstalar = document.getElementById('card-instalar-app');
+
+  // Detectar si ya está instalada
+  function estaInstalada() {
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  }
+
+  // Si ya está instalada, ocultar la tarjeta de instalación
+  if (estaInstalada() && cardInstalar) {
+    cardInstalar.hidden = true;
+  }
+
+  // Detectar si es iPhone/iPad
+  const esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+  // Escuchar el evento 'beforeinstallprompt' (Android / PC)
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+
+  if (btnInstalar) {
+    btnInstalar.addEventListener('click', async () => {
+      // Si es iPhone, mostrar las instrucciones
+      if (esIOS) {
+        if (instruccionesIOS) instruccionesIOS.hidden = false;
+        btnInstalar.textContent = 'Ver instrucciones arriba 👆';
+        setTimeout(() => {
+          if (instruccionesIOS) instruccionesIOS.hidden = true;
+          btnInstalar.textContent = '📲 Instalar App';
+        }, 8000); // Ocultar instrucciones a los 8 segundos
+        return;
+      }
+
+      // Si es Android o PC, usar el instalador nativo
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          console.log('Usuario instaló la app');
+          if (cardInstalar) cardInstalar.hidden = true;
+        }
+        deferredPrompt = null;
+      } else {
+        // Si el navegador no soporta la instalación automática
+        alert('Para instalar: abre el menú del navegador (tres puntos) y selecciona "Instalar aplicación" o "Agregar a pantalla de inicio".');
+      }
+    });
+  }
+
   // ============================================================
   // 11. INICIALIZACIÓN
   // ============================================================
