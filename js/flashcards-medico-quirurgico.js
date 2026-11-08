@@ -1,0 +1,19 @@
+window.FABSI_FLASHCARDS = window.FABSI_FLASHCARDS || {};
+
+window.FABSI_FLASHCARDS['medico-quirurgico'] = [
+  { pregunta: '¿Qué es el Proceso de Atención de Enfermería (PAE)?', respuesta: 'Es un método sistemático y organizado para brindar cuidados de enfermería. Consta de 5 etapas: Valoración, Diagnóstico, Planificación, Ejecución y Evaluación.' },
+  { pregunta: '¿Qué es la valoración en el PAE?', respuesta: 'Es la primera etapa. Consiste en la recolección de datos del paciente (entrevista, examen físico, historia clínica) para identificar sus necesidades y problemas de salud.' },
+  { pregunta: '¿Qué es el diagnóstico de enfermería?', respuesta: 'Es la segunda etapa. Es un juicio clínico sobre las respuestas del paciente a problemas de salud reales o potenciales. Se basa en los datos de la valoración.' },
+  { pregunta: '¿Qué es la planificación en el PAE?', respuesta: 'Es la tercera etapa. Consiste en establecer objetivos y priorizar las intervenciones de enfermería para resolver los diagnósticos identificados.' },
+  { pregunta: '¿Qué es la ejecución en el PAE?', respuesta: 'Es la cuarta etapa. Consiste en llevar a cabo las intervenciones de enfermería planificadas, ya sea de forma directa (con el paciente) o indirecta (delegando o registrando).' },
+  { pregunta: '¿Qué es la evaluación en el PAE?', respuesta: 'Es la quinta y última etapa. Consiste en verificar si se alcanzaron los objetivos propuestos y si las intervenciones fueron efectivas. Si no, se replantea el plan.' },
+  { pregunta: '¿Qué es la valoración preoperatoria?', respuesta: 'Es la evaluación integral del paciente antes de una cirugía. Incluye historia clínica, exámenes de laboratorio, valoración de riesgos y preparación física y psicológica.' },
+  { pregunta: '¿Cuáles son los cuidados preoperatorios de enfermería?', respuesta: 'Ayuno, preparación de la piel, verificación de exámenes, retiro de prótesis y objetos metálicos, administración de medicamentos preanestésicos y apoyo emocional.' },
+  { pregunta: '¿Qué es el postoperatorio inmediato?', respuesta: 'Es el período que va desde que el paciente sale del quirófano hasta las primeras 2-4 horas. Se enfoca en la vigilancia de signos vitales, conciencia y complicaciones.' },
+  { pregunta: '¿Cuáles son los cuidados postoperatorios de enfermería?', respuesta: 'Monitorización de signos vitales, manejo del dolor, cuidado de la herida quirúrgica, vigilancia de drenajes, prevención de infecciones y movilización temprana.' },
+  { pregunta: '¿Qué es una herida quirúrgica?', respuesta: 'Es una solución de continuidad en la piel y tejidos, producida intencionalmente durante una cirugía. Requiere cuidados de asepsia para prevenir infecciones.' },
+  { pregunta: '¿Qué es un drenaje?', respuesta: 'Es un dispositivo que se coloca en una herida o cavidad para permitir la salida de líquidos (sangre, pus, secreciones). Se debe vigilar su permeabilidad y cantidad de líquido drenado.' },
+  { pregunta: '¿Qué es una sonda vesical?', respuesta: 'Es un tubo que se introduce en la vejiga a través de la uretra para drenar la orina. Requiere cuidados de asepsia y vigilancia del volumen y características de la orina.' },
+  { pregunta: '¿Qué es la infección intrahospitalaria?', respuesta: 'Es una infección adquirida por el paciente durante su estancia en el hospital, que no estaba presente al momento del ingreso. Se previene con lavado de manos y precauciones estándar.' },
+  { pregunta: '¿Cuáles son las precauciones estándar?', respuesta: 'Son las medidas de bioseguridad que se aplican a todos los pacientes: lavado de manos, uso de guantes, bata, mascarilla y protección ocular según el riesgo.' }
+];

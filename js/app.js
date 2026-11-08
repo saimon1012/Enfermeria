@@ -1,6 +1,6 @@
 // ============================================================
 // app.js — FABSI · TSU Enfermería
-// Versión: 2.0 (Arquitectura Dinámica + Traductor de IDs)
+// Versión: 2.2 (Signos Vitales + Navegación de herramientas)
 // ============================================================
 
 (function () {
@@ -14,7 +14,6 @@
     materiasCustom: 'fabsi.materiasCustom'
   };
 
-  // TRADUCTOR DE IDs: Conecta el ID del pensum con el que usan tus scripts
   const TRADUCTOR_FLASH_IDS = {
     'morfologia': 'morfo',
     'psicologia': 'psi',
@@ -220,7 +219,8 @@
         '🃏', 'Repasar con flashcards', 'Toca para estudiar',
         () => {
           mostrarVista('flashcards');
-          abrirFlashcards(m.flashId);
+          window.ORIGEN_FLASHCARDS = { tipo: 'pensum', materia: m, semestre: semestre };
+          abrirFlashcards(m); 
         }
       ));
     }
@@ -233,6 +233,7 @@
         meta.icono, meta.nombre, meta.subtitulo,
         () => {
           mostrarVista('herramientas');
+          window.ORIGEN_HERRAMIENTAS = { tipo: 'pensum', materia: m, semestre: semestre };
           abrirHerramienta(h);
         }
       ));
@@ -757,19 +758,19 @@
     });
   }
 
-    // ============================================================
-  // 8. FLASHCARDS (DINÁMICAS CON LECTURA DIRECTA)
+  // ============================================================
+  // 8. FLASHCARDS
   // ============================================================
   function renderListaFlashcards() {
+    window.ORIGEN_FLASHCARDS = null;
     const lista = document.getElementById('flashcards-lista');
     if (!lista) return;
     lista.hidden = false;
     lista.innerHTML = '';
 
-    // Ocultar paneles
-        const contenedor = document.getElementById('flash-panel-contenedor');
+    const contenedor = document.getElementById('flash-panel-contenedor');
     if (contenedor) {
-      contenedor.hidden = true; // Ocultar paneles al mostrar la lista
+      contenedor.hidden = true;
       contenedor.innerHTML = '';
     }
 
@@ -805,14 +806,13 @@
     lista.appendChild(grid);
   }
 
-      function abrirFlashcards(materia) {
+  function abrirFlashcards(materia) {
     const lista = document.getElementById('flashcards-lista');
     const contenedor = document.getElementById('flash-panel-contenedor');
     if (!lista || !contenedor) return;
 
-    // Ocultar lista y MOSTRAR contenedor explícitamente
     lista.hidden = true;
-    contenedor.hidden = false; // <-- LA CLAVE: Quitar el hidden del contenedor
+    contenedor.hidden = false;
     contenedor.innerHTML = ''; 
 
     const idScript = TRADUCTOR_FLASH_IDS[materia.flashId] || materia.flashId;
@@ -820,10 +820,9 @@
     const panel = document.createElement('div');
     panel.id = 'flash-panel-' + materia.flashId;
     panel.className = 'herramienta-panel';
-    // NO usar panel.hidden = true aquí
     
     panel.innerHTML = `
-      <button class="boton-secundario volver-flash" type="button" style="margin-bottom: 12px; width: 100%;">← Volver a materias</button>
+      <button class="boton-secundario volver-flash" type="button" style="margin-bottom: 12px; width: 100%;">← Volver</button>
       <div class="tool-card">
         <h2 class="tool-card__titulo">${materia.nombre}</h2>
         <p class="flashcard__progreso" id="flashcard-${idScript}-progreso">1 / 1</p>
@@ -840,11 +839,23 @@
     `;
     contenedor.appendChild(panel);
 
-    // Botón de volver: Ocultar contenedor y mostrar lista
-    panel.querySelector('.volver-flash').addEventListener('click', () => {
-      contenedor.hidden = true;
-      lista.hidden = false;
-    });
+    const btnVolver = panel.querySelector('.volver-flash');
+    const origen = window.ORIGEN_FLASHCARDS;
+
+    if (origen && origen.tipo === 'pensum') {
+      btnVolver.addEventListener('click', () => {
+        panel.hidden = true;
+        contenedor.hidden = true;
+        mostrarVista('pensum');
+        abrirDetalleMateria(origen.materia, origen.semestre);
+      });
+    } else {
+      btnVolver.addEventListener('click', () => {
+        panel.hidden = true;
+        contenedor.hidden = true;
+        lista.hidden = false;
+      });
+    }
 
     const datos = window.FABSI_FLASHCARDS && window.FABSI_FLASHCARDS[materia.flashId];
     
@@ -896,14 +907,18 @@
 
       renderFicha();
     } else {
-      console.warn("No hay datos de flashcards para:", materia.flashId);
       document.getElementById('flashcard-' + idScript + '-texto').textContent = "No hay flashcards disponibles.";
+      document.getElementById('flashcard-' + idScript + '-etiqueta').textContent = "Aviso";
+      document.getElementById('flashcard-' + idScript + '-pista').textContent = "";
+      console.warn("No se encontraron datos para:", materia.flashId);
     }
   }
+
   // ============================================================
   // 9. HERRAMIENTAS CLÍNICAS
   // ============================================================
   function cerrarHerramienta() {
+    window.ORIGEN_HERRAMIENTAS = null;
     document.querySelectorAll('.herramienta-panel[id^="herramienta-"]').forEach((p) => (p.hidden = true));
     const grid = document.querySelector('#vista-herramientas .card-grid');
     if (grid) grid.hidden = false;
@@ -913,26 +928,57 @@
     const grid = document.querySelector('#vista-herramientas .card-grid');
     if (grid) grid.hidden = true;
     document.querySelectorAll('.herramienta-panel[id^="herramienta-"]').forEach((p) => (p.hidden = true));
+    
     const panel = document.getElementById('herramienta-' + h);
     if (panel) {
       panel.hidden = false;
-      if (!panel.querySelector('.volver-herramienta')) {
-        const volver = document.createElement('button');
-        volver.className = 'boton-secundario volver-herramienta';
-        volver.type = 'button';
-        volver.textContent = '← Volver a herramientas';
-        volver.style.marginBottom = '12px';
-        volver.addEventListener('click', cerrarHerramienta);
-        panel.insertBefore(volver, panel.firstChild);
+      
+      let btnVolver = panel.querySelector('.volver-herramienta');
+      if (!btnVolver) {
+        btnVolver = document.createElement('button');
+        btnVolver.className = 'boton-secundario volver-herramienta';
+        btnVolver.type = 'button';
+        btnVolver.style.marginBottom = '12px';
+        btnVolver.style.width = '100%';
+        panel.insertBefore(btnVolver, panel.firstChild);
+      }
+
+      const btnVolverNuevo = btnVolver.cloneNode(true);
+      btnVolver.replaceWith(btnVolverNuevo);
+
+      const origen = window.ORIGEN_HERRAMIENTAS;
+
+      if (origen && origen.tipo === 'pensum') {
+        btnVolverNuevo.textContent = '← Volver a la materia';
+        btnVolverNuevo.addEventListener('click', () => {
+          panel.hidden = true;
+          if (grid) grid.hidden = false;
+          mostrarVista('pensum');
+          abrirDetalleMateria(origen.materia, origen.semestre);
+        });
+      } else {
+        btnVolverNuevo.textContent = '← Volver a herramientas';
+        btnVolverNuevo.addEventListener('click', () => {
+          panel.hidden = true;
+          if (grid) grid.hidden = false;
+        });
       }
     }
   }
 
+  // EVENTO DE CLIC PARA LAS TARJETAS DE HERRAMIENTAS (FALTABA)
   document.querySelectorAll('[data-herramienta]').forEach((card) => {
-    card.addEventListener('click', () => abrirHerramienta(card.dataset.herramienta));
+    card.addEventListener('click', () => {
+      const h = card.dataset.herramienta;
+      const estaEnInicio = !document.getElementById('vista-inicio').hidden;
+      if (estaEnInicio) {
+        mostrarVista('herramientas');
+      }
+      abrirHerramienta(h);
+    });
   });
 
-   // ============================================================
+  // ============================================================
   // 10. PWA: SERVICE WORKER + BANNER DE ACTUALIZACIÓN
   // ============================================================
   let swRegistration = null;
@@ -944,15 +990,12 @@
         .then((registration) => {
           swRegistration = registration;
 
-          // Comprobar si hay actualizaciones al cargar
           registration.update().catch(() => {});
 
-          // Si ya hay una versión esperando, mostrar banner
           if (registration.waiting) {
             mostrarBanner(registration);
           }
 
-          // Detectar nuevas versiones
           registration.addEventListener('updatefound', () => {
             const nuevoSW = registration.installing;
             if (!nuevoSW) return;
@@ -968,7 +1011,6 @@
           console.warn('Service Worker no registrado:', err);
         });
 
-      // Solo recargar si el usuario tocó "Actualizar"
       let recargando = false;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (recargando) return;
@@ -977,7 +1019,6 @@
         window.location.reload();
       });
 
-      // Comprobar actualizaciones al volver a la pestaña
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible' && swRegistration) {
           swRegistration.update().catch(() => {});
@@ -996,7 +1037,6 @@
     const btnActualizar = document.getElementById('btn-actualizar');
     const btnCerrar = document.getElementById('btn-cerrar-banner');
 
-    // Clonar para evitar listeners duplicados
     const btnActualizarNuevo = btnActualizar.cloneNode(true);
     btnActualizar.parentNode.replaceChild(btnActualizarNuevo, btnActualizar);
 
@@ -1017,13 +1057,62 @@
     });
   }
 
-    // ============================================================
+  // ============================================================
+  // 11. BOTÓN DE INSTALACIÓN (PWA)
+  // ============================================================
+  let deferredPrompt;
+  const btnInstalar = document.getElementById('btn-instalar-app');
+  const instruccionesIOS = document.getElementById('instrucciones-ios');
+  const cardInstalar = document.getElementById('card-instalar-app');
+
+  function estaInstalada() {
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  }
+
+  if (estaInstalada() && cardInstalar) {
+    cardInstalar.hidden = true;
+  }
+
+  const esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+
+  if (btnInstalar) {
+    btnInstalar.addEventListener('click', async () => {
+      if (esIOS) {
+        if (instruccionesIOS) instruccionesIOS.hidden = false;
+        btnInstalar.textContent = 'Ver instrucciones arriba 👆';
+        setTimeout(() => {
+          if (instruccionesIOS) instruccionesIOS.hidden = true;
+          btnInstalar.textContent = '📲 Instalar App';
+        }, 8000);
+        return;
+      }
+
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          console.log('Usuario instaló la app');
+          if (cardInstalar) cardInstalar.hidden = true;
+        }
+        deferredPrompt = null;
+      } else {
+        alert('Para instalar: abre el menú del navegador (tres puntos) y selecciona "Instalar aplicación" o "Agregar a pantalla de inicio".');
+      }
+    });
+  }
+
+  // ============================================================
   // 12. FEEDBACK (FORMSPREE)
   // ============================================================
   const formFeedback = document.getElementById('form-feedback');
   if (formFeedback) {
     formFeedback.addEventListener('submit', function (e) {
-      e.preventDefault(); // Evitar que la página se recargue
+      e.preventDefault();
       
       const btnSubmit = formFeedback.querySelector('button[type="submit"]');
       const errorEl = document.getElementById('feedback-error');
@@ -1039,9 +1128,7 @@
       fetch(formFeedback.action, {
         method: 'POST',
         body: formData,
-        headers: {
-          'Accept': 'application/json'
-        }
+        headers: { 'Accept': 'application/json' }
       })
       .then(response => {
         if (response.ok) {
@@ -1067,64 +1154,143 @@
     });
   }
 
-    // ============================================================
-  // 13. BOTÓN DE INSTALACIÓN (PWA)
   // ============================================================
-  let deferredPrompt; // Guarda el evento de instalación de Android/PC
-  const btnInstalar = document.getElementById('btn-instalar-app');
-  const instruccionesIOS = document.getElementById('instrucciones-ios');
-  const cardInstalar = document.getElementById('card-instalar-app');
+  // 9b. SIGNOS VITALES
+  // ============================================================
+  const btnEvaluarSv = document.getElementById('btn-evaluar-sv');
+  if (btnEvaluarSv) {
+    const inputTa = document.getElementById('sv-ta');
+    const inputFc = document.getElementById('sv-fc');
+    const inputFr = document.getElementById('sv-fr');
+    const inputTemp = document.getElementById('sv-temp');
+    const inputSpo2 = document.getElementById('sv-spo2');
+    const errorEl = document.getElementById('error-sv');
+    const resultadoEl = document.getElementById('resultado-sv');
+    const cifraEl = document.getElementById('sv-cifra');
+    const desgloseEl = document.getElementById('desglose-sv');
 
-  // Detectar si ya está instalada
-  function estaInstalada() {
-    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
-  }
+    btnEvaluarSv.addEventListener('click', evaluarSignos);
+    document.getElementById('btn-limpiar-sv').addEventListener('click', limpiarSignos);
 
-  // Si ya está instalada, ocultar la tarjeta de instalación
-  if (estaInstalada() && cardInstalar) {
-    cardInstalar.hidden = true;
-  }
+    function limpiarSignos() {
+      inputTa.value = '';
+      inputFc.value = '';
+      inputFr.value = '';
+      inputTemp.value = '';
+      inputSpo2.value = '';
+      errorEl.hidden = true;
+      resultadoEl.hidden = true;
+      inputTa.focus();
+    }
 
-  // Detectar si es iPhone/iPad
-  const esIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    function evaluarSignos() {
+      errorEl.hidden = true;
+      resultadoEl.hidden = true;
 
-  // Escuchar el evento 'beforeinstallprompt' (Android / PC)
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault();
-    deferredPrompt = e;
-  });
+      const ta = inputTa.value.trim();
+      const fc = parseFloat(inputFc.value);
+      const fr = parseFloat(inputFr.value);
+      const temp = parseFloat(inputTemp.value);
+      const spo2 = parseFloat(inputSpo2.value);
 
-  if (btnInstalar) {
-    btnInstalar.addEventListener('click', async () => {
-      // Si es iPhone, mostrar las instrucciones
-      if (esIOS) {
-        if (instruccionesIOS) instruccionesIOS.hidden = false;
-        btnInstalar.textContent = 'Ver instrucciones arriba 👆';
-        setTimeout(() => {
-          if (instruccionesIOS) instruccionesIOS.hidden = true;
-          btnInstalar.textContent = '📲 Instalar App';
-        }, 8000); // Ocultar instrucciones a los 8 segundos
+      if (!ta && !fc && !fr && !temp && !spo2) {
+        errorEl.textContent = 'Ingresa al menos un signo vital para evaluar.';
+        errorEl.hidden = false;
         return;
       }
 
-      // Si es Android o PC, usar el instalador nativo
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-          console.log('Usuario instaló la app');
-          if (cardInstalar) cardInstalar.hidden = true;
+      let alertas = [];
+      let desglose = '';
+
+      // Evaluar Tensión Arterial
+      if (ta) {
+        const partes = ta.split('/');
+        if (partes.length === 2) {
+          const sis = parseInt(partes[0]);
+          const dia = parseInt(partes[1]);
+          if (!isNaN(sis) && !isNaN(dia)) {
+            desglose += `<p><strong>TA:</strong> ${sis}/${dia} mmHg → `;
+            if (sis >= 140 || dia >= 90) {
+              alertas.push('Hipertensión');
+              desglose += `<span class="sv-alerta">Hipertensión</span></p>`;
+            } else if (sis < 90 || dia < 60) {
+              alertas.push('Hipotensión');
+              desglose += `<span class="sv-alerta">Hipotensión</span></p>`;
+            } else {
+              desglose += `<span class="sv-normal">Normal</span></p>`;
+            }
+          }
         }
-        deferredPrompt = null;
-      } else {
-        // Si el navegador no soporta la instalación automática
-        alert('Para instalar: abre el menú del navegador (tres puntos) y selecciona "Instalar aplicación" o "Agregar a pantalla de inicio".');
       }
-    });
+
+      // Evaluar Frecuencia Cardíaca
+      if (!isNaN(fc)) {
+        desglose += `<p><strong>FC:</strong> ${fc} lpm → `;
+        if (fc > 100) {
+          alertas.push('Taquicardia');
+          desglose += `<span class="sv-alerta">Taquicardia</span></p>`;
+        } else if (fc < 60) {
+          alertas.push('Bradicardia');
+          desglose += `<span class="sv-alerta">Bradicardia</span></p>`;
+        } else {
+          desglose += `<span class="sv-normal">Normal</span></p>`;
+        }
+      }
+
+      // Evaluar Frecuencia Respiratoria
+      if (!isNaN(fr)) {
+        desglose += `<p><strong>FR:</strong> ${fr} rpm → `;
+        if (fr > 20) {
+          alertas.push('Taquipnea');
+          desglose += `<span class="sv-alerta">Taquipnea</span></p>`;
+        } else if (fr < 12) {
+          alertas.push('Bradipnea');
+          desglose += `<span class="sv-alerta">Bradipnea</span></p>`;
+        } else {
+          desglose += `<span class="sv-normal">Normal</span></p>`;
+        }
+      }
+
+      // Evaluar Temperatura
+      if (!isNaN(temp)) {
+        desglose += `<p><strong>Temp:</strong> ${temp} °C → `;
+        if (temp >= 38) {
+          alertas.push('Fiebre');
+          desglose += `<span class="sv-alerta">Fiebre</span></p>`;
+        } else if (temp < 36) {
+          alertas.push('Hipotermia');
+          desglose += `<span class="sv-alerta">Hipotermia</span></p>`;
+        } else {
+          desglose += `<span class="sv-normal">Normal</span></p>`;
+        }
+      }
+
+      // Evaluar Saturación de Oxígeno
+      if (!isNaN(spo2)) {
+        desglose += `<p><strong>SpO2:</strong> ${spo2}% → `;
+        if (spo2 < 95) {
+          alertas.push('Hipoxemia');
+          desglose += `<span class="sv-alerta">Hipoxemia (baja saturación)</span></p>`;
+        } else {
+          desglose += `<span class="sv-normal">Normal</span></p>`;
+        }
+      }
+
+      if (alertas.length > 0) {
+        cifraEl.innerHTML = `⚠ ${alertas.join(' · ')}`;
+        cifraEl.style.color = 'var(--color-accent)';
+      } else {
+        cifraEl.innerHTML = `✅ Signos vitales dentro de los parámetros normales`;
+        cifraEl.style.color = 'var(--color-primary-dark)';
+      }
+
+      desgloseEl.innerHTML = desglose;
+      resultadoEl.hidden = false;
+    }
   }
 
   // ============================================================
-  // 11. INICIALIZACIÓN
+  // 13. INICIALIZACIÓN
   // ============================================================
   mostrarVista('inicio');
 
