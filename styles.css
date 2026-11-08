@@ -1041,3 +1041,8 @@ textarea.campo__input {
 #btn-instalar-app {
   margin-top: 8px;
 }
+
+/* Signos Vitales: colores de alerta */
+.sv-alerta { color: var(--color-accent); font-weight: 700; }
+.sv-normal { color: var(--color-primary-dark); font-weight: 700; }
+.sv-warn { color: #E67E22; font-weight: 700; }
