@@ -190,6 +190,55 @@
       <p class="vista__intro" id="titulo-herramientas">
         Calculadoras de uso clínico. Funcionan sin internet.
       </p>
+      <!-- ===== PANEL: SIGNOS VITALES ===== -->
+      <div id="herramienta-signos" class="herramienta-panel" hidden>
+        <div class="tool-card">
+                    <h2 class="tool-card__titulo">Signos Vitales</h2>
+          <p class="campo__nota" style="margin-bottom: 12px;">
+            💡 Puedes llenar solo el campo que necesites evaluar. Los campos vacíos se omitirán del cálculo.
+          </p>
+          <p class="campo__nota">Ingresa los valores del paciente para evaluar su estado.</p>
+
+          <div class="campo__fila">
+            <div class="campo__col">
+              <label class="campo__label" for="sv-ta">Tensión Arterial (mmHg)</label>
+              <input class="campo__input" type="text" id="sv-ta" placeholder="Ej. 120/80">
+            </div>
+            <div class="campo__col">
+              <label class="campo__label" for="sv-fc">Frec. Cardíaca (lpm)</label>
+              <input class="campo__input" type="number" id="sv-fc" placeholder="Ej. 75">
+            </div>
+          </div>
+
+          <div class="campo__fila">
+            <div class="campo__col">
+              <label class="campo__label" for="sv-fr">Frec. Respiratoria (rpm)</label>
+              <input class="campo__input" type="number" id="sv-fr" placeholder="Ej. 16">
+            </div>
+            <div class="campo__col">
+              <label class="campo__label" for="sv-temp">Temperatura (°C)</label>
+              <input class="campo__input" type="number" id="sv-temp" step="0.1" placeholder="Ej. 36.5">
+            </div>
+          </div>
+
+          <div class="campo">
+            <label class="campo__label" for="sv-spo2">Saturación de Oxígeno (%)</label>
+            <input class="campo__input" type="number" id="sv-spo2" placeholder="Ej. 98">
+          </div>
+
+          <div class="acciones-calculadora">
+            <button class="boton-primario" id="btn-evaluar-sv" type="button">Evaluar</button>
+            <button class="boton-secundario" id="btn-limpiar-sv" type="button">Limpiar</button>
+          </div>
+
+          <p class="campo__error" id="error-sv" hidden></p>
+
+          <div class="resultado" id="resultado-sv" hidden>
+            <div class="resultado__cifra" id="sv-cifra" style="font-size: 1.2rem; margin-bottom: 8px;">—</div>
+            <div class="resultado__desglose" id="desglose-sv"></div>
+          </div>
+        </div>
+      </div>
 
       <div class="card-grid">
         <div class="card" data-herramienta="goteo" role="button" tabindex="0">
@@ -221,6 +270,13 @@
           <div class="card__texto">
             <strong>Bioquímica</strong>
             <small>Glucosa y osmolaridad</small>
+          </div>
+        </div>
+                <div class="card" data-herramienta="signos" role="button" tabindex="0">
+          <span class="card__icono" aria-hidden="true">🩺</span>
+          <div class="card__texto">
+            <strong>Signos Vitales</strong>
+            <small>Evaluación rápida</small>
           </div>
         </div>
 
@@ -716,13 +772,25 @@
   <script src="js/calculadoras-nutricion.js"></script>
   <script src="js/materno-infantil.js"></script>
 
-  <!-- ============ FLASHCARDS ============ -->
+    <!-- ============ FLASHCARDS ============ -->
   <script src="js/flashcards-morfologia.js"></script>
   <script src="js/flashcards-psicologia.js"></script>
   <script src="js/anatomia.js"></script>
   <script src="js/farmacologia.js"></script>
   <script src="js/microbiologia.js"></script>
+  <!-- NUEVOS -->
+  <script src="js/flashcards-etica.js"></script>
+  <script src="js/flashcards-fisiologia.js"></script>
+  <script src="js/flashcards-medico-quirurgico.js"></script>
+  <script src="js/flashcards-materno-2.js"></script>
 
+  <!-- NUEVOS (Semestre 4 y 5) -->
+  <script src="js/flashcards-salud-mental.js"></script>
+  <script src="js/flashcards-medico-quirurgico-2.js"></script>
+  <script src="js/flashcards-administracion.js"></script>
+  <script src="js/flashcards-comunitaria.js"></script>
+  <script src="js/flashcards-pasantia.js"></script>
+  
   <!-- ============ APP PRINCIPAL ============ -->
   <script src="js/app.js"></script>
 </body>
