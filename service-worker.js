@@ -3,20 +3,15 @@
 // Versión 2.0 (Arquitectura Dinámica)
 // ============================================================
 
-const VERSION = 'fabsi-v2'; // <-- Actualizado para forzar la descarga de los nuevos archivos
+const VERSION = 'fabsi-v3';
 
 const ARCHIVOS = [
   './',
   './index.html',
   './styles.css',
   './manifest.webmanifest',
-
-  // Datos
   './js/datos-pensum.js',
-
-  // App principal
   './js/app.js',
-
   // Herramientas clínicas
   './js/goteo.js',
   './js/dosificacion.js',
@@ -24,14 +19,22 @@ const ARCHIVOS = [
   './js/bioquimica.js',
   './js/calculadoras-nutricion.js',
   './js/materno-infantil.js',
-
-  // Flashcards
+  // Flashcards (Semestres 1, 2 y 3)
   './js/flashcards-morfologia.js',
   './js/flashcards-psicologia.js',
   './js/anatomia.js',
   './js/farmacologia.js',
   './js/microbiologia.js',
-
+  './js/flashcards-etica.js',
+  './js/flashcards-fisiologia.js',
+  './js/flashcards-medico-quirurgico.js',
+  './js/flashcards-materno-2.js',
+  // Flashcards (Semestres 4 y 5)
+  './js/flashcards-salud-mental.js',
+  './js/flashcards-medico-quirurgico-2.js',
+  './js/flashcards-administracion.js',
+  './js/flashcards-comunitaria.js',
+  './js/flashcards-pasantia.js',
   // Íconos
   './iconos/icon-192.png',
   './iconos/icon-512.png'
