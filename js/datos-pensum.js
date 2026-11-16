@@ -14,7 +14,7 @@ const PENSUM = {
   "2": [
     { codigo: "CSL-10613", nombre: "Bioquímica", uc: 3, prelacion: "", flashId: null },
     { codigo: "CSL-10717", nombre: "Enfermería Materno Infantil I", uc: 7, prelacion: "", flashId: "materno" },
-    { codigo: "CSL-10512", nombre: "Estadística Bioestadística y Epidemiología", uc: 2, prelacion: "", flashId: null },
+    { codigo: "CSL-10412", nombre: "Estadística Bioestadística y Epidemiología", uc: 2, prelacion: "", flashId: null },
     { codigo: "CSL-10224", nombre: "Anatomía Humana", uc: 4, prelacion: "", flashId: "anatomia" }
   ],
   "3": [
