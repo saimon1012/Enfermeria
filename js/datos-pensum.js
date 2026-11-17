@@ -14,7 +14,7 @@ const PENSUM = {
   "2": [
     { codigo: "CSL-10613", nombre: "Bioquímica", uc: 3, prelacion: "", flashId: null },
     { codigo: "CSL-10717", nombre: "Enfermería Materno Infantil I", uc: 7, prelacion: "", flashId: "materno" },
-    { codigo: "CSL-10512", nombre: "Estadística Bioestadística y Epidemiología", uc: 2, prelacion: "", flashId: null },
+    { codigo: "CSL-10412", nombre: "Estadística Bioestadística y Epidemiología", uc: 2, prelacion: "", flashId: null },
     { codigo: "CSL-10224", nombre: "Anatomía Humana", uc: 4, prelacion: "", flashId: "anatomia" }
   ],
   "3": [
@@ -44,11 +44,11 @@ const HERRAMIENTAS_POR_MATERIA = {
   'CSL-10512': ['goteo', 'dosificacion', 'conversor', 'signos'], // Enfermería Básica
   'CSL-10622': ['nutricion'],                                     // Nutrición
   'CSL-10613': ['bioquimica', 'conversor'],                       // Bioquímica
-  'CSL-10623': ['dosificacion', 'conversor'],                     // Farmacología
+  'CSL-10623': ['dosificacion', 'pediatrica', 'conversor'],       // Farmacología
   'CSL-11017': ['goteo', 'dosificacion'],                         // Médico Quirúrgico I
   'CSL-11027': ['goteo', 'dosificacion'],                         // Médico Quirúrgico II
-  'CSL-10717': ['materno'],                                       // Materno Infantil I
-  'CSL-10727': ['materno'],                                       // Materno Infantil II
+  'CSL-10717': ['materno', 'pediatrica'],                         // Materno Infantil I
+  'CSL-10727': ['materno', 'pediatrica'],                         // Materno Infantil II
   'IRC-30303': ['goteo', 'dosificacion', 'conversor', 'signos']   // Pasantía Hospitalaria
 };
 
@@ -59,5 +59,6 @@ const NOMBRES_HERRAMIENTAS = {
   bioquimica:   { icono: '🩸', nombre: 'Bioquímica',              subtitulo: 'Glucosa y osmolaridad' },
   nutricion:    { icono: '⚖️', nombre: 'Nutrición',               subtitulo: 'IMC y requerimiento hídrico' },
   materno:      { icono: '🤰', nombre: 'Edad gestacional',        subtitulo: 'FUM y regla de Naegele' },
-  signos:       { icono: '🩺', nombre: 'Signos Vitales',          subtitulo: 'Evaluación rápida' }
+  signos:       { icono: '🩺', nombre: 'Signos Vitales',          subtitulo: 'Evaluación rápida' },
+  pediatrica:   { icono: '👶', nombre: 'Dosis pediátrica',        subtitulo: 'Cálculo por peso (mg/kg/día)' }
 };
