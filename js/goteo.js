@@ -33,6 +33,28 @@
   // en el futuro), no continúa. Evita errores en consola por elementos nulos.
   if (!btnCalcular) return;
 
+  // ---------- Helpers ----------
+  // Acepta "10,5" y "10.5" (coma decimal es-VE y punto en-US).
+  // Devuelve NaN si el valor no es un número válido.
+  function parseNumero(valor) {
+    if (typeof valor !== 'string') return NaN;
+    const limpio = valor.trim().replace(',', '.');
+    if (limpio === '') return NaN;
+    const n = Number(limpio);
+    return Number.isFinite(n) ? n : NaN;
+  }
+
+  // Escapa texto para insertarlo de forma segura en innerHTML.
+  function escaparHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+    }[c]));
+  }
+
   // ---------- Estado local del formulario ----------
   let tipoEquipo = 'macro';     // 'macro' | 'micro'
   let unidadTiempo = 'horas';   // 'horas' | 'minutos'
@@ -92,22 +114,37 @@
   function calcularGoteo() {
     ocultarResultadoYError();
 
-    const volumen = parseFloat(inputVolumen.value);
-    const tiempoIngresado = parseFloat(inputTiempo.value);
+    const volumen = parseNumero(inputVolumen.value);
+    const tiempoIngresado = parseNumero(inputTiempo.value);
 
     // Validación clínica: un volumen o tiempo en 0/negativo/vacío no debe
     // devolver Infinity o NaN en pantalla — se corta acá con un mensaje claro.
-    if (!volumen || volumen <= 0) {
+    if (!Number.isFinite(volumen) || volumen <= 0) {
       mostrarError('Ingresa un volumen mayor a 0 ml.');
       return;
     }
-    if (!tiempoIngresado || tiempoIngresado <= 0) {
+    if (!Number.isFinite(tiempoIngresado) || tiempoIngresado <= 0) {
       mostrarError('Ingresa un tiempo de infusión mayor a 0.');
       return;
     }
 
-    const factor = tipoEquipo === 'macro' ? parseInt(selectFactorMacro.value, 10) : 60;
+    const factor = tipoEquipo === 'macro'
+      ? (parseInt(selectFactorMacro.value, 10) || 20)
+      : 60;
+
+    // Guarda defensiva: solo se aceptan los factores clínicos válidos.
+    if (![10, 15, 20, 60].includes(factor)) {
+      mostrarError('Factor de goteo inválido.');
+      return;
+    }
+
     const tiempoMin = unidadTiempo === 'horas' ? tiempoIngresado * 60 : tiempoIngresado;
+
+    // Guarda defensiva contra división por cero si el tiempo se corrompe.
+    if (!Number.isFinite(tiempoMin) || tiempoMin <= 0) {
+      mostrarError('Tiempo inválido.');
+      return;
+    }
 
     const gotasPorMinutoExacto = (volumen * factor) / tiempoMin;
     const gotasPorMinuto = Math.round(gotasPorMinutoExacto); // no se puede contar una gota parcial
@@ -130,7 +167,10 @@
 
   function ocultarResultadoYError() {
     errorEl.hidden = true;
+    errorEl.textContent = '';
     resultadoEl.hidden = true;
+    resultadoValorEl.textContent = '—';
+    desgloseEl.innerHTML = '';
   }
 
   function mostrarResultado(gotasPorMinuto, datos) {
@@ -143,7 +183,7 @@
     desgloseEl.innerHTML = `
       <p><strong>Fórmula:</strong> gotas/min = (Volumen × Factor) ÷ Tiempo en minutos</p>
       <p>
-        gotas/min = (${datos.volumen} ml × ${datos.factor} gtt/ml) ÷ ${datos.tiempoMin} min
+        gotas/min = (${escaparHtml(datos.volumen)} ml × ${datos.factor} gtt/ml) ÷ ${datos.tiempoMin} min
       </p>
       <p>
         gotas/min = ${(datos.volumen * datos.factor).toFixed(1)} ÷ ${datos.tiempoMin}
