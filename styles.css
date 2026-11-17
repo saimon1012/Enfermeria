@@ -125,7 +125,7 @@ a:focus:not(:focus-visible) { outline: none; }
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #E67E22; /* naranja = sin conexión */
+  background: #F39C12; /* naranja = sin conexión */
   transition: background .2s ease;
 }
 .app-header__badge--online::before { background: #2ECC71; }
