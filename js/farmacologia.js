@@ -19,7 +19,6 @@ window.FABSI_FLASHCARDS['farmacologia'] = [
 ];
 
 (function () {
-  // ---------- Dosis pediátrica ----------
   const botonesSubFarmaco = document.querySelectorAll('[data-sub-farmaco]');
   const bloquesSubFarmaco = document.querySelectorAll('[data-sub-farmaco-contenido]');
 
@@ -33,7 +32,31 @@ window.FABSI_FLASHCARDS['farmacologia'] = [
   const resultadoPedValor = document.getElementById('resultado-dosis-ped-valor');
   const desglosePed = document.getElementById('desglose-dosis-ped');
 
-  if (!btnCalcularPed) return; // Si no estamos en la vista de farmacología, no hace nada
+  if (!btnCalcularPed) return;
+
+  // ---------- Helpers ----------
+  function parseNumero(valor) {
+    if (typeof valor !== 'string') return NaN;
+    const limpio = valor.trim().replace(',', '.');
+    if (limpio === '') return NaN;
+    const n = Number(limpio);
+    return Number.isFinite(n) ? n : NaN;
+  }
+
+  function escaparHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    }[c]));
+  }
+
+  function formatearResultado(n) {
+    if (!Number.isFinite(n)) return '—';
+    if (n === 0) return '0';
+    if (Math.abs(n) < 0.01) {
+      return n.toFixed(4).replace(/0+$/, '').replace(/\.$/, '');
+    }
+    return parseFloat(n.toFixed(2)).toString();
+  }
 
   let frecuencia = 3; // c/8h por defecto
 
@@ -77,16 +100,18 @@ window.FABSI_FLASHCARDS['farmacologia'] = [
   }
 
   function ocultarPed() {
-    if (errorPed) errorPed.hidden = true;
+    if (errorPed) { errorPed.hidden = true; errorPed.textContent = ''; }
     if (resultadoPed) resultadoPed.hidden = true;
+    if (resultadoPedValor) resultadoPedValor.textContent = '—';
+    if (desglosePed) desglosePed.innerHTML = '';
   }
 
   function calcularPed() {
     ocultarPed();
-    const peso = parseFloat(inputPesoPed?.value);
-    const dosisKg = parseFloat(inputDosisKg?.value);
+    const peso = parseNumero(inputPesoPed?.value);
+    const dosisKg = parseNumero(inputDosisKg?.value);
 
-    if (!peso || peso <= 0) {
+    if (!Number.isFinite(peso) || peso <= 0) {
       if (errorPed) { errorPed.textContent = 'Ingresa el peso del niño en kg.'; errorPed.hidden = false; }
       return;
     }
@@ -94,14 +119,25 @@ window.FABSI_FLASHCARDS['farmacologia'] = [
       if (errorPed) { errorPed.textContent = 'Verifica: el peso parece alto para pediatría (máx. 60 kg).'; errorPed.hidden = false; }
       return;
     }
-    if (!dosisKg || dosisKg <= 0) {
+    if (!Number.isFinite(dosisKg) || dosisKg <= 0) {
       if (errorPed) { errorPed.textContent = 'Ingresa la dosis indicada en mg/kg/día.'; errorPed.hidden = false; }
+      return;
+    }
+    // Aviso: dosis > 200 mg/kg/día es inusual en casi todos los fármacos pediátricos.
+    if (dosisKg > 200) {
+      if (errorPed) { errorPed.textContent = 'Dosis/kg demasiado alta. Verifica la indicación.'; errorPed.hidden = false; }
       return;
     }
 
     const dosisDiaria = peso * dosisKg;
     const dosisToma = dosisDiaria / frecuencia;
-    const redondeado = parseFloat(dosisToma.toFixed(2));
+
+    if (!Number.isFinite(dosisDiaria) || !Number.isFinite(dosisToma)) {
+      if (errorPed) { errorPed.textContent = 'No se pudo calcular. Revisa los valores.'; errorPed.hidden = false; }
+      return;
+    }
+
+    const redondeado = formatearResultado(dosisToma);
     const intervaloTexto = { 1: 'cada 24 h', 2: 'cada 12 h', 3: 'cada 8 h', 4: 'cada 6 h' }[frecuencia];
 
     if (resultadoPedValor) resultadoPedValor.textContent = redondeado;
@@ -110,8 +146,8 @@ window.FABSI_FLASHCARDS['farmacologia'] = [
     if (desglosePed) {
       desglosePed.innerHTML = `
         <p><strong>Fórmula:</strong> dosis diaria = peso × mg/kg/día · dosis por toma = dosis diaria ÷ frecuencia</p>
-        <p>Dosis diaria = ${peso} kg × ${dosisKg} mg/kg/día = ${dosisDiaria.toFixed(2)} mg/día</p>
-        <p>Dosis por toma = ${dosisDiaria.toFixed(2)} ÷ ${frecuencia} = <strong>${redondeado} mg</strong> (${intervaloTexto})</p>
+        <p>Dosis diaria = ${escaparHtml(peso)} kg × ${escaparHtml(dosisKg)} mg/kg/día = ${dosisDiaria.toFixed(2)} mg/día</p>
+        <p>Dosis por toma = ${dosisDiaria.toFixed(2)} ÷ ${frecuencia} = <strong>${escaparHtml(redondeado)} mg</strong> (${escaparHtml(intervaloTexto)})</p>
         <p class="resultado__equivalente">
           ⚠ Verifica siempre con la ficha técnica del medicamento y el peso real del paciente.
         </p>
