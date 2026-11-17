@@ -3,7 +3,7 @@
 // Versión 2.1 (Cache tolerante a fallos)
 // ============================================================
 
-const VERSION = 'fabsi-v7';
+const VERSION = 'fabsi-v8';
 
 const ARCHIVOS = [
   './',
