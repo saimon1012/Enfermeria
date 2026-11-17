@@ -1,9 +1,9 @@
 // ============================================================
 // service-worker.js — FABSI · TSU Enfermería
-// Versión 2.0 (Arquitectura Dinámica)
+// Versión 2.1 (Cache tolerante a fallos)
 // ============================================================
 
-const VERSION = 'fabsi-v6';
+const VERSION = 'fabsi-v7';
 
 const ARCHIVOS = [
   './',
@@ -12,14 +12,12 @@ const ARCHIVOS = [
   './manifest.webmanifest',
   './js/datos-pensum.js',
   './js/app.js',
-  // Herramientas clínicas
   './js/goteo.js',
   './js/dosificacion.js',
   './js/conversor-unidades.js',
   './js/bioquimica.js',
   './js/calculadoras-nutricion.js',
   './js/materno-infantil.js',
-  // Flashcards (Semestres 1, 2 y 3)
   './js/flashcards-morfologia.js',
   './js/flashcards-psicologia.js',
   './js/anatomia.js',
@@ -29,22 +27,26 @@ const ARCHIVOS = [
   './js/flashcards-fisiologia.js',
   './js/flashcards-medico-quirurgico.js',
   './js/flashcards-materno-2.js',
-  // Flashcards (Semestres 4 y 5)
   './js/flashcards-salud-mental.js',
   './js/flashcards-medico-quirurgico-2.js',
   './js/flashcards-administracion.js',
   './js/flashcards-comunitaria.js',
   './js/flashcards-pasantia.js',
-  // Íconos
   './iconos/icon-192.png',
   './iconos/icon-512.png'
 ];
 
-// ---------- INSTALL: guarda todo en caché ----------
+// ---------- INSTALL: cachea uno por uno (tolerante a fallos) ----------
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(VERSION).then((cache) => {
-      return cache.addAll(ARCHIVOS);
+      return Promise.all(
+        ARCHIVOS.map((url) =>
+          cache.add(url).catch((err) => {
+            console.warn('SW: no se pudo cachear', url, err);
+          })
+        )
+      );
     })
   );
 });
@@ -62,10 +64,8 @@ self.addEventListener('activate', (event) => {
 
 // ---------- FETCH: Cache First ----------
 self.addEventListener('fetch', (event) => {
-  // Solo manejar GET
   if (event.request.method !== 'GET') return;
 
-  // Ignorar peticiones a otros orígenes
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
 
@@ -73,18 +73,22 @@ self.addEventListener('fetch', (event) => {
     caches.match(event.request).then((cached) => {
       if (cached) return cached;
 
-      // Si no está en caché, ir a la red y guardar copia
-      return fetch(event.request).then((response) => {
-        if (!response || response.status !== 200) return response;
-        const copia = response.clone();
-        caches.open(VERSION).then((cache) => cache.put(event.request, copia));
-        return response;
-      }).catch(() => {
-        // Si falla la red y es una navegación, devolver el index cacheado
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
-      });
+      return fetch(event.request)
+        .then((response) => {
+          if (!response || response.status !== 200 || response.type !== 'basic') {
+            return response;
+          }
+          const copia = response.clone();
+          return caches
+            .open(VERSION)
+            .then((cache) => cache.put(event.request, copia))
+            .then(() => response);
+        })
+        .catch(() => {
+          if (event.request.mode === 'navigate') {
+            return caches.match('./index.html');
+          }
+        });
     })
   );
 });
