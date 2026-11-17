@@ -18,7 +18,6 @@
 // ============================================================
 
 (function () {
-  // ---------- Referencias al DOM ----------
   const botonesGrupo = document.querySelectorAll('[data-grupo-nutri]');
   const inputPeso = document.getElementById('input-peso-nutri');
   const inputEstatura = document.getElementById('input-estatura-nutri');
@@ -36,9 +35,24 @@
   const hidricoValorEl = document.getElementById('resultado-hidrico-valor');
   const desgloseHidrico = document.getElementById('desglose-hidrico');
 
-  if (!btnCalcular) return; // esta vista no está en el DOM, no hace nada
+  if (!btnCalcular) return;
 
-  let grupo = 'adulto'; // 'adulto' | 'nino'
+  // ---------- Helpers ----------
+  function parseNumero(valor) {
+    if (typeof valor !== 'string') return NaN;
+    const limpio = valor.trim().replace(',', '.');
+    if (limpio === '') return NaN;
+    const n = Number(limpio);
+    return Number.isFinite(n) ? n : NaN;
+  }
+
+  function escaparHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    }[c]));
+  }
+
+  let grupo = 'adulto';
 
   // ---------- Toggle: Adulto / Niño ----------
   botonesGrupo.forEach((boton) => {
@@ -47,8 +61,11 @@
       botonesGrupo.forEach((b) => b.setAttribute('aria-pressed', String(b === boton)));
 
       const esAdulto = grupo === 'adulto';
-      campoEstatura.hidden = !esAdulto; // niño: no se usa estatura
+      campoEstatura.hidden = !esAdulto;
       notaNino.hidden = esAdulto;
+
+      // Evita reutilizar una estatura vieja al volver a adulto.
+      if (!esAdulto) inputEstatura.value = '';
 
       ocultarTodo();
     });
@@ -61,7 +78,6 @@
     inputPeso.value = '';
     inputEstatura.value = '';
 
-    // Vuelve a "Adulto" (opción por defecto)
     grupo = 'adulto';
     botonesGrupo.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.grupoNutri === 'adulto')));
     campoEstatura.hidden = false;
@@ -74,8 +90,8 @@
   function calcular() {
     ocultarTodo();
 
-    const peso = parseFloat(inputPeso.value);
-    if (!peso || peso <= 0) {
+    const peso = parseNumero(inputPeso.value);
+    if (!Number.isFinite(peso) || peso <= 0) {
       mostrarError('Ingresa el peso en kg (mayor a 0).');
       return;
     }
@@ -85,8 +101,8 @@
     }
 
     if (grupo === 'adulto') {
-      const estatura = parseFloat(inputEstatura.value);
-      if (!estatura || estatura <= 0) {
+      const estatura = parseNumero(inputEstatura.value);
+      if (!Number.isFinite(estatura) || estatura <= 0) {
         mostrarError('Ingresa la estatura en cm (mayor a 0).');
         return;
       }
@@ -97,11 +113,15 @@
       calcularImc(peso, estatura);
       calcularHidricoAdulto(peso);
     } else {
+      // Aviso pediátrico: Holliday-Segar está pensado para < ~100 kg.
+      if (peso > 100) {
+        mostrarError('Para niños, verifica el peso (Holliday-Segar aplica a <100 kg).');
+        return;
+      }
       calcularHidricoNino(peso);
     }
   }
 
-  // ---------- IMC (adulto) ----------
   function categoriaImc(imc) {
     if (imc < 18.5) return 'Bajo peso';
     if (imc < 25) return 'Peso normal';
@@ -114,6 +134,10 @@
   function calcularImc(peso, estaturaCm) {
     const estaturaM = estaturaCm / 100;
     const imc = peso / (estaturaM * estaturaM);
+    if (!Number.isFinite(imc)) {
+      mostrarError('No se pudo calcular el IMC. Revisa los valores.');
+      return;
+    }
     const imcRedondeado = imc.toFixed(1);
 
     imcValorEl.textContent = imcRedondeado;
@@ -121,13 +145,12 @@
 
     desgloseImc.innerHTML = `
       <p><strong>Fórmula:</strong> IMC = peso (kg) ÷ estatura (m)²</p>
-      <p>Estatura: ${estaturaCm} cm ÷ 100 = ${estaturaM} m</p>
-      <p>IMC = ${peso} ÷ (${estaturaM} × ${estaturaM}) = ${peso} ÷ ${(estaturaM * estaturaM).toFixed(4)} = ${imcRedondeado}</p>
-      <p class="resultado__equivalente">Clasificación OMS: ${categoriaImc(imc)}</p>
+      <p>Estatura: ${escaparHtml(estaturaCm)} cm ÷ 100 = ${escaparHtml(estaturaM)} m</p>
+      <p>IMC = ${escaparHtml(peso)} ÷ (${escaparHtml(estaturaM)} × ${escaparHtml(estaturaM)}) = ${escaparHtml(peso)} ÷ ${(estaturaM * estaturaM).toFixed(4)} = ${imcRedondeado}</p>
+      <p class="resultado__equivalente">Clasificación OMS: ${escaparHtml(categoriaImc(imc))}</p>
     `;
   }
 
-  // ---------- Requerimiento hídrico: adulto ----------
   function calcularHidricoAdulto(peso) {
     const minimo = Math.round(peso * 30);
     const maximo = Math.round(peso * 35);
@@ -137,17 +160,15 @@
 
     desgloseHidrico.innerHTML = `
       <p><strong>Estimación adulto:</strong> 30 a 35 ml por kg de peso al día</p>
-      <p>Mínimo: ${peso} kg × 30 ml = ${minimo} ml</p>
-      <p>Máximo: ${peso} kg × 35 ml = ${maximo} ml</p>
+      <p>Mínimo: ${escaparHtml(peso)} kg × 30 ml = ${minimo} ml</p>
+      <p>Máximo: ${escaparHtml(peso)} kg × 35 ml = ${maximo} ml</p>
       <p class="resultado__equivalente">
         Equivale a ${(minimo / 1000).toFixed(2)} – ${(maximo / 1000).toFixed(2)} litros al día.
       </p>
     `;
   }
 
-  // ---------- Requerimiento hídrico: niño (Holliday-Segar) ----------
   function calcularHidricoNino(peso) {
-    // Cada tramo se acumula y se guarda su línea de explicación
     const pasos = [];
     let total = 0;
 
@@ -166,6 +187,11 @@
       pasos.push(`Kg sobre 20: ${tramo3} kg × 20 ml = ${tramo3 * 20} ml`);
     }
 
+    if (!Number.isFinite(total) || total <= 0) {
+      mostrarError('No se pudo calcular el requerimiento hídrico.');
+      return;
+    }
+
     const totalRedondeado = Math.round(total);
     const mlPorHora = (total / 24).toFixed(1);
 
@@ -174,7 +200,7 @@
 
     desgloseHidrico.innerHTML = `
       <p><strong>Método Holliday-Segar</strong> (mantenimiento en niños)</p>
-      ${pasos.map((p) => `<p>${p}</p>`).join('')}
+      ${pasos.map((p) => `<p>${escaparHtml(p)}</p>`).join('')}
       <p>Total = ${totalRedondeado} ml/día</p>
       <p class="resultado__equivalente">Equivale a ${mlPorHora} ml/hora (÷ 24 h).</p>
       <p>Nota: en recién nacidos el requerimiento es distinto; este método no aplica.</p>
@@ -188,7 +214,12 @@
 
   function ocultarTodo() {
     errorEl.hidden = true;
+    errorEl.textContent = '';
     resultadoImc.hidden = true;
+    imcValorEl.textContent = '—';
+    desgloseImc.innerHTML = '';
     resultadoHidrico.hidden = true;
+    hidricoValorEl.textContent = '—';
+    desgloseHidrico.innerHTML = '';
   }
 })();
