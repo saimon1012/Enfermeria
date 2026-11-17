@@ -1,52 +1,48 @@
 // ============================================================
-// conversor-unidades.js — Módulo 1: Conversor de unidades
+// bioquimica.js — Módulo 3a: Bioquímica Clínica
 //
-// Motor genérico: cada unidad se define por "cuántos gramos (o ml)
-// equivale 1 de esa unidad". Convertir A→B siempre pasa por la
-// unidad base: valorBase = valor × factor(A); resultado = valorBase ÷ factor(B).
+// 1) Conversión de glucosa:
+//    mg/dL  →  mmol/L : (mg/dL × 10) ÷ 180 = mg/dL ÷ 18
+//    mmol/L →  mg/dL : mmol/L × 18
+//    Factor de conversión oficial: 18,018 (usamos 18 por convención clínica)
 //
-// MASA (unidad base: gramos)
-//   1 g  = 1 g       → factor 1
-//   1 mg = 0.001 g    → factor 0.001
-//   1 µg = 0.000001 g → factor 0.000001
-//
-// VOLUMEN (unidad base: ml)
-//   1 ml = 1 ml → factor 1
-//   1 cc = 1 ml → factor 1   (cc = "centímetro cúbico" = ml, por definición)
+// 2) Osmolaridad sérica efectiva:
+//    Osm = (2 × Na⁺) + (Glucosa ÷ 18) + (BUN ÷ 2.8)
+//    Referencia adulto: 275 – 295 mOsm/kg
 // ============================================================
 
 (function () {
-  const CATEGORIAS = {
-    masa: {
-      orden: ['g', 'mg', 'µg'],
-      factores: { g: 1, mg: 0.001, 'µg': 0.000001 },
-      porDefecto: { desde: 'g', hasta: 'mg' },
-    },
-    volumen: {
-      orden: ['ml', 'cc'],
-      factores: { ml: 1, cc: 1 },
-      porDefecto: { desde: 'ml', hasta: 'cc' },
-    },
-  };
+  // ---------- Glucosa ----------
+  const botonesTipoBioq = document.querySelectorAll('[data-tipo-bioq]');
+  const bloqueGlucosa = document.getElementById('bloque-bioq-glucosa');
+  const bloqueOsm = document.getElementById('bloque-bioq-osmolaridad');
 
-  // ---------- Referencias al DOM ----------
-  const botonesCategoria = document.querySelectorAll('[data-categoria-conversor]');
-  const inputValor = document.getElementById('input-valor-conversor');
-  const selectDesde = document.getElementById('select-unidad-desde');
-  const selectHasta = document.getElementById('select-unidad-hasta');
-  const btnConvertir = document.getElementById('btn-convertir');
-  const btnLimpiar = document.getElementById('btn-limpiar-conversor');
-  const errorEl = document.getElementById('error-conversor');
-  const resultadoEl = document.getElementById('resultado-conversor');
-  const resultadoValorEl = document.getElementById('resultado-conversor-valor');
-  const resultadoUnidadEl = document.getElementById('resultado-conversor-unidad');
-  const desgloseEl = document.getElementById('desglose-conversor');
+  const botonesDirGlucosa = document.querySelectorAll('[data-dir-glucosa]');
+  const inputGlucosa = document.getElementById('input-glucosa');
+  const sufijoGlucosa = document.getElementById('sufijo-glucosa');
+  const btnCalcularGlucosa = document.getElementById('btn-calcular-glucosa');
+  const btnLimpiarGlucosa = document.getElementById('btn-limpiar-glucosa');
+  const errorGlucosa = document.getElementById('error-glucosa');
+  const resultadoGlucosa = document.getElementById('resultado-glucosa');
+  const resultadoGlucosaValor = document.getElementById('resultado-glucosa-valor');
+  const resultadoGlucosaUnidad = document.getElementById('resultado-glucosa-unidad');
+  const desgloseGlucosa = document.getElementById('desglose-glucosa');
 
-  if (!btnConvertir) return; // esta vista no está en el DOM, no hace nada
+  // ---------- Osmolaridad ----------
+  const inputNa = document.getElementById('input-na');
+  const inputGlucosaOsm = document.getElementById('input-glucosa-osm');
+  const inputBun = document.getElementById('input-bun');
+  const btnCalcularOsm = document.getElementById('btn-calcular-osm');
+  const btnLimpiarOsm = document.getElementById('btn-limpiar-osm');
+  const errorOsm = document.getElementById('error-osm');
+  const resultadoOsm = document.getElementById('resultado-osm');
+  const resultadoOsmValor = document.getElementById('resultado-osm-valor');
+  const desgloseOsm = document.getElementById('desglose-osm');
+
+  if (!btnCalcularGlucosa) return; // vista no montada
 
   // ---------- Helpers ----------
-  // Acepta "2,5" y "2.5" (coma decimal es-VE y punto en-US).
-  // Devuelve NaN si el valor no es un número válido.
+  // Acepta "5,5" y "5.5" (coma decimal es-VE y punto en-US).
   function parseNumero(valor) {
     if (typeof valor !== 'string') return NaN;
     const limpio = valor.trim().replace(',', '.');
@@ -66,159 +62,207 @@
     }[c]));
   }
 
-  // Formatea el resultado: hasta 6 decimales, pero si es muy pequeño
-  // (menos de 0.000001) recurre a notación científica para no mostrar "0".
+  // Formatea con hasta 2 decimales, pero si es muy pequeño (menos de 0.01)
+  // muestra más decimales para no perder información clínica.
   function formatearResultado(n) {
     if (!Number.isFinite(n)) return '—';
     if (n === 0) return '0';
-    if (Math.abs(n) < 0.000001) {
-      return n.toExponential(4);
+    if (Math.abs(n) < 0.01) {
+      return n.toFixed(4).replace(/0+$/, '').replace(/\.$/, '');
     }
-    return parseFloat(n.toFixed(6)).toString();
+    return parseFloat(n.toFixed(2)).toString();
   }
 
-  let categoriaActual = 'masa';
+  let direccionGlucosa = 'a-mmol'; // 'a-mmol' | 'a-mgdl'
 
-  // ---------- Llena los <select> "De" y "A" según la categoría activa ----------
-  function poblarSelects(categoria) {
-    const config = CATEGORIAS[categoria];
+  // ---------- Toggle tipo de calculadora ----------
+  botonesTipoBioq.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const tipo = btn.dataset.tipoBioq;
+      botonesTipoBioq.forEach((b) =>
+        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false')
+      );
+      if (bloqueGlucosa) bloqueGlucosa.hidden = tipo !== 'glucosa';
+      if (bloqueOsm) bloqueOsm.hidden = tipo !== 'osmolaridad';
 
-    // Vaciar sin innerHTML (más seguro en navegadores antiguos/WebViews).
-    selectDesde.length = 0;
-    selectHasta.length = 0;
-
-    config.orden.forEach((unidad) => {
-      selectDesde.appendChild(new Option(unidad, unidad));
-      selectHasta.appendChild(new Option(unidad, unidad));
-    });
-
-    // Asignar por defecto, pero solo si la unidad existe en los factores.
-    selectDesde.value = config.factores[config.porDefecto.desde] !== undefined
-      ? config.porDefecto.desde
-      : config.orden[0];
-    selectHasta.value = config.factores[config.porDefecto.hasta] !== undefined
-      ? config.porDefecto.hasta
-      : config.orden[1] || config.orden[0];
-  }
-
-  poblarSelects(categoriaActual); // estado inicial al cargar la página
-
-  // ---------- Toggle: Masa / Volumen ----------
-  botonesCategoria.forEach((boton) => {
-    boton.addEventListener('click', () => {
-      categoriaActual = boton.dataset.categoriaConversor;
-      botonesCategoria.forEach((b) => b.setAttribute('aria-pressed', String(b === boton)));
-      poblarSelects(categoriaActual);
-      ocultarResultadoYError();
+      // Limpiar desgloses al cambiar de tipo para no dejar resultados viejos.
+      if (desgloseGlucosa) desgloseGlucosa.innerHTML = '';
+      if (desgloseOsm) desgloseOsm.innerHTML = '';
+      if (resultadoGlucosa) resultadoGlucosa.hidden = true;
+      if (resultadoOsm) resultadoOsm.hidden = true;
+      if (errorGlucosa) errorGlucosa.hidden = true;
+      if (errorOsm) errorOsm.hidden = true;
     });
   });
 
-  // ---------- Conversión ----------
-  btnConvertir.addEventListener('click', convertir);
-  btnLimpiar.addEventListener('click', limpiarConversor);
-
-  function limpiarConversor() {
-    inputValor.value = '';
-
-    // Vuelve a la categoría "Masa" (opción por defecto)
-    categoriaActual = 'masa';
-    botonesCategoria.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.categoriaConversor === 'masa')));
-    poblarSelects('masa');
-
-    ocultarResultadoYError();
-    inputValor.focus();
-  }
-
-  function convertir() {
-    ocultarResultadoYError();
-
-    const valor = parseNumero(inputValor.value);
-
-    if (!Number.isFinite(valor)) {
-      mostrarError('Ingresa un valor numérico.');
-      return;
-    }
-    if (valor < 0) {
-      mostrarError('El valor no puede ser negativo.');
-      return;
-    }
-
-    const config = CATEGORIAS[categoriaActual];
-    const unidadDesde = selectDesde.value;
-    const unidadHasta = selectHasta.value;
-    const factorDesde = config.factores[unidadDesde];
-    const factorHasta = config.factores[unidadHasta];
-
-    // Guarda defensiva: si por alguna razón la unidad no existe, avisar
-    // en vez de calcular NaN silenciosamente.
-    if (factorDesde === undefined || factorHasta === undefined) {
-      mostrarError('Unidad no válida. Recarga la página e intenta de nuevo.');
-      return;
-    }
-
-    const valorBase = valor * factorDesde;
-    const resultado = valorBase / factorHasta;
-
-    // Guarda defensiva: valores gigantes pueden dar Infinity.
-    if (!Number.isFinite(resultado)) {
-      mostrarError('El valor es demasiado grande para convertirlo.');
-      return;
-    }
-
-    const resultadoFormateado = formatearResultado(resultado);
-
-    mostrarResultado(resultadoFormateado, unidadHasta, {
-      categoria: categoriaActual,
-      valor,
-      unidadDesde,
-      unidadHasta,
-      factorDesde,
-      factorHasta,
+  // ---------- Toggle dirección glucosa ----------
+  botonesDirGlucosa.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      direccionGlucosa = btn.dataset.dirGlucosa;
+      botonesDirGlucosa.forEach((b) =>
+        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false')
+      );
+      if (sufijoGlucosa) {
+        sufijoGlucosa.textContent =
+          direccionGlucosa === 'a-mmol' ? 'mg/dL' : 'mmol/L';
+      }
+      ocultarGlucosa();
     });
+  });
+
+  btnCalcularGlucosa.addEventListener('click', calcularGlucosa);
+  btnLimpiarGlucosa?.addEventListener('click', limpiarGlucosa);
+
+  function limpiarGlucosa() {
+    if (inputGlucosa) inputGlucosa.value = '';
+    ocultarGlucosa();
+    inputGlucosa?.focus();
   }
 
-  function mostrarError(mensaje) {
-    errorEl.textContent = mensaje;
-    errorEl.hidden = false;
+  function ocultarGlucosa() {
+    if (errorGlucosa) {
+      errorGlucosa.hidden = true;
+      errorGlucosa.textContent = '';
+    }
+    if (resultadoGlucosa) resultadoGlucosa.hidden = true;
+    if (resultadoGlucosaValor) resultadoGlucosaValor.textContent = '—';
+    if (resultadoGlucosaUnidad) resultadoGlucosaUnidad.textContent = '';
+    if (desgloseGlucosa) desgloseGlucosa.innerHTML = '';
   }
 
-  function ocultarResultadoYError() {
-    errorEl.hidden = true;
-    errorEl.textContent = '';
-    resultadoEl.hidden = true;
-    resultadoValorEl.textContent = '—';
-    resultadoUnidadEl.textContent = '';
-    desgloseEl.innerHTML = '';
-  }
+  function calcularGlucosa() {
+    ocultarGlucosa();
+    const valor = parseNumero(inputGlucosa?.value);
 
-  function mostrarResultado(resultado, unidadHasta, datos) {
-    resultadoValorEl.textContent = resultado;
-    resultadoUnidadEl.textContent = unidadHasta;
-    resultadoEl.hidden = false;
+    if (!Number.isFinite(valor) || valor <= 0) {
+      if (errorGlucosa) {
+        errorGlucosa.textContent = 'Ingresa un valor mayor a 0.';
+        errorGlucosa.hidden = false;
+      }
+      return;
+    }
 
-    if (datos.categoria === 'volumen') {
-      // ml y cc son la misma medida: el desglose explica el concepto,
-      // no una fórmula (multiplicar/dividir por 1 no enseña nada).
-      desgloseEl.innerHTML = `
-        <p>
-          <strong>${escaparHtml(datos.valor)} ${escaparHtml(datos.unidadDesde)}</strong> equivale exactamente a
-          <strong>${escaparHtml(resultado)} ${escaparHtml(datos.unidadHasta)}</strong>.
-        </p>
-        <p class="resultado__equivalente">
-          "cc" significa centímetro cúbico, que por definición es idéntico a 1 mililitro —
-          no es una conversión, son dos nombres para la misma cantidad.
+    let resultado, unidadSalida, formula;
+    if (direccionGlucosa === 'a-mmol') {
+      resultado = valor / 18;
+      unidadSalida = 'mmol/L';
+      formula = `mg/dL ÷ 18 = mmol/L → ${valor} ÷ 18 = ${resultado.toFixed(2)}`;
+    } else {
+      resultado = valor * 18;
+      unidadSalida = 'mg/dL';
+      formula = `mmol/L × 18 = mg/dL → ${valor} × 18 = ${resultado.toFixed(2)}`;
+    }
+
+    // Guarda defensiva contra valores gigantes.
+    if (!Number.isFinite(resultado)) {
+      if (errorGlucosa) {
+        errorGlucosa.textContent = 'El valor es demasiado grande.';
+        errorGlucosa.hidden = false;
+      }
+      return;
+    }
+
+    const redondeado = formatearResultado(resultado);
+    if (resultadoGlucosaValor) resultadoGlucosaValor.textContent = redondeado;
+    if (resultadoGlucosaUnidad) resultadoGlucosaUnidad.textContent = unidadSalida;
+    if (resultadoGlucosa) resultadoGlucosa.hidden = false;
+
+    const categoria = clasificarGlucosa(
+      direccionGlucosa === 'a-mmol' ? valor : Number(redondeado),
+      direccionGlucosa === 'a-mmol' ? 'mgdl' : 'mmol'
+    );
+
+    if (desgloseGlucosa) {
+      desgloseGlucosa.innerHTML = `
+        <p><strong>Fórmula:</strong> ${escaparHtml(formula)}</p>
+        <p class="resultado__equivalente">Clasificación (ayunas): ${escaparHtml(categoria)}</p>
+        <p style="font-size: var(--fs-xs); color: var(--color-ink-muted);">
+          Referencia adulto en ayunas: normal 70–100 mg/dL (3.9–5.6 mmol/L) ·
+          prediabetes 100–125 mg/dL · diabetes ≥126 mg/dL.
         </p>
       `;
-    } else {
-      // Masa: sí hay un cálculo real, se muestra la fórmula con los números sustituidos.
-      desgloseEl.innerHTML = `
-        <p><strong>Fórmula:</strong> resultado = valor × equivalencia(origen) ÷ equivalencia(destino)</p>
-        <p>
-          resultado = ${escaparHtml(datos.valor)} × ${escaparHtml(datos.factorDesde)} ÷ ${escaparHtml(datos.factorHasta)}
-        </p>
-        <p class="resultado__equivalente">
-          ${escaparHtml(datos.valor)} ${escaparHtml(datos.unidadDesde)} = ${escaparHtml(resultado)} ${escaparHtml(datos.unidadHasta)}
-        </p>
+    }
+  }
+
+  function clasificarGlucosa(valor, unidad) {
+    // Normalizamos a mg/dL para clasificar
+    const mgdl = unidad === 'mmol' ? valor * 18 : valor;
+    if (mgdl < 70) return 'Hipoglucemia (<70 mg/dL)';
+    if (mgdl <= 100) return 'Normal (70–100 mg/dL)';
+    if (mgdl <= 125) return 'Prediabetes (100–125 mg/dL)';
+    return 'Diabetes (≥126 mg/dL) — requiere confirmación clínica';
+  }
+
+  // ---------- Osmolaridad ----------
+  btnCalcularOsm?.addEventListener('click', calcularOsm);
+  btnLimpiarOsm?.addEventListener('click', limpiarOsm);
+
+  function limpiarOsm() {
+    if (inputNa) inputNa.value = '';
+    if (inputGlucosaOsm) inputGlucosaOsm.value = '';
+    if (inputBun) inputBun.value = '';
+    if (errorOsm) {
+      errorOsm.hidden = true;
+      errorOsm.textContent = '';
+    }
+    if (resultadoOsm) resultadoOsm.hidden = true;
+    if (resultadoOsmValor) resultadoOsmValor.textContent = '—';
+    if (desgloseOsm) desgloseOsm.innerHTML = '';
+    inputNa?.focus();
+  }
+
+  function calcularOsm() {
+    if (errorOsm) {
+      errorOsm.hidden = true;
+      errorOsm.textContent = '';
+    }
+    if (resultadoOsm) resultadoOsm.hidden = true;
+    if (desgloseOsm) desgloseOsm.innerHTML = '';
+
+    const na = parseNumero(inputNa?.value);
+    const glu = parseNumero(inputGlucosaOsm?.value);
+    const bun = parseNumero(inputBun?.value);
+
+    if (!Number.isFinite(na) || na <= 0) {
+      if (errorOsm) { errorOsm.textContent = 'Ingresa el sodio (Na⁺) en mEq/L.'; errorOsm.hidden = false; }
+      return;
+    }
+    if (!Number.isFinite(glu) || glu <= 0) {
+      if (errorOsm) { errorOsm.textContent = 'Ingresa la glucosa en mg/dL.'; errorOsm.hidden = false; }
+      return;
+    }
+    if (!Number.isFinite(bun) || bun <= 0) {
+      if (errorOsm) { errorOsm.textContent = 'Ingresa el BUN en mg/dL.'; errorOsm.hidden = false; }
+      return;
+    }
+
+    const osm = (2 * na) + (glu / 18) + (bun / 2.8);
+
+    // Guarda defensiva: valores gigantes pueden dar Infinity.
+    if (!Number.isFinite(osm)) {
+      if (errorOsm) {
+        errorOsm.textContent = 'El valor es demasiado grande para calcularlo.';
+        errorOsm.hidden = false;
+      }
+      return;
+    }
+
+    const redondeado = formatearResultado(osm);
+
+    if (resultadoOsmValor) resultadoOsmValor.textContent = redondeado;
+    if (resultadoOsm) resultadoOsm.hidden = false;
+
+    let clasif = 'Normal (275–295 mOsm/kg)';
+    if (osm < 275) clasif = 'Hiposmolar (<275 mOsm/kg)';
+    else if (osm > 295) clasif = 'Hiperosmolar (>295 mOsm/kg)';
+
+    if (desgloseOsm) {
+      desgloseOsm.innerHTML = `
+        <p><strong>Fórmula:</strong> Osm = (2 × Na⁺) + (Glucosa ÷ 18) + (BUN ÷ 2.8)</p>
+        <p>Osm = (2 × ${escaparHtml(na)}) + (${escaparHtml(glu)} ÷ 18) + (${escaparHtml(bun)} ÷ 2.8)</p>
+        <p>Osm = ${(2 * na).toFixed(1)} + ${(glu / 18).toFixed(2)} + ${(bun / 2.8).toFixed(2)}</p>
+        <p>Osm = <strong>${escaparHtml(redondeado)} mOsm/kg</strong></p>
+        <p class="resultado__equivalente">Clasificación: ${escaparHtml(clasif)}</p>
       `;
     }
   }
