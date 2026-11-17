@@ -3,7 +3,7 @@ window.FABSI_FLASHCARDS = window.FABSI_FLASHCARDS || {};
 window.FABSI_FLASHCARDS['materno'] = [
   { pregunta: 'Regla de Naegele', respuesta: 'Calcula la fecha probable de parto (FPP): a la FUM se le suman 7 días, se le restan 3 meses y se le suma 1 año. Ej.: FUM 10/03/2025 → FPP 17/12/2025.' },
   { pregunta: 'Trimestres del embarazo', respuesta: '1.er trimestre: semanas 1–13. 2.do trimestre: semanas 14–27. 3.er trimestre: semana 28 hasta el parto (≈40 semanas).' },
-  { pregunta: 'Signos presuntivos de embarazo', respuesta: 'Amenorrea, náuseas matutinas, mastalgia, poliaquiuria, fatiga. Son subjetivos y no confirman el embarazo.' },
+  { pregunta: 'Signos presuntivos de embarazo', respuesta: 'Amenorrea, náuseas matutinas, mastalgia, polaquiuria, fatiga. Son subjetivos y no confirman el embarazo.' },
   { pregunta: 'Signos probables de embarazo', respuesta: 'Útero agrandado, signo de Chadwick (cianosis vaginal), signo de Hegar (reblandecimiento del istmo), test de embarazo positivo (hCG en orina o sangre).' },
   { pregunta: 'Signos positivos de embarazo', respuesta: 'Ausencia de menstruación confirmada con ecografía, actividad cardíaca fetal, movimientos fetales percibidos por el examinador. Confirman el embarazo.' },
   { pregunta: 'hCG (gonadotropina coriónica humana)', respuesta: 'Hormona producida por el trofoblasto tras la implantación. Detectable en sangre desde ~7 días post-fecundación y en orina desde ~14 días. Base de los test de embarazo.' },
@@ -20,7 +20,6 @@ window.FABSI_FLASHCARDS['materno'] = [
 ];
 
 (function () {
-  // ---------- Gestación (Calculadora FUM) ----------
   const botonesSubMaterno = document.querySelectorAll('[data-sub-materno]');
   const bloquesSubMaterno = document.querySelectorAll('[data-sub-materno-contenido]');
 
@@ -33,7 +32,34 @@ window.FABSI_FLASHCARDS['materno'] = [
   const resultadoFumUnidad = document.getElementById('resultado-fum-unidad');
   const desgloseFum = document.getElementById('desglose-fum');
 
-  if (!btnCalcularFum) return; // Si no estamos en la vista, no hace nada
+  if (!btnCalcularFum) return;
+
+  // ---------- Helpers ----------
+  function escaparHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    }[c]));
+  }
+
+  // Validación estricta de fecha YYYY-MM-DD (evita rollover silencioso del navegador).
+  function parseFechaISO(valor) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(valor)) return null;
+    const [y, m, d] = valor.split('-').map(Number);
+    const fecha = new Date(y, m - 1, d);
+    if (fecha.getFullYear() !== y || fecha.getMonth() !== m - 1 || fecha.getDate() !== d) {
+      return null;
+    }
+    fecha.setHours(0, 0, 0, 0);
+    return fecha;
+  }
+
+  // Diferencia en días entre dos fechas normalizadas a medianoche UTC,
+  // inmune a cambios de horario (DST).
+  function diferenciaDias(a, b) {
+    const msA = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
+    const msB = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
+    return Math.floor((msA - msB) / (1000 * 60 * 60 * 24));
+  }
 
   // ---------- Toggle sub-materno ----------
   botonesSubMaterno.forEach((btn) => {
@@ -54,14 +80,18 @@ window.FABSI_FLASHCARDS['materno'] = [
 
   function limpiarFum() {
     if (inputFum) inputFum.value = '';
-    if (errorFum) errorFum.hidden = true;
+    if (errorFum) { errorFum.hidden = true; errorFum.textContent = ''; }
     if (resultadoFum) resultadoFum.hidden = true;
+    if (resultadoFumValor) resultadoFumValor.textContent = '—';
+    if (resultadoFumUnidad) resultadoFumUnidad.textContent = '';
+    if (desgloseFum) desgloseFum.innerHTML = '';
     inputFum?.focus();
   }
 
   function calcularFum() {
-    if (errorFum) errorFum.hidden = true;
+    if (errorFum) { errorFum.hidden = true; errorFum.textContent = ''; }
     if (resultadoFum) resultadoFum.hidden = true;
+    if (desgloseFum) desgloseFum.innerHTML = '';
 
     const valor = inputFum?.value;
     if (!valor) {
@@ -69,15 +99,15 @@ window.FABSI_FLASHCARDS['materno'] = [
       return;
     }
 
-    const fum = new Date(valor + 'T00:00:00');
-    if (isNaN(fum.getTime())) {
+    const fum = parseFechaISO(valor);
+    if (!fum) {
       if (errorFum) { errorFum.textContent = 'Fecha inválida.'; errorFum.hidden = false; }
       return;
     }
 
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
-    const diffDias = Math.floor((hoy - fum) / (1000 * 60 * 60 * 24));
+    const diffDias = diferenciaDias(hoy, fum);
 
     if (diffDias < 0) {
       if (errorFum) { errorFum.textContent = 'La FUM no puede ser una fecha futura.'; errorFum.hidden = false; }
@@ -101,7 +131,7 @@ window.FABSI_FLASHCARDS['materno'] = [
       day: '2-digit', month: 'long', year: 'numeric',
     });
 
-    const diasParaFpp = Math.floor((fpp - hoy) / (1000 * 60 * 60 * 24));
+    const diasParaFpp = diferenciaDias(fpp, hoy);
 
     if (resultadoFumValor) resultadoFumValor.textContent = `${semanas}s ${diasRestantes}d`;
     if (resultadoFumUnidad) resultadoFumUnidad.textContent = 'edad gestacional';
@@ -113,10 +143,10 @@ window.FABSI_FLASHCARDS['materno'] = [
 
     if (desgloseFum) {
       desgloseFum.innerHTML = `
-        <p><strong>FUM:</strong> ${fum.toLocaleDateString('es-VE')}</p>
+        <p><strong>FUM:</strong> ${escaparHtml(fum.toLocaleDateString('es-VE'))}</p>
         <p><strong>Días transcurridos:</strong> ${diffDias} días</p>
-        <p><strong>Edad gestacional:</strong> ${semanas} semanas + ${diasRestantes} días (${trimestre})</p>
-        <p><strong>FPP (Regla de Naegele):</strong> ${fppTexto}</p>
+        <p><strong>Edad gestacional:</strong> ${semanas} semanas + ${diasRestantes} días (${escaparHtml(trimestre)})</p>
+        <p><strong>FPP (Regla de Naegele):</strong> ${escaparHtml(fppTexto)}</p>
         <p class="resultado__equivalente">
           ${diasParaFpp > 0
             ? `Faltan aproximadamente ${diasParaFpp} días para la FPP.`
