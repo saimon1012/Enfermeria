@@ -44,21 +44,61 @@
 
   if (!btnConvertir) return; // esta vista no está en el DOM, no hace nada
 
+  // ---------- Helpers ----------
+  // Acepta "2,5" y "2.5" (coma decimal es-VE y punto en-US).
+  // Devuelve NaN si el valor no es un número válido.
+  function parseNumero(valor) {
+    if (typeof valor !== 'string') return NaN;
+    const limpio = valor.trim().replace(',', '.');
+    if (limpio === '') return NaN;
+    const n = Number(limpio);
+    return Number.isFinite(n) ? n : NaN;
+  }
+
+  // Escapa texto para insertarlo de forma segura en innerHTML.
+  function escaparHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+    }[c]));
+  }
+
+  // Formatea el resultado: hasta 6 decimales, pero si es muy pequeño
+  // (menos de 0.000001) recurre a notación científica para no mostrar "0".
+  function formatearResultado(n) {
+    if (!Number.isFinite(n)) return '—';
+    if (n === 0) return '0';
+    if (Math.abs(n) < 0.000001) {
+      return n.toExponential(4);
+    }
+    return parseFloat(n.toFixed(6)).toString();
+  }
+
   let categoriaActual = 'masa';
 
   // ---------- Llena los <select> "De" y "A" según la categoría activa ----------
   function poblarSelects(categoria) {
     const config = CATEGORIAS[categoria];
-    selectDesde.innerHTML = '';
-    selectHasta.innerHTML = '';
+
+    // Vaciar sin innerHTML (más seguro en navegadores antiguos/WebViews).
+    selectDesde.length = 0;
+    selectHasta.length = 0;
 
     config.orden.forEach((unidad) => {
       selectDesde.appendChild(new Option(unidad, unidad));
       selectHasta.appendChild(new Option(unidad, unidad));
     });
 
-    selectDesde.value = config.porDefecto.desde;
-    selectHasta.value = config.porDefecto.hasta;
+    // Asignar por defecto, pero solo si la unidad existe en los factores.
+    selectDesde.value = config.factores[config.porDefecto.desde] !== undefined
+      ? config.porDefecto.desde
+      : config.orden[0];
+    selectHasta.value = config.factores[config.porDefecto.hasta] !== undefined
+      ? config.porDefecto.hasta
+      : config.orden[1] || config.orden[0];
   }
 
   poblarSelects(categoriaActual); // estado inicial al cargar la página
@@ -92,9 +132,9 @@
   function convertir() {
     ocultarResultadoYError();
 
-    const valor = parseFloat(inputValor.value);
+    const valor = parseNumero(inputValor.value);
 
-    if (inputValor.value.trim() === '' || Number.isNaN(valor)) {
+    if (!Number.isFinite(valor)) {
       mostrarError('Ingresa un valor numérico.');
       return;
     }
@@ -109,11 +149,23 @@
     const factorDesde = config.factores[unidadDesde];
     const factorHasta = config.factores[unidadHasta];
 
+    // Guarda defensiva: si por alguna razón la unidad no existe, avisar
+    // en vez de calcular NaN silenciosamente.
+    if (factorDesde === undefined || factorHasta === undefined) {
+      mostrarError('Unidad no válida. Recarga la página e intenta de nuevo.');
+      return;
+    }
+
     const valorBase = valor * factorDesde;
     const resultado = valorBase / factorHasta;
 
-    // Redondeo a 6 decimales y recorte de ceros sobrantes (ej. 5.000000 → 5)
-    const resultadoFormateado = parseFloat(resultado.toFixed(6));
+    // Guarda defensiva: valores gigantes pueden dar Infinity.
+    if (!Number.isFinite(resultado)) {
+      mostrarError('El valor es demasiado grande para convertirlo.');
+      return;
+    }
+
+    const resultadoFormateado = formatearResultado(resultado);
 
     mostrarResultado(resultadoFormateado, unidadHasta, {
       categoria: categoriaActual,
@@ -132,7 +184,11 @@
 
   function ocultarResultadoYError() {
     errorEl.hidden = true;
+    errorEl.textContent = '';
     resultadoEl.hidden = true;
+    resultadoValorEl.textContent = '—';
+    resultadoUnidadEl.textContent = '';
+    desgloseEl.innerHTML = '';
   }
 
   function mostrarResultado(resultado, unidadHasta, datos) {
@@ -145,8 +201,8 @@
       // no una fórmula (multiplicar/dividir por 1 no enseña nada).
       desgloseEl.innerHTML = `
         <p>
-          <strong>${datos.valor} ${datos.unidadDesde}</strong> equivale exactamente a
-          <strong>${resultado} ${datos.unidadHasta}</strong>.
+          <strong>${escaparHtml(datos.valor)} ${escaparHtml(datos.unidadDesde)}</strong> equivale exactamente a
+          <strong>${escaparHtml(resultado)} ${escaparHtml(datos.unidadHasta)}</strong>.
         </p>
         <p class="resultado__equivalente">
           "cc" significa centímetro cúbico, que por definición es idéntico a 1 mililitro —
@@ -158,10 +214,10 @@
       desgloseEl.innerHTML = `
         <p><strong>Fórmula:</strong> resultado = valor × equivalencia(origen) ÷ equivalencia(destino)</p>
         <p>
-          resultado = ${datos.valor} × ${datos.factorDesde} ÷ ${datos.factorHasta}
+          resultado = ${escaparHtml(datos.valor)} × ${escaparHtml(datos.factorDesde)} ÷ ${escaparHtml(datos.factorHasta)}
         </p>
         <p class="resultado__equivalente">
-          ${datos.valor} ${datos.unidadDesde} = ${resultado} ${datos.unidadHasta}
+          ${escaparHtml(datos.valor)} ${escaparHtml(datos.unidadDesde)} = ${escaparHtml(resultado)} ${escaparHtml(datos.unidadHasta)}
         </p>
       `;
     }
