@@ -11,6 +11,11 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="iconos/icon-192.png">
   <link rel="apple-touch-icon" href="iconos/icon-192.png">
+  <!-- Vercel Web Analytics -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
 
@@ -202,28 +207,28 @@
           <div class="campo__fila">
             <div class="campo__col">
               <label class="campo__label" for="sv-ta">Tensión Arterial (mmHg)</label>
-              <input class="campo__input" type="text" id="sv-ta" placeholder="Ej. 120/80">
+              <input class="campo__input" type="text" id="sv-ta" inputmode="decimal" lang="es-VE" placeholder="Ej. 120/80">
             </div>
             <div class="campo__col">
               <label class="campo__label" for="sv-fc">Frec. Cardíaca (lpm)</label>
-              <input class="campo__input" type="number" id="sv-fc" placeholder="Ej. 75">
+              <input class="campo__input" type="text" id="sv-fc" inputmode="decimal" lang="es-VE" placeholder="Ej. 75">
             </div>
           </div>
 
           <div class="campo__fila">
             <div class="campo__col">
               <label class="campo__label" for="sv-fr">Frec. Respiratoria (rpm)</label>
-              <input class="campo__input" type="number" id="sv-fr" placeholder="Ej. 16">
+              <input class="campo__input" type="text" id="sv-fr" inputmode="decimal" lang="es-VE" placeholder="Ej. 16">
             </div>
             <div class="campo__col">
               <label class="campo__label" for="sv-temp">Temperatura (°C)</label>
-              <input class="campo__input" type="number" id="sv-temp" step="0.1" placeholder="Ej. 36.5">
+              <input class="campo__input" type="text" id="sv-temp" inputmode="decimal" lang="es-VE" placeholder="Ej. 36.5">
             </div>
           </div>
 
           <div class="campo">
             <label class="campo__label" for="sv-spo2">Saturación de Oxígeno (%)</label>
-            <input class="campo__input" type="number" id="sv-spo2" placeholder="Ej. 98">
+            <input class="campo__input" type="text" id="sv-spo2" inputmode="decimal" lang="es-VE" placeholder="Ej. 98">
           </div>
 
           <div class="acciones-calculadora">
@@ -231,9 +236,9 @@
             <button class="boton-secundario" id="btn-limpiar-sv" type="button">Limpiar</button>
           </div>
 
-          <p class="campo__error" id="error-sv" hidden></p>
+          <p class="campo__error" id="error-sv" role="alert" aria-live="assertive" hidden></p>
 
-          <div class="resultado" id="resultado-sv" hidden>
+          <div class="resultado" id="resultado-sv" aria-live="polite" hidden>
             <div class="resultado__cifra" id="sv-cifra" style="font-size: 1.2rem; margin-bottom: 8px;">—</div>
             <div class="resultado__desglose" id="desglose-sv"></div>
           </div>
@@ -257,6 +262,14 @@
           </div>
         </div>
 
+        <div class="card" data-herramienta="pediatrica" role="button" tabindex="0">
+          <span class="card__icono" aria-hidden="true">👶</span>
+          <div class="card__texto">
+            <strong>Dosis pediátrica</strong>
+            <small>Cálculo por peso (mg/kg/día)</small>
+          </div>
+        </div>
+
         <div class="card" data-herramienta="conversor" role="button" tabindex="0">
           <span class="card__icono" aria-hidden="true">🧪</span>
           <div class="card__texto">
@@ -272,7 +285,8 @@
             <small>Glucosa y osmolaridad</small>
           </div>
         </div>
-                <div class="card" data-herramienta="signos" role="button" tabindex="0">
+
+        <div class="card" data-herramienta="signos" role="button" tabindex="0">
           <span class="card__icono" aria-hidden="true">🩺</span>
           <div class="card__texto">
             <strong>Signos Vitales</strong>
@@ -326,7 +340,7 @@
           <div class="campo">
             <label class="campo__label" for="input-volumen">Volumen a infundir</label>
             <div class="campo__con-sufijo">
-              <input class="campo__input" type="number" id="input-volumen" inputmode="decimal" min="0" step="1" placeholder="0">
+              <input class="campo__input" type="text" id="input-volumen" inputmode="decimal" lang="es-VE" placeholder="0">
               <span class="campo__sufijo">ml</span>
             </div>
           </div>
@@ -335,7 +349,7 @@
             <span class="campo__label">Unidad de tiempo</span>
             <div class="campo__fila">
               <div class="campo__col">
-                <input class="campo__input" type="number" id="input-tiempo" inputmode="decimal" min="0" step="1" placeholder="0">
+                <input class="campo__input" type="text" id="input-tiempo" inputmode="decimal" lang="es-VE" placeholder="0">
               </div>
               <div class="segmented segmented--compacto">
                 <button class="segmented__opcion" data-unidad-tiempo="horas" aria-pressed="true" type="button">Horas</button>
@@ -350,16 +364,16 @@
             <button class="boton-secundario" id="btn-limpiar-goteo" type="button">Limpiar</button>
           </div>
 
-          <p class="campo__error" id="error-goteo" hidden></p>
+          <p class="campo__error" id="error-goteo" role="alert" aria-live="assertive" hidden></p>
 
-          <div class="resultado" id="resultado-goteo" hidden>
+          <div class="resultado" id="resultado-goteo" aria-live="polite" hidden>
             <div class="resultado__cifra"><span id="resultado-valor">—</span> gotas/min</div>
             <div class="resultado__desglose" id="desglose-goteo"></div>
           </div>
         </div>
       </div>
 
-      <!-- ===== PANEL: DOSIFICACIÓN ===== -->
+            <!-- ===== PANEL: DOSIFICACIÓN ===== -->
       <div id="herramienta-dosificacion" class="herramienta-panel" hidden>
         <div class="tool-card">
           <h2 class="tool-card__titulo">Dosificación (regla de tres)</h2>
@@ -373,10 +387,18 @@
           </div>
 
           <div class="campo">
+            <span class="campo__label">Unidad de las dosis</span>
+            <div class="segmented">
+              <button class="segmented__opcion" data-unidad-dosis="mg" aria-pressed="true" type="button">mg</button>
+              <button class="segmented__opcion" data-unidad-dosis="g" aria-pressed="false" type="button">g</button>
+            </div>
+          </div>
+
+          <div class="campo">
             <label class="campo__label" for="input-dosis-indicada">Dosis indicada</label>
             <div class="campo__con-sufijo">
-              <input class="campo__input" type="number" id="input-dosis-indicada" inputmode="decimal" min="0" step="0.1" placeholder="0">
-              <span class="campo__sufijo">mg</span>
+              <input class="campo__input" type="text" id="input-dosis-indicada" inputmode="decimal" lang="es-VE" placeholder="0">
+              <span class="campo__sufijo" data-sufijo-dosis>mg</span>
             </div>
           </div>
 
@@ -384,14 +406,14 @@
             <div class="campo">
               <label class="campo__label" for="input-dosis-disponible-amp">Dosis disponible en el frasco</label>
               <div class="campo__con-sufijo">
-                <input class="campo__input" type="number" id="input-dosis-disponible-amp" inputmode="decimal" min="0" step="0.1" placeholder="0">
-                <span class="campo__sufijo">mg</span>
+                <input class="campo__input" type="text" id="input-dosis-disponible-amp" inputmode="decimal" lang="es-VE" placeholder="0">
+                <span class="campo__sufijo" data-sufijo-dosis>mg</span>
               </div>
             </div>
             <div class="campo">
               <label class="campo__label" for="input-volumen-disponible-amp">Volumen del frasco</label>
               <div class="campo__con-sufijo">
-                <input class="campo__input" type="number" id="input-volumen-disponible-amp" inputmode="decimal" min="0" step="0.1" placeholder="0">
+                <input class="campo__input" type="text" id="input-volumen-disponible-amp" inputmode="decimal" lang="es-VE" placeholder="0">
                 <span class="campo__sufijo">ml</span>
               </div>
             </div>
@@ -401,8 +423,8 @@
             <div class="campo">
               <label class="campo__label" for="input-dosis-disponible-tab">Dosis por tableta</label>
               <div class="campo__con-sufijo">
-                <input class="campo__input" type="number" id="input-dosis-disponible-tab" inputmode="decimal" min="0" step="0.1" placeholder="0">
-                <span class="campo__sufijo">mg</span>
+                <input class="campo__input" type="text" id="input-dosis-disponible-tab" inputmode="decimal" lang="es-VE" placeholder="0">
+                <span class="campo__sufijo" data-sufijo-dosis>mg</span>
               </div>
             </div>
           </div>
@@ -412,11 +434,56 @@
             <button class="boton-secundario" id="btn-limpiar-dosis" type="button">Limpiar</button>
           </div>
 
-          <p class="campo__error" id="error-dosis" hidden></p>
+          <p class="campo__error" id="error-dosis" role="alert" aria-live="assertive" hidden></p>
 
-          <div class="resultado" id="resultado-dosis" hidden>
+          <div class="resultado" id="resultado-dosis" aria-live="polite" hidden>
             <div class="resultado__cifra"><span id="resultado-dosis-valor">—</span> <span id="resultado-dosis-unidad"></span></div>
             <div class="resultado__desglose" id="desglose-dosis"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PANEL: DOSIS PEDIÁTRICA ===== -->
+      <div id="herramienta-pediatrica" class="herramienta-panel" hidden>
+        <div class="tool-card">
+          <h2 class="tool-card__titulo">Dosis pediátrica (mg/kg/día)</h2>
+
+          <div class="campo">
+            <label class="campo__label" for="input-peso-ped">Peso del niño</label>
+            <div class="campo__con-sufijo">
+              <input class="campo__input" type="text" id="input-peso-ped" inputmode="decimal" lang="es-VE" placeholder="0">
+              <span class="campo__sufijo">kg</span>
+            </div>
+          </div>
+
+          <div class="campo">
+            <label class="campo__label" for="input-dosis-kg">Dosis indicada</label>
+            <div class="campo__con-sufijo">
+              <input class="campo__input" type="text" id="input-dosis-kg" inputmode="decimal" lang="es-VE" placeholder="0">
+              <span class="campo__sufijo">mg/kg/día</span>
+            </div>
+          </div>
+
+          <div class="campo">
+            <span class="campo__label">Intervalo (frecuencia)</span>
+            <div class="segmented">
+              <button class="segmented__opcion" data-frecuencia="4" aria-pressed="false" type="button">c/6h</button>
+              <button class="segmented__opcion" data-frecuencia="3" aria-pressed="true" type="button">c/8h</button>
+              <button class="segmented__opcion" data-frecuencia="2" aria-pressed="false" type="button">c/12h</button>
+              <button class="segmented__opcion" data-frecuencia="1" aria-pressed="false" type="button">c/24h</button>
+            </div>
+          </div>
+
+          <div class="acciones-calculadora">
+            <button class="boton-primario" id="btn-calcular-dosis-ped" type="button">Calcular</button>
+            <button class="boton-secundario" id="btn-limpiar-dosis-ped" type="button">Limpiar</button>
+          </div>
+
+          <p class="campo__error" id="error-dosis-ped" role="alert" aria-live="assertive" hidden></p>
+
+          <div class="resultado" id="resultado-dosis-ped" aria-live="polite" hidden>
+            <div class="resultado__cifra"><span id="resultado-dosis-ped-valor">—</span> mg / toma</div>
+            <div class="resultado__desglose" id="desglose-dosis-ped"></div>
           </div>
         </div>
       </div>
@@ -436,7 +503,7 @@
 
           <div class="campo">
             <label class="campo__label" for="input-valor-conversor">Valor</label>
-            <input class="campo__input" type="number" id="input-valor-conversor" inputmode="decimal" step="any" placeholder="0">
+            <input class="campo__input" type="text" id="input-valor-conversor" inputmode="decimal" lang="es-VE" placeholder="0">
           </div>
 
           <div class="campo__fila">
@@ -455,9 +522,9 @@
             <button class="boton-secundario" id="btn-limpiar-conversor" type="button">Limpiar</button>
           </div>
 
-          <p class="campo__error" id="error-conversor" hidden></p>
+          <p class="campo__error" id="error-conversor" role="alert" aria-live="assertive" hidden></p>
 
-          <div class="resultado" id="resultado-conversor" hidden>
+          <div class="resultado" id="resultado-conversor" aria-live="polite" hidden>
             <div class="resultado__cifra"><span id="resultado-conversor-valor">—</span> <span id="resultado-conversor-unidad"></span></div>
             <div class="resultado__desglose" id="desglose-conversor"></div>
           </div>
@@ -489,7 +556,7 @@
             <div class="campo">
               <label class="campo__label" for="input-glucosa">Valor</label>
               <div class="campo__con-sufijo">
-                <input class="campo__input" type="number" id="input-glucosa" inputmode="decimal" step="0.1" placeholder="0">
+                <input class="campo__input" type="text" id="input-glucosa" inputmode="decimal" lang="es-VE" placeholder="0">
                 <span class="campo__sufijo" id="sufijo-glucosa">mg/dL</span>
               </div>
             </div>
@@ -499,9 +566,9 @@
               <button class="boton-secundario" id="btn-limpiar-glucosa" type="button">Limpiar</button>
             </div>
 
-            <p class="campo__error" id="error-glucosa" hidden></p>
+            <p class="campo__error" id="error-glucosa" role="alert" aria-live="assertive" hidden></p>
 
-            <div class="resultado" id="resultado-glucosa" hidden>
+            <div class="resultado" id="resultado-glucosa" aria-live="polite" hidden>
               <div class="resultado__cifra"><span id="resultado-glucosa-valor">—</span> <span id="resultado-glucosa-unidad"></span></div>
               <div class="resultado__desglose" id="desglose-glucosa"></div>
             </div>
@@ -511,21 +578,21 @@
             <div class="campo">
               <label class="campo__label" for="input-na">Sodio (Na⁺)</label>
               <div class="campo__con-sufijo">
-                <input class="campo__input" type="number" id="input-na" inputmode="decimal" step="0.1" placeholder="0">
+                <input class="campo__input" type="text" id="input-na" inputmode="decimal" lang="es-VE" placeholder="0">
                 <span class="campo__sufijo">mEq/L</span>
               </div>
             </div>
             <div class="campo">
               <label class="campo__label" for="input-glucosa-osm">Glucosa</label>
               <div class="campo__con-sufijo">
-                <input class="campo__input" type="number" id="input-glucosa-osm" inputmode="decimal" step="0.1" placeholder="0">
+                <input class="campo__input" type="text" id="input-glucosa-osm" inputmode="decimal" lang="es-VE" placeholder="0">
                 <span class="campo__sufijo">mg/dL</span>
               </div>
             </div>
             <div class="campo">
               <label class="campo__label" for="input-bun">BUN</label>
               <div class="campo__con-sufijo">
-                <input class="campo__input" type="number" id="input-bun" inputmode="decimal" step="0.1" placeholder="0">
+                <input class="campo__input" type="text" id="input-bun" inputmode="decimal" lang="es-VE" placeholder="0">
                 <span class="campo__sufijo">mg/dL</span>
               </div>
             </div>
@@ -535,9 +602,9 @@
               <button class="boton-secundario" id="btn-limpiar-osm" type="button">Limpiar</button>
             </div>
 
-            <p class="campo__error" id="error-osm" hidden></p>
+            <p class="campo__error" id="error-osm" role="alert" aria-live="assertive" hidden></p>
 
-            <div class="resultado" id="resultado-osm" hidden>
+            <div class="resultado" id="resultado-osm" aria-live="polite" hidden>
               <div class="resultado__cifra"><span id="resultado-osm-valor">—</span> mOsm/kg</div>
               <div class="resultado__desglose" id="desglose-osm"></div>
             </div>
@@ -561,7 +628,7 @@
           <div class="campo">
             <label class="campo__label" for="input-peso-nutri">Peso</label>
             <div class="campo__con-sufijo">
-              <input class="campo__input" type="number" id="input-peso-nutri" inputmode="decimal" step="0.1" placeholder="0">
+              <input class="campo__input" type="text" id="input-peso-nutri" inputmode="decimal" lang="es-VE" placeholder="0">
               <span class="campo__sufijo">kg</span>
             </div>
           </div>
@@ -569,7 +636,7 @@
           <div class="campo" id="campo-estatura-nutri">
             <label class="campo__label" for="input-estatura-nutri">Estatura</label>
             <div class="campo__con-sufijo">
-              <input class="campo__input" type="number" id="input-estatura-nutri" inputmode="decimal" step="0.1" placeholder="0">
+              <input class="campo__input" type="text" id="input-estatura-nutri" inputmode="decimal" lang="es-VE" placeholder="0">
               <span class="campo__sufijo">cm</span>
             </div>
           </div>
@@ -584,14 +651,14 @@
             <button class="boton-secundario" id="btn-limpiar-nutri" type="button">Limpiar</button>
           </div>
 
-          <p class="campo__error" id="error-nutri" hidden></p>
+          <p class="campo__error" id="error-nutri" role="alert" aria-live="assertive" hidden></p>
 
-          <div class="resultado" id="resultado-imc" hidden>
+          <div class="resultado" id="resultado-imc" aria-live="polite" hidden>
             <div class="resultado__cifra"><span id="resultado-imc-valor">—</span> kg/m²</div>
             <div class="resultado__desglose" id="desglose-imc"></div>
           </div>
 
-          <div class="resultado" id="resultado-hidrico" hidden style="margin-top:12px;">
+          <div class="resultado" id="resultado-hidrico" aria-live="polite" hidden style="margin-top:12px;">
             <div class="resultado__cifra"><span id="resultado-hidrico-valor">—</span> ml/día</div>
             <div class="resultado__desglose" id="desglose-hidrico"></div>
           </div>
@@ -613,9 +680,9 @@
             <button class="boton-secundario" id="btn-limpiar-fum" type="button">Limpiar</button>
           </div>
 
-          <p class="campo__error" id="error-fum" hidden></p>
+          <p class="campo__error" id="error-fum" role="alert" aria-live="assertive" hidden></p>
 
-          <div class="resultado" id="resultado-fum" hidden>
+          <div class="resultado" id="resultado-fum" aria-live="polite" hidden>
             <div class="resultado__cifra"><span id="resultado-fum-valor">—</span> <span id="resultado-fum-unidad"></span></div>
             <div class="resultado__desglose" id="desglose-fum"></div>
           </div>
