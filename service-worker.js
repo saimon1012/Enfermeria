@@ -3,7 +3,7 @@
 // Versión 2.0 (Arquitectura Dinámica)
 // ============================================================
 
-const VERSION = 'fabsi-v5';
+const VERSION = 'fabsi-v2';
 
 const ARCHIVOS = [
   './',
