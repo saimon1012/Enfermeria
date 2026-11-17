@@ -10,6 +10,10 @@
 //   dosisDisponibleTab mg ---- 1 tableta
 //   dosisIndicada      mg ---- ?  tabletas
 //   ? = dosisIndicada ÷ dosisDisponibleTab
+//
+// NOTA: la dosis indicada y la dosis disponible SIEMPRE se ingresan
+// en la misma unidad (mg o g, a elección del usuario). Internamente
+// se normalizan a mg antes de calcular, así la fórmula clínica no cambia.
 // ============================================================
 
 (function () {
@@ -17,6 +21,9 @@
   const botonesTipo = document.querySelectorAll('[data-tipo-dosificacion]');
   const bloqueAmpolla = document.getElementById('bloque-ampolla');
   const bloqueTableta = document.getElementById('bloque-tableta');
+
+  const botonesUnidadDosis = document.querySelectorAll('[data-unidad-dosis]');
+  const sufijosDosis = document.querySelectorAll('[data-sufijo-dosis]');
 
   const inputDosisIndicada = document.getElementById('input-dosis-indicada');
   const inputDosisDisponibleAmp = document.getElementById('input-dosis-disponible-amp');
@@ -33,7 +40,42 @@
 
   if (!btnCalcular) return; // esta vista no está en el DOM, no hace nada
 
+  // ---------- Helpers ----------
+  // Acepta "0,5" y "0.5" (coma decimal es-VE y punto en-US).
+  // Devuelve NaN si el valor no es un número válido.
+  function parseNumero(valor) {
+    if (typeof valor !== 'string') return NaN;
+    const limpio = valor.trim().replace(',', '.');
+    if (limpio === '') return NaN;
+    const n = Number(limpio);
+    return Number.isFinite(n) ? n : NaN;
+  }
+
+  // Escapa texto para insertarlo de forma segura en innerHTML.
+  function escaparHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+    }[c]));
+  }
+
+  // Formatea un número para mostrarlo: hasta 2 decimales, pero si es
+  // muy pequeño (menos de 0.01) muestra más decimales para no perder
+  // información clínica (ej. 0.001 ml no debe mostrarse como "0").
+  function formatearResultado(n) {
+    if (!Number.isFinite(n)) return '—';
+    if (n === 0) return '0';
+    if (Math.abs(n) < 0.01) {
+      return n.toFixed(4).replace(/0+$/, '').replace(/\.$/, '');
+    }
+    return parseFloat(n.toFixed(2)).toString();
+  }
+
   let tipoActual = 'ampolla'; // 'ampolla' | 'tableta'
+  let unidadDosis = 'mg';     // 'mg' | 'g'
 
   // ---------- Toggle: Ampolla / Tableta ----------
   botonesTipo.forEach((boton) => {
@@ -49,6 +91,21 @@
     });
   });
 
+  // ---------- Toggle: Unidad (mg / g) ----------
+  botonesUnidadDosis.forEach((boton) => {
+    boton.addEventListener('click', () => {
+      unidadDosis = boton.dataset.unidadDosis;
+      botonesUnidadDosis.forEach((b) =>
+        b.setAttribute('aria-pressed', String(b === boton))
+      );
+      // Cambia el sufijo visible en los 3 campos de dosis
+      sufijosDosis.forEach((span) => {
+        span.textContent = unidadDosis;
+      });
+      ocultarResultadoYError();
+    });
+  });
+
   // ---------- Cálculo principal ----------
   btnCalcular.addEventListener('click', calcularDosis);
   btnLimpiar.addEventListener('click', limpiarDosis);
@@ -59,11 +116,18 @@
     inputVolumenDisponibleAmp.value = '';
     inputDosisDisponibleTab.value = '';
 
-    // Vuelve a "Ampolla (líquido)" (opción por defecto)
+    // Vuelve a "Ampolla" (opción por defecto)
     tipoActual = 'ampolla';
     botonesTipo.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tipoDosificacion === 'ampolla')));
     bloqueAmpolla.hidden = false;
     bloqueTableta.hidden = true;
+
+    // Vuelve a "mg" (opción por defecto)
+    unidadDosis = 'mg';
+    botonesUnidadDosis.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.unidadDosis === 'mg')));
+    sufijosDosis.forEach((span) => {
+      span.textContent = 'mg';
+    });
 
     ocultarResultadoYError();
     inputDosisIndicada.focus();
@@ -72,8 +136,8 @@
   function calcularDosis() {
     ocultarResultadoYError();
 
-    const dosisIndicada = parseFloat(inputDosisIndicada.value);
-    if (!dosisIndicada || dosisIndicada <= 0) {
+    const dosisIndicada = parseNumero(inputDosisIndicada.value);
+    if (!Number.isFinite(dosisIndicada) || dosisIndicada <= 0) {
       mostrarError('Ingresa la dosis indicada (mayor a 0).');
       return;
     }
@@ -85,51 +149,95 @@
     }
   }
 
-  function calcularAmpolla(dosisIndicada) {
-    const dosisDisponible = parseFloat(inputDosisDisponibleAmp.value);
-    const volumenDisponible = parseFloat(inputVolumenDisponibleAmp.value);
+  // Convierte a mg el valor ingresado, según la unidad elegida.
+  // (La fórmula clínica opera en mg; el usuario puede escribir en mg o g.)
+  function aMg(valor) {
+    return unidadDosis === 'g' ? valor * 1000 : valor;
+  }
 
-    if (!dosisDisponible || dosisDisponible <= 0) {
+  function calcularAmpolla(dosisIndicada) {
+    const dosisDisponible = parseNumero(inputDosisDisponibleAmp.value);
+    const volumenDisponible = parseNumero(inputVolumenDisponibleAmp.value);
+
+    if (!Number.isFinite(dosisDisponible) || dosisDisponible <= 0) {
       mostrarError('Ingresa la dosis disponible del frasco (mayor a 0).');
       return;
     }
-    if (!volumenDisponible || volumenDisponible <= 0) {
+    if (!Number.isFinite(volumenDisponible) || volumenDisponible <= 0) {
       mostrarError('Ingresa el volumen del frasco (mayor a 0).');
       return;
     }
 
-    const resultadoExacto = (dosisIndicada * volumenDisponible) / dosisDisponible;
-    const resultado = parseFloat(resultadoExacto.toFixed(2));
+    // Normalizamos ambas dosis a mg antes de aplicar la regla de tres.
+    const dosisIndicadaMg = aMg(dosisIndicada);
+    const dosisDisponibleMg = aMg(dosisDisponible);
 
-    resultadoValorEl.textContent = resultado;
+    const resultadoExacto = (dosisIndicadaMg * volumenDisponible) / dosisDisponibleMg;
+
+    if (!Number.isFinite(resultadoExacto)) {
+      mostrarError('No se pudo calcular. Revisa los valores ingresados.');
+      return;
+    }
+
+    // Aviso clínico: si el resultado supera el volumen del frasco,
+    // probablemente el usuario confundió unidades (ej. puso 1 en vez de 1000).
+    const superaFrasco = resultadoExacto > volumenDisponible;
+
+    const resultadoFormateado = formatearResultado(resultadoExacto);
+
+    resultadoValorEl.textContent = resultadoFormateado;
     resultadoUnidadEl.textContent = 'ml a administrar';
     resultadoEl.hidden = false;
 
     desgloseEl.innerHTML = `
       <p><strong>Regla de tres:</strong></p>
       <p class="regla-de-tres">
-        ${dosisDisponible} mg &nbsp;——&nbsp; ${volumenDisponible} ml<br>
-        ${dosisIndicada} mg &nbsp;——&nbsp; ? ml
+        ${escaparHtml(dosisDisponible)} ${escaparHtml(unidadDosis)} &nbsp;——&nbsp; ${escaparHtml(volumenDisponible)} ml<br>
+        ${escaparHtml(dosisIndicada)} ${escaparHtml(unidadDosis)} &nbsp;——&nbsp; ? ml
       </p>
       <p>
-        ? = (${dosisIndicada} × ${volumenDisponible}) ÷ ${dosisDisponible}
-        = <strong>${resultado} ml</strong>
+        ? = (${escaparHtml(dosisIndicada)} × ${escaparHtml(volumenDisponible)}) ÷ ${escaparHtml(dosisDisponible)}
+        = <strong>${resultadoFormateado} ml</strong>
       </p>
+      ${unidadDosis === 'g' ? `
+        <p class="resultado__equivalente" style="font-size: var(--fs-xs); color: var(--color-ink-muted);">
+          Equivalencia usada: ${escaparHtml(dosisIndicada)} g = ${escaparHtml(dosisIndicadaMg)} mg ·
+          ${escaparHtml(dosisDisponible)} g = ${escaparHtml(dosisDisponibleMg)} mg
+        </p>
+      ` : ''}
+      ${superaFrasco ? `
+        <p class="resultado__equivalente" style="color: var(--color-accent);">
+          ⚠️ El resultado supera el volumen del frasco (${escaparHtml(volumenDisponible)} ml).
+          Verifica las unidades: ¿la dosis disponible está en <strong>${escaparHtml(unidadDosis)}</strong>
+          o en <strong>${unidadDosis === 'mg' ? 'g' : 'mg'}</strong>?
+          (1 g = 1000 mg)
+        </p>
+      ` : ''}
     `;
   }
 
   function calcularTableta(dosisIndicada) {
-    const dosisDisponibleTab = parseFloat(inputDosisDisponibleTab.value);
+    const dosisDisponibleTab = parseNumero(inputDosisDisponibleTab.value);
 
-    if (!dosisDisponibleTab || dosisDisponibleTab <= 0) {
+    if (!Number.isFinite(dosisDisponibleTab) || dosisDisponibleTab <= 0) {
       mostrarError('Ingresa la dosis por tableta (mayor a 0).');
       return;
     }
 
-    const resultadoExacto = dosisIndicada / dosisDisponibleTab;
-    const resultado = parseFloat(resultadoExacto.toFixed(2));
+    // Normalizamos ambas dosis a mg antes de dividir.
+    const dosisIndicadaMg = aMg(dosisIndicada);
+    const dosisDisponibleTabMg = aMg(dosisDisponibleTab);
 
-    resultadoValorEl.textContent = resultado;
+    const resultadoExacto = dosisIndicadaMg / dosisDisponibleTabMg;
+
+    if (!Number.isFinite(resultadoExacto)) {
+      mostrarError('No se pudo calcular. Revisa los valores ingresados.');
+      return;
+    }
+
+    const resultadoFormateado = formatearResultado(resultadoExacto);
+
+    resultadoValorEl.textContent = resultadoFormateado;
     resultadoUnidadEl.textContent = 'tabletas';
     resultadoEl.hidden = false;
 
@@ -143,12 +251,18 @@
     desgloseEl.innerHTML = `
       <p><strong>Regla de tres:</strong></p>
       <p class="regla-de-tres">
-        ${dosisDisponibleTab} mg &nbsp;——&nbsp; 1 tableta<br>
-        ${dosisIndicada} mg &nbsp;——&nbsp; ? tabletas
+        ${escaparHtml(dosisDisponibleTab)} ${escaparHtml(unidadDosis)} &nbsp;——&nbsp; 1 tableta<br>
+        ${escaparHtml(dosisIndicada)} ${escaparHtml(unidadDosis)} &nbsp;——&nbsp; ? tabletas
       </p>
       <p>
-        ? = ${dosisIndicada} ÷ ${dosisDisponibleTab} = <strong>${resultado} tabletas</strong>
+        ? = ${escaparHtml(dosisIndicada)} ÷ ${escaparHtml(dosisDisponibleTab)} = <strong>${resultadoFormateado} tabletas</strong>
       </p>
+      ${unidadDosis === 'g' ? `
+        <p class="resultado__equivalente" style="font-size: var(--fs-xs); color: var(--color-ink-muted);">
+          Equivalencia usada: ${escaparHtml(dosisIndicada)} g = ${escaparHtml(dosisIndicadaMg)} mg ·
+          ${escaparHtml(dosisDisponibleTab)} g = ${escaparHtml(dosisDisponibleTabMg)} mg
+        </p>
+      ` : ''}
       ${
         esFraccionPartible
           ? ''
@@ -167,6 +281,10 @@
 
   function ocultarResultadoYError() {
     errorEl.hidden = true;
+    errorEl.textContent = '';
     resultadoEl.hidden = true;
+    resultadoValorEl.textContent = '—';
+    resultadoUnidadEl.textContent = '';
+    desgloseEl.innerHTML = '';
   }
 })();
