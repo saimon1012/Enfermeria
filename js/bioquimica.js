@@ -41,6 +41,38 @@
 
   if (!btnCalcularGlucosa) return; // vista no montada
 
+  // ---------- Helpers ----------
+  // Acepta "5,5" y "5.5" (coma decimal es-VE y punto en-US).
+  function parseNumero(valor) {
+    if (typeof valor !== 'string') return NaN;
+    const limpio = valor.trim().replace(',', '.');
+    if (limpio === '') return NaN;
+    const n = Number(limpio);
+    return Number.isFinite(n) ? n : NaN;
+  }
+
+  // Escapa texto para insertarlo de forma segura en innerHTML.
+  function escaparHtml(s) {
+    return String(s).replace(/[&<>"']/g, (c) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+    }[c]));
+  }
+
+  // Formatea con hasta 2 decimales, pero si es muy pequeño (menos de 0.01)
+  // muestra más decimales para no perder información clínica.
+  function formatearResultado(n) {
+    if (!Number.isFinite(n)) return '—';
+    if (n === 0) return '0';
+    if (Math.abs(n) < 0.01) {
+      return n.toFixed(4).replace(/0+$/, '').replace(/\.$/, '');
+    }
+    return parseFloat(n.toFixed(2)).toString();
+  }
+
   let direccionGlucosa = 'a-mmol'; // 'a-mmol' | 'a-mgdl'
 
   // ---------- Toggle tipo de calculadora ----------
@@ -52,6 +84,14 @@
       );
       if (bloqueGlucosa) bloqueGlucosa.hidden = tipo !== 'glucosa';
       if (bloqueOsm) bloqueOsm.hidden = tipo !== 'osmolaridad';
+
+      // Limpiar desgloses al cambiar de tipo para no dejar resultados viejos.
+      if (desgloseGlucosa) desgloseGlucosa.innerHTML = '';
+      if (desgloseOsm) desgloseOsm.innerHTML = '';
+      if (resultadoGlucosa) resultadoGlucosa.hidden = true;
+      if (resultadoOsm) resultadoOsm.hidden = true;
+      if (errorGlucosa) errorGlucosa.hidden = true;
+      if (errorOsm) errorOsm.hidden = true;
     });
   });
 
@@ -80,14 +120,21 @@
   }
 
   function ocultarGlucosa() {
-    if (errorGlucosa) errorGlucosa.hidden = true;
+    if (errorGlucosa) {
+      errorGlucosa.hidden = true;
+      errorGlucosa.textContent = '';
+    }
     if (resultadoGlucosa) resultadoGlucosa.hidden = true;
+    if (resultadoGlucosaValor) resultadoGlucosaValor.textContent = '—';
+    if (resultadoGlucosaUnidad) resultadoGlucosaUnidad.textContent = '';
+    if (desgloseGlucosa) desgloseGlucosa.innerHTML = '';
   }
 
   function calcularGlucosa() {
     ocultarGlucosa();
-    const valor = parseFloat(inputGlucosa?.value);
-    if (!valor || valor <= 0) {
+    const valor = parseNumero(inputGlucosa?.value);
+
+    if (!Number.isFinite(valor) || valor <= 0) {
       if (errorGlucosa) {
         errorGlucosa.textContent = 'Ingresa un valor mayor a 0.';
         errorGlucosa.hidden = false;
@@ -106,20 +153,29 @@
       formula = `mmol/L × 18 = mg/dL → ${valor} × 18 = ${resultado.toFixed(2)}`;
     }
 
-    const redondeado = parseFloat(resultado.toFixed(2));
+    // Guarda defensiva contra valores gigantes.
+    if (!Number.isFinite(resultado)) {
+      if (errorGlucosa) {
+        errorGlucosa.textContent = 'El valor es demasiado grande.';
+        errorGlucosa.hidden = false;
+      }
+      return;
+    }
+
+    const redondeado = formatearResultado(resultado);
     if (resultadoGlucosaValor) resultadoGlucosaValor.textContent = redondeado;
     if (resultadoGlucosaUnidad) resultadoGlucosaUnidad.textContent = unidadSalida;
     if (resultadoGlucosa) resultadoGlucosa.hidden = false;
 
     const categoria = clasificarGlucosa(
-      direccionGlucosa === 'a-mmol' ? valor : redondeado,
+      direccionGlucosa === 'a-mmol' ? valor : Number(redondeado),
       direccionGlucosa === 'a-mmol' ? 'mgdl' : 'mmol'
     );
 
     if (desgloseGlucosa) {
       desgloseGlucosa.innerHTML = `
-        <p><strong>Fórmula:</strong> ${formula}</p>
-        <p class="resultado__equivalente">Clasificación (ayunas): ${categoria}</p>
+        <p><strong>Fórmula:</strong> ${escaparHtml(formula)}</p>
+        <p class="resultado__equivalente">Clasificación (ayunas): ${escaparHtml(categoria)}</p>
         <p style="font-size: var(--fs-xs); color: var(--color-ink-muted);">
           Referencia adulto en ayunas: normal 70–100 mg/dL (3.9–5.6 mmol/L) ·
           prediabetes 100–125 mg/dL · diabetes ≥126 mg/dL.
@@ -145,34 +201,53 @@
     if (inputNa) inputNa.value = '';
     if (inputGlucosaOsm) inputGlucosaOsm.value = '';
     if (inputBun) inputBun.value = '';
-    if (errorOsm) errorOsm.hidden = true;
+    if (errorOsm) {
+      errorOsm.hidden = true;
+      errorOsm.textContent = '';
+    }
     if (resultadoOsm) resultadoOsm.hidden = true;
+    if (resultadoOsmValor) resultadoOsmValor.textContent = '—';
+    if (desgloseOsm) desgloseOsm.innerHTML = '';
     inputNa?.focus();
   }
 
   function calcularOsm() {
-    if (errorOsm) errorOsm.hidden = true;
+    if (errorOsm) {
+      errorOsm.hidden = true;
+      errorOsm.textContent = '';
+    }
     if (resultadoOsm) resultadoOsm.hidden = true;
+    if (desgloseOsm) desgloseOsm.innerHTML = '';
 
-    const na = parseFloat(inputNa?.value);
-    const glu = parseFloat(inputGlucosaOsm?.value);
-    const bun = parseFloat(inputBun?.value);
+    const na = parseNumero(inputNa?.value);
+    const glu = parseNumero(inputGlucosaOsm?.value);
+    const bun = parseNumero(inputBun?.value);
 
-    if (!na || na <= 0) {
+    if (!Number.isFinite(na) || na <= 0) {
       if (errorOsm) { errorOsm.textContent = 'Ingresa el sodio (Na⁺) en mEq/L.'; errorOsm.hidden = false; }
       return;
     }
-    if (!glu || glu <= 0) {
+    if (!Number.isFinite(glu) || glu <= 0) {
       if (errorOsm) { errorOsm.textContent = 'Ingresa la glucosa en mg/dL.'; errorOsm.hidden = false; }
       return;
     }
-    if (!bun || bun <= 0) {
+    if (!Number.isFinite(bun) || bun <= 0) {
       if (errorOsm) { errorOsm.textContent = 'Ingresa el BUN en mg/dL.'; errorOsm.hidden = false; }
       return;
     }
 
     const osm = (2 * na) + (glu / 18) + (bun / 2.8);
-    const redondeado = parseFloat(osm.toFixed(1));
+
+    // Guarda defensiva: valores gigantes pueden dar Infinity.
+    if (!Number.isFinite(osm)) {
+      if (errorOsm) {
+        errorOsm.textContent = 'El valor es demasiado grande para calcularlo.';
+        errorOsm.hidden = false;
+      }
+      return;
+    }
+
+    const redondeado = formatearResultado(osm);
 
     if (resultadoOsmValor) resultadoOsmValor.textContent = redondeado;
     if (resultadoOsm) resultadoOsm.hidden = false;
@@ -184,10 +259,10 @@
     if (desgloseOsm) {
       desgloseOsm.innerHTML = `
         <p><strong>Fórmula:</strong> Osm = (2 × Na⁺) + (Glucosa ÷ 18) + (BUN ÷ 2.8)</p>
-        <p>Osm = (2 × ${na}) + (${glu} ÷ 18) + (${bun} ÷ 2.8)</p>
+        <p>Osm = (2 × ${escaparHtml(na)}) + (${escaparHtml(glu)} ÷ 18) + (${escaparHtml(bun)} ÷ 2.8)</p>
         <p>Osm = ${(2 * na).toFixed(1)} + ${(glu / 18).toFixed(2)} + ${(bun / 2.8).toFixed(2)}</p>
-        <p>Osm = <strong>${redondeado} mOsm/kg</strong></p>
-        <p class="resultado__equivalente">Clasificación: ${clasif}</p>
+        <p>Osm = <strong>${escaparHtml(redondeado)} mOsm/kg</strong></p>
+        <p class="resultado__equivalente">Clasificación: ${escaparHtml(clasif)}</p>
       `;
     }
   }
