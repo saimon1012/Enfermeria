@@ -1154,7 +1154,7 @@
     });
   }
 
-  // ============================================================
+    // ============================================================
   // 9b. SIGNOS VITALES
   // ============================================================
   const btnEvaluarSv = document.getElementById('btn-evaluar-sv');
@@ -1169,6 +1169,15 @@
     const cifraEl = document.getElementById('sv-cifra');
     const desgloseEl = document.getElementById('desglose-sv');
 
+    // Acepta "75,5" y "75.5" (coma decimal es-VE y punto en-US).
+    function parseNumeroLocal(valor) {
+      if (typeof valor !== 'string') return NaN;
+      const limpio = valor.trim().replace(',', '.');
+      if (limpio === '') return NaN;
+      const n = Number(limpio);
+      return Number.isFinite(n) ? n : NaN;
+    }
+
     btnEvaluarSv.addEventListener('click', evaluarSignos);
     document.getElementById('btn-limpiar-sv').addEventListener('click', limpiarSignos);
 
@@ -1179,21 +1188,35 @@
       inputTemp.value = '';
       inputSpo2.value = '';
       errorEl.hidden = true;
+      errorEl.textContent = '';
       resultadoEl.hidden = true;
+      cifraEl.textContent = '—';
+      desgloseEl.innerHTML = '';
       inputTa.focus();
     }
 
     function evaluarSignos() {
       errorEl.hidden = true;
+      errorEl.textContent = '';
       resultadoEl.hidden = true;
+      cifraEl.textContent = '—';
+      desgloseEl.innerHTML = '';
 
-      const ta = inputTa.value.trim();
-      const fc = parseFloat(inputFc.value);
-      const fr = parseFloat(inputFr.value);
-      const temp = parseFloat(inputTemp.value);
-      const spo2 = parseFloat(inputSpo2.value);
+      const taTexto = inputTa.value.trim();
+      const fc = parseNumeroLocal(inputFc.value);
+      const fr = parseNumeroLocal(inputFr.value);
+      const temp = parseNumeroLocal(inputTemp.value);
+      const spo2 = parseNumeroLocal(inputSpo2.value);
 
-      if (!ta && !fc && !fr && !temp && !spo2) {
+      // Contamos cuántos campos tienen algún contenido (para el "al menos uno").
+      const algoIngresado =
+        taTexto !== '' ||
+        !Number.isNaN(fc) ||
+        !Number.isNaN(fr) ||
+        !Number.isNaN(temp) ||
+        !Number.isNaN(spo2);
+
+      if (!algoIngresado) {
         errorEl.textContent = 'Ingresa al menos un signo vital para evaluar.';
         errorEl.hidden = false;
         return;
@@ -1201,30 +1224,51 @@
 
       let alertas = [];
       let desglose = '';
+      let algoEvaluado = false;
 
-      // Evaluar Tensión Arterial
-      if (ta) {
-        const partes = ta.split('/');
-        if (partes.length === 2) {
-          const sis = parseInt(partes[0]);
-          const dia = parseInt(partes[1]);
-          if (!isNaN(sis) && !isNaN(dia)) {
-            desglose += `<p><strong>TA:</strong> ${sis}/${dia} mmHg → `;
-            if (sis >= 140 || dia >= 90) {
-              alertas.push('Hipertensión');
-              desglose += `<span class="sv-alerta">Hipertensión</span></p>`;
-            } else if (sis < 90 || dia < 60) {
-              alertas.push('Hipotensión');
-              desglose += `<span class="sv-alerta">Hipotensión</span></p>`;
-            } else {
-              desglose += `<span class="sv-normal">Normal</span></p>`;
-            }
-          }
+      // ---------- Tensión Arterial ----------
+      if (taTexto !== '') {
+        const partes = taTexto.split('/');
+        if (partes.length !== 2) {
+          errorEl.textContent = 'La tensión arterial debe tener el formato 120/80.';
+          errorEl.hidden = false;
+          return;
+        }
+        const sis = parseNumeroLocal(partes[0]);
+        const dia = parseNumeroLocal(partes[1]);
+
+        if (!Number.isFinite(sis) || !Number.isFinite(dia) || sis <= 0 || dia <= 0) {
+          errorEl.textContent = 'La tensión arterial tiene valores inválidos.';
+          errorEl.hidden = false;
+          return;
+        }
+        if (sis < dia) {
+          errorEl.textContent = 'La sistólica no puede ser menor que la diastólica.';
+          errorEl.hidden = false;
+          return;
+        }
+
+        algoEvaluado = true;
+        desglose += `<p><strong>TA:</strong> ${sis}/${dia} mmHg → `;
+        if (sis >= 140 || dia >= 90) {
+          alertas.push('Hipertensión');
+          desglose += `<span class="sv-alerta">Hipertensión</span></p>`;
+        } else if (sis < 90 || dia < 60) {
+          alertas.push('Hipotensión');
+          desglose += `<span class="sv-alerta">Hipotensión</span></p>`;
+        } else {
+          desglose += `<span class="sv-normal">Normal</span></p>`;
         }
       }
 
-      // Evaluar Frecuencia Cardíaca
-      if (!isNaN(fc)) {
+      // ---------- Frecuencia Cardíaca ----------
+      if (Number.isFinite(fc)) {
+        if (fc <= 0 || fc > 300) {
+          errorEl.textContent = 'La frecuencia cardíaca debe estar entre 1 y 300 lpm.';
+          errorEl.hidden = false;
+          return;
+        }
+        algoEvaluado = true;
         desglose += `<p><strong>FC:</strong> ${fc} lpm → `;
         if (fc > 100) {
           alertas.push('Taquicardia');
@@ -1237,8 +1281,14 @@
         }
       }
 
-      // Evaluar Frecuencia Respiratoria
-      if (!isNaN(fr)) {
+      // ---------- Frecuencia Respiratoria ----------
+      if (Number.isFinite(fr)) {
+        if (fr <= 0 || fr > 80) {
+          errorEl.textContent = 'La frecuencia respiratoria debe estar entre 1 y 80 rpm.';
+          errorEl.hidden = false;
+          return;
+        }
+        algoEvaluado = true;
         desglose += `<p><strong>FR:</strong> ${fr} rpm → `;
         if (fr > 20) {
           alertas.push('Taquipnea');
@@ -1251,8 +1301,14 @@
         }
       }
 
-      // Evaluar Temperatura
-      if (!isNaN(temp)) {
+      // ---------- Temperatura ----------
+      if (Number.isFinite(temp)) {
+        if (temp < 25 || temp > 45) {
+          errorEl.textContent = 'La temperatura debe estar entre 25 y 45 °C.';
+          errorEl.hidden = false;
+          return;
+        }
+        algoEvaluado = true;
         desglose += `<p><strong>Temp:</strong> ${temp} °C → `;
         if (temp >= 38) {
           alertas.push('Fiebre');
@@ -1265,8 +1321,14 @@
         }
       }
 
-      // Evaluar Saturación de Oxígeno
-      if (!isNaN(spo2)) {
+      // ---------- Saturación de Oxígeno ----------
+      if (Number.isFinite(spo2)) {
+        if (spo2 <= 0 || spo2 > 100) {
+          errorEl.textContent = 'La saturación debe estar entre 1 y 100 %.';
+          errorEl.hidden = false;
+          return;
+        }
+        algoEvaluado = true;
         desglose += `<p><strong>SpO2:</strong> ${spo2}% → `;
         if (spo2 < 95) {
           alertas.push('Hipoxemia');
@@ -1276,11 +1338,19 @@
         }
       }
 
+      // Guarda final: si nada se evaluó (todos los campos con texto raro),
+      // NO mostrar "todo normal" como falso positivo.
+      if (!algoEvaluado) {
+        errorEl.textContent = 'Revisa los valores: no se pudo evaluar ningún signo vital.';
+        errorEl.hidden = false;
+        return;
+      }
+
       if (alertas.length > 0) {
-        cifraEl.innerHTML = `⚠ ${alertas.join(' · ')}`;
+        cifraEl.textContent = `⚠ ${alertas.join(' · ')}`;
         cifraEl.style.color = 'var(--color-accent)';
       } else {
-        cifraEl.innerHTML = `✅ Signos vitales dentro de los parámetros normales`;
+        cifraEl.textContent = '✅ Signos vitales dentro de los parámetros normales';
         cifraEl.style.color = 'var(--color-primary-dark)';
       }
 
